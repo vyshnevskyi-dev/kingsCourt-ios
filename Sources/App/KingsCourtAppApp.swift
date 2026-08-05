@@ -17,6 +17,13 @@ struct KingsCourtAppApp: App {
                 .environmentObject(barViewModel)
                 .environmentObject(merchViewModel)
                 .tint(Theme.primaryColor)
+                // App is designed dark-only (Theme.backgroundColor/cardBackground
+                // are hardcoded dark hex, not adaptive). Without this, system
+                // chrome (List/Form grouped backgrounds, nav bars, alerts,
+                // status bar) still follows the DEVICE's light/dark setting and
+                // shows light chrome around our dark content on a light-mode
+                // device.
+                .preferredColorScheme(.dark)
         }
     }
 }

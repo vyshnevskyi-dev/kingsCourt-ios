@@ -2,9 +2,13 @@ import SwiftUI
 
 enum Theme {
     static let primaryColor = Color(hex: "#D32F2F")
-    static let secondaryColor = Color(hex: "#212121")
-    static let backgroundColor = Color(hex: "#F5F5F5")
-    static let cardBackground = Color.white
+    // Ink/text color. Was #212121 (near-black, for text on the old white
+    // background) — flipped to a warm ivory so the same 24 call sites
+    // (body/heading text + low-opacity tint fills) stay legible now that
+    // backgroundColor/cardBackground are dark instead of white.
+    static let secondaryColor = Color(hex: "#EDE4D3")
+    static let backgroundColor = Color(hex: "#151515")
+    static let cardBackground = Color(hex: "#212121")
     static let goldColor = Color(hex: "#FFD700")
     static let silverColor = Color(hex: "#C0C0C0")
     static let bronzeColor = Color(hex: "#CD7F32")
