@@ -1,0 +1,10 @@
+Hello Apple Review Team!
+
+Kings Court is an event companion app for combat sports tournaments featuring boxing and martial arts competitions.
+
+To test the app:
+1. Browse the fighter profiles to view participant information and statistics
+2. Check the tournament bracket to see match pairings and schedules
+3. Explore the voting feature to predict fight outcomes
+
+Thank you for reviewing our app!
