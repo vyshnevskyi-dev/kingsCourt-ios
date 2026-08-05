@@ -1,0 +1,8 @@
+.api_key.json
+*.xcodeproj
+*.xcworkspace
+build/
+DerivedData/
+Pods/
+.DS_Store
+status/
