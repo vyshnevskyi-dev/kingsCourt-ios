@@ -1,0 +1,4 @@
+storage_mode("git")
+type("appstore")
+app_identifier(["com.kingscourt"])
+team_id("799QCM8MAT")

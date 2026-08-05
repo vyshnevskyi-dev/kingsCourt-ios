@@ -1,0 +1,62 @@
+default_platform(:ios)
+
+platform :ios do
+
+  # ─── Certificates ────────────────────────────────────
+  desc "Sync certificates and profiles"
+  lane :sync_certs do
+    match(
+      type: "appstore",
+      app_identifier: "com.kingscourt",
+      team_id: "799QCM8MAT",
+      readonly: true
+    )
+  end
+
+  # ─── Build ───────────────────────────────────────────
+  desc "Build the app"
+  lane :build do
+    sync_certs
+
+    build_app(
+      scheme: "KingsCourtApp",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "KingsCourtApp.ipa",
+      clean: true,
+      xcargs: "-allowProvisioningUpdates"
+    )
+  end
+
+  # ─── TestFlight ──────────────────────────────────────
+  desc "Upload to TestFlight"
+  lane :beta do
+    build
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  # ─── Metadata ───────────────────────────────────────
+  desc "Upload metadata to App Store Connect"
+  lane :upload_metadata do
+    deliver(
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      force: true
+    )
+  end
+
+  # ─── Release ─────────────────────────────────────────
+  desc "Submit for App Store review"
+  lane :release do
+    build
+    deliver(
+      submit_for_review: true,
+      automatic_release: true,
+      force: true,
+      skip_screenshots: true
+    )
+  end
+
+end

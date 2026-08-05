@@ -1,0 +1,20 @@
+app_identifier("com.kingscourt")
+team_id("799QCM8MAT")
+copyright("2026 Guanting Qiu")
+primary_category("Sports")
+submit_for_review(false)
+automatic_release(false)
+force(true)
+skip_binary_upload(true)
+skip_metadata(false)
+skip_screenshots(true)
+run_precheck_before_submit(false)
+overwrite_screenshots(true)
+metadata_path("./fastlane/metadata")
+screenshots_path("./fastlane/screenshots")
+submission_information({
+  export_compliance_uses_encryption: false,
+  add_id_info_uses_idfa: false,
+  content_rights_contains_third_party_content: false,
+  content_rights_has_rights: true
+})

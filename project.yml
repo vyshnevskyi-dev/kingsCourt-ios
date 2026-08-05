@@ -1,0 +1,76 @@
+name: KingsCourtApp
+options:
+  bundleIdPrefix: ""
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "15.0"
+  generateEmptyDirectories: true
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Manual
+    DEVELOPMENT_TEAM: 799QCM8MAT
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    # Strip local machine paths from the binary (anti-fingerprinting).
+    # The previous CLANG_MACRO_PREFIX_MAP / SWIFT_PREFIX_MAP / GCC_PREFIX_MAP
+    # settings were NO-OPS — Xcode has no such build settings, so the real
+    # source path (incl. the builder username + repos/<slug>) still baked
+    # into every `#file` literal (AppLogger.log defaults file: = #file).
+    # ConciseMagicFile makes `#file` evaluate to the short `Module/File.swift`
+    # form (verified: absolute path drops out of the binary). The clang/dwarf
+    # prefix-maps neutralise C/ObjC __FILE__ and the debug compilation dir.
+    OTHER_SWIFT_FLAGS: "-enable-upcoming-feature ConciseMagicFile -file-prefix-map $(SRCROOT)=."
+    OTHER_CFLAGS: "-ffile-prefix-map=$(SRCROOT)=."
+
+targets:
+  KingsCourtApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Sources
+        type: group
+      - path: Sources/TrackerKit
+        type: group
+      - path: Resources/Assets.xcassets
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_NAME: KingsCourtApp
+        PRODUCT_BUNDLE_IDENTIFIER: com.kingscourt
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_ENTITLEMENTS: Resources/KingsCourtApp.entitlements
+    info:
+      path: Resources/Info.plist
+      properties:
+        CFBundleDisplayName: "Kings Court"
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        CFBundleIconName: AppIcon
+        ITSAppUsesNonExemptEncryption: false
+        UIRequiredDeviceCapabilities:
+          - arm64
+        UILaunchScreen:
+          UIColorName: ""
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+
+schemes:
+  KingsCourtApp:
+    build:
+      targets:
+        KingsCourtApp: all
+    run:
+      config: Debug
+    archive:
+      config: Release

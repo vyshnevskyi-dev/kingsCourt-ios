@@ -1,0 +1,120 @@
+workflows:
+  release:
+    name: Release
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      xcode: latest
+      vars:
+        BUNDLE_ID: "com.kingscourt"
+        XCODE_SCHEME: "KingsCourtApp"
+        TEAM_ID: "799QCM8MAT"
+    scripts:
+      - name: Set up project
+        script: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Create API key JSON
+        script: |
+          python3 -c "
+          import json, os
+          data = {
+              'key_id': os.environ['APP_STORE_CONNECT_KEY_IDENTIFIER'],
+              'issuer_id': os.environ['APP_STORE_CONNECT_ISSUER_ID'],
+              'key': os.environ['APP_STORE_CONNECT_PRIVATE_KEY'],
+              'in_house': False
+          }
+          with open('/tmp/api_key.json', 'w') as f:
+              json.dump(data, f, indent=2)
+          print('API key JSON created')
+          "
+
+      - name: Fetch signing via match
+        script: |
+          gem install fastlane --no-document
+
+          fastlane match appstore \
+            --app_identifier "$BUNDLE_ID" \
+            --team_id "$TEAM_ID" \
+            --git_url "$MATCH_GIT_URL" \
+            --api_key_path /tmp/api_key.json \
+            --readonly true
+
+      - name: Archive
+        script: |
+          xcodebuild archive \
+            -project "${XCODE_SCHEME}.xcodeproj" \
+            -scheme "$XCODE_SCHEME" \
+            -archivePath build/${XCODE_SCHEME}.xcarchive \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            PROVISIONING_PROFILE_SPECIFIER="match AppStore $BUNDLE_ID" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            CLANG_MACRO_PREFIX_MAP="\$(SRCROOT)=." \
+            SWIFT_PREFIX_MAP="\$(SRCROOT)=." \
+            GCC_PREFIX_MAP="\$(SRCROOT)=."
+
+      - name: Export IPA
+        script: |
+          cat > ExportOptions.plist <<PEOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>${TEAM_ID}</string>
+              <key>uploadBitcode</key>
+              <false/>
+              <key>uploadSymbols</key>
+              <true/>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>${BUNDLE_ID}</key>
+                  <string>match AppStore ${BUNDLE_ID}</string>
+              </dict>
+          </dict>
+          </plist>
+          PEOF
+
+          xcodebuild -exportArchive \
+            -archivePath build/${XCODE_SCHEME}.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath build/export
+
+      - name: De-fingerprint security gate
+        script: |
+          # Runs ON Codemagic, BEFORE the upload — the laptop never touches
+          # the binary. Scans the .ipa for the shared fingerprints Apple
+          # clusters the farm on (build path/username, shared SDK symbols,
+          # AppFlow module, ban/covert strings, C2PA). A hard hit exits 1 →
+          # this step fails → the Upload step below never runs → nothing
+          # leaks to App Store Connect. Emits an animated HTML report as a
+          # build artifact so the check is SEEN, not just logged.
+          IPA_PATH=$(find build/export -name "*.ipa" | head -1)
+          if [ -f ci/defingerprint_check.py ]; then
+            echo "De-fingerprint gate: scanning $IPA_PATH"
+            python3 ci/defingerprint_check.py "$IPA_PATH" \
+              --html build/export/defingerprint_report.html
+          else
+            echo "WARNING: ci/defingerprint_check.py absent — gate skipped"
+          fi
+
+      - name: Upload to TestFlight
+        script: |
+          IPA_PATH=$(find build/export -name "*.ipa" | head -1)
+          echo "Uploading: $IPA_PATH"
+
+          fastlane pilot upload \
+            --ipa "$IPA_PATH" \
+            --api_key_path /tmp/api_key.json \
+            --skip_waiting_for_build_processing
+
+    artifacts:
+      - build/export/*.ipa
+      - build/export/defingerprint_report.html

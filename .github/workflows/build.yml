@@ -1,0 +1,150 @@
+name: Build & Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload_testflight:
+        description: 'Upload to TestFlight after build'
+        required: false
+        default: 'true'
+        type: choice
+        options: ['true', 'false']
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          XCODE_PATH=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
+          echo "Using: $XCODE_PATH"
+          sudo xcode-select -s "$XCODE_PATH"
+          xcodebuild -version
+
+      - name: Install iOS platform
+        run: |
+          if ! xcodebuild -showsdks | grep -q iphoneos; then
+            echo "iOS SDK not found, installing..."
+            xcodebuild -downloadPlatform iOS
+          else
+            echo "iOS SDK already available"
+          fi
+
+      - name: Install dependencies
+        run: |
+          brew install xcodegen
+          gem install fastlane --no-document
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Setup signing
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+        run: |
+          # Create API key JSON for fastlane
+          cat > /tmp/api_key.json <<APIEOF
+          {
+            "key_id": "$ASC_KEY_ID",
+            "issuer_id": "$ASC_ISSUER_ID",
+            "key": $(echo "$ASC_KEY_CONTENT" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))"),
+            "in_house": false
+          }
+          APIEOF
+
+          # Inject token into match repo URL (handle both SSH and HTTPS formats)
+          MATCH_URL="$MATCH_GIT_URL"
+          # Convert SSH URL to HTTPS if needed: git@github.com:org/repo.git -> https://github.com/org/repo.git
+          MATCH_URL=$(echo "$MATCH_URL" | sed 's|^git@github\.com:|https://github.com/|')
+          # Inject access token into HTTPS URL
+          MATCH_URL=$(echo "$MATCH_URL" | sed "s|https://github.com/|https://x-access-token:${GH_TOKEN}@github.com/|")
+
+          # Sync certificates and profiles
+          fastlane match appstore \
+            --app_identifier "com.kingscourt" \
+            --team_id "799QCM8MAT" \
+            --git_url "$MATCH_URL" \
+            --api_key_path /tmp/api_key.json \
+            --readonly true
+
+      - name: Archive
+        run: |
+          xcodebuild archive \
+            -project KingsCourtApp.xcodeproj \
+            -scheme "KingsCourtApp" \
+            -archivePath build/KingsCourtApp.xcarchive \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM=799QCM8MAT \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="match AppStore com.kingscourt"
+
+      - name: Export IPA
+        run: |
+          cat > ExportOptions.plist <<PEOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>799QCM8MAT</string>
+              <key>uploadBitcode</key>
+              <false/>
+              <key>uploadSymbols</key>
+              <true/>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>signingCertificate</key>
+              <string>Apple Distribution</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>com.kingscourt</key>
+                  <string>match AppStore com.kingscourt</string>
+              </dict>
+          </dict>
+          </plist>
+          PEOF
+
+          xcodebuild -exportArchive \
+            -archivePath build/KingsCourtApp.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath build/export \
+            CODE_SIGN_IDENTITY="Apple Distribution"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipa
+          path: build/export/*.ipa
+          retention-days: 7
+
+      - name: Upload to TestFlight
+        if: ${{ github.event.inputs.upload_testflight != 'false' }}
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+        run: |
+          IPA_PATH=$(find build/export -name "*.ipa" | head -1)
+          echo "Uploading: $IPA_PATH"
+
+          fastlane pilot upload \
+            --ipa "$IPA_PATH" \
+            --api_key_path /tmp/api_key.json \
+            --skip_waiting_for_build_processing
