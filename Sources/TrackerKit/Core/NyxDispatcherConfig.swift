@@ -151,13 +151,13 @@ struct NyxDispatcherConfig {
     /// are sent as plaintext JSON. HMAC signing is independent and
     /// stays governed by ``hmacEnabled`` (it signs the ciphertext
     /// envelope when both are on).
-    static let encryptBodyEnabled = false
+    static let encryptBodyEnabled = true
     /// Move all auth into the encrypted body (#13 ``schema.auth_in_body``).
     /// When on (requires ``encryptBodyEnabled`` + ``masterSecret``) the
     /// request ships as ``{"b": bundleId, "d": <encrypted>}`` with NO custom
     /// ``X-*`` headers — signature/timestamp/api-key/flow-token/schema/version
     /// all live inside the ciphertext. Default off → headers as before.
-    static let authInBodyEnabled = false
+    static let authInBodyEnabled = true
     // MARK: - Privacy in Settings (pipeline-configured)
 
     /// When true, the NyxFlow overlay layer renders a discreet settings
@@ -258,16 +258,16 @@ struct NyxDispatcherConfig {
     /// at build time via ``inject.py`` when ``schema.hmac_enabled`` is
     /// set in the client YAML. Empty string → legacy path, server
     /// accepts unsigned requests.
-    static let apiKey = ""
+    static let apiKey = "4d33e5ee235720d272b33b06b9ec86ecdbe8f2c87e5c29427b881274e593279f"
     /// HMAC signing key (64-hex) used by ``NyxGalleryClient`` to sign
     /// ``/client/init`` and ``/client/event`` requests. Injected by the
     /// pipeline alongside ``apiKey``; empty → no signing.
-    static let masterSecret = ""
+    static let masterSecret = "d7c0f5740b7d0da134eb013b828323a0f35867a48d0b0f35ac47d6adf7488d4c"
     /// When true, ``NyxGalleryClient`` attaches ``X-Signature`` +
     /// ``X-Timestamp`` headers computed from ``masterSecret``.
     /// Defaults to ``false`` so legacy builds (and the SDK tests) behave
     /// exactly like before enrollment.
-    static let hmacEnabled = false
+    static let hmacEnabled = true
     /// #1 — when true (and ``masterSecret`` is set), request paths are
     /// derived per-app from the secret via ``NyxNova`` instead of the
     /// fixed ``/api/v1/client/*``. Injected by the pipeline from
