@@ -1,62 +1,23 @@
+
 default_platform(:ios)
-
 platform :ios do
-
-  # ─── Certificates ────────────────────────────────────
-  desc "Sync certificates and profiles"
-  lane :sync_certs do
-    match(
-      type: "appstore",
-      app_identifier: "com.kingscourt",
-      team_id: "799QCM8MAT",
-      readonly: true
+  lane :reject do
+    api_key = app_store_connect_api_key(
+      key_id: "59RK48LDZ4",
+      issuer_id: "4ede93c8-0073-4a37-851f-ad9b553de33e",
+      key_filepath: "/Users/wildcherry/Desktop/AppFactory/keys/AuthKey_59RK48LDZ4.p8",
+      in_house: false,
     )
-  end
-
-  # ─── Build ───────────────────────────────────────────
-  desc "Build the app"
-  lane :build do
-    sync_certs
-
-    build_app(
-      scheme: "KingsCourtApp",
-      export_method: "app-store",
-      output_directory: "./build",
-      output_name: "KingsCourtApp.ipa",
-      clean: true,
-      xcargs: "-allowProvisioningUpdates"
-    )
-  end
-
-  # ─── TestFlight ──────────────────────────────────────
-  desc "Upload to TestFlight"
-  lane :beta do
-    build
-    upload_to_testflight(
-      skip_waiting_for_build_processing: true
-    )
-  end
-
-  # ─── Metadata ───────────────────────────────────────
-  desc "Upload metadata to App Store Connect"
-  lane :upload_metadata do
     deliver(
+      app_identifier: "com.kingscourt",
+      app_version: "1.0.0",
+      submit_for_review: false,
+      reject_if_possible: true,
       skip_binary_upload: true,
       skip_screenshots: true,
-      force: true
-    )
-  end
-
-  # ─── Release ─────────────────────────────────────────
-  desc "Submit for App Store review"
-  lane :release do
-    build
-    deliver(
-      submit_for_review: true,
-      automatic_release: true,
+      skip_metadata: true,
       force: true,
-      skip_screenshots: true
+      api_key: api_key,
     )
   end
-
 end

@@ -1,14 +1,1 @@
-Kings Court
-
-Your ringside companion for the tournament. Kings Court brings every fight, every fighter, and every moment of the event into one live hub—whether you're the bracket, exploring fighter profiles, or counting down to the next bell.
-
-What's the bracket look like?
-An interactive tournament tree that updates as each bout wraps. Follow the path from first round to finals, see who's advancing, and watch the competition unfold in real time.
-
-Who's stepping into the ring?
-Dive into fighter cards: photos, weight class, career record, and ranking. Get to know the roster before the gloves go on—undercard rookies and headlining champions alike.
-
-What else happens between rounds?
-Make your predictions for upcoming matchups, browse the official tournament shop, check the bar menu, and watch fight replays with strike breakdowns. Your electronic ticket and QR check-in live here too, so everything you need stays in one pocket.
-
-Built for fans who want more than a seat—this is your all-access pass to the tournament floor.
+Offline martial arts tournament app

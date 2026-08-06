@@ -1,13 +1,1 @@
-Kings Court
-
-Dein Begleiter für Live-Kampfsport-Events. Kings Court bringt die Atmosphäre des Turniers direkt auf dein Gerät – von der Eröffnungsglocke bis zum letzten Kampf der Nacht.
-
-Verfolge Kämpferprofile mit Statistiken und Gewichtsklassen, sieh dir die Turniersetzliste in Echtzeit an und gib deine Prognose ab. Der interaktive Turnierbaum zeigt dir, wer gegen wen antritt, während das Live-Programm dich über Ringzeiten und Countdowns informiert.
-
-Was bietet die App?
-
-Kämpfer im Blick: Profile, Kampfbilanzen und Ratings aller Teilnehmer. Gewichtsklassen, Statistiken, vergangene Siege – alles griffbereit.
-
-Mitfiebern und schätzen: Gib deine Einschätzung ab – wer gewinnt, in welcher Runde könnte der Knockout fallen? Nach dem Kampf siehst du Richterentscheidungen, Schlagstatistiken und Video-Wiederholungen.
-
-Event-Service: Digitales Ticket mit QR-Code für Check-in und VIP-Zugang, Getränkekarte mit Lieferung zum Sitzplatz, Katalog für Turnier-Merchandise.
+Offline martial arts tournament app

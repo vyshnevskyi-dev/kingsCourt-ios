@@ -1,1 +1,1 @@
-boxing,tournament,bracket,fight,fighter,mma,combat,sports,live,scores,predictions,matches,bouts,ring
+boxing,knight,fighting,tournament

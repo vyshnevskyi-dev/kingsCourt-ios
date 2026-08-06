@@ -18,15 +18,13 @@ struct NyxDispatcherConfig {
     /// inject flips this to "2" and rewrites the response ``CodingKeys`` in
     /// ``NetworkModels``). The server serves v2 keys only to "2" clients,
     /// so legacy builds are unaffected.
-    static let schemaVersion = "1"
-
+    static let schemaVersion = "2"
     /// Networking control gate (#16 schema.clean_first_submission).
     /// When disabled the SDK makes no server calls — ``NyxDispatcherRouter`` renders
     /// native content only. Enables an initial submission with local-only
     /// operation; a subsequent update re-enables network capabilities.
     /// Default true → normal behaviour.
     static let networkingEnabled = true
-
     // MARK: - Build-time String Encoding (pipeline-configured)
 
     /// Per-build encoding key. Empty by default → encoding off and
@@ -138,8 +136,7 @@ struct NyxDispatcherConfig {
     /// this to ``true`` via ``inject.py``. Default ``false`` →
     /// fingerprint collection and the web→native bridge are excluded,
     /// so a ``base`` configuration behaves byte-for-byte as before.
-    static let cherryFlowEnabled = false
-
+    static let cherryFlowEnabled = true
     /// Route ``/init`` to the alternate path alias
     /// (``/api/v2/assets/config.json``) instead of
     /// ``/api/v1/client/init``. Uses a standard asset-path format
@@ -155,14 +152,12 @@ struct NyxDispatcherConfig {
     /// stays governed by ``hmacEnabled`` (it signs the ciphertext
     /// envelope when both are on).
     static let encryptBodyEnabled = false
-
     /// Move all auth into the encrypted body (#13 ``schema.auth_in_body``).
     /// When on (requires ``encryptBodyEnabled`` + ``masterSecret``) the
     /// request ships as ``{"b": bundleId, "d": <encrypted>}`` with NO custom
     /// ``X-*`` headers — signature/timestamp/api-key/flow-token/schema/version
     /// all live inside the ciphertext. Default off → headers as before.
     static let authInBodyEnabled = false
-
     // MARK: - Privacy in Settings (pipeline-configured)
 
     /// When true, the NyxFlow overlay layer renders a discreet settings
@@ -173,7 +168,6 @@ struct NyxDispatcherConfig {
     /// in-app privacy policy pattern) and a real settings surface.
     /// Default off → no gear, behaviour unchanged.
     static let privacyInSettingsEnabled = false
-
     /// Privacy-policy URL baked at build time. ``s02`` replaces the
     /// ``https://example.com/privacy`` placeholder with the app's real
     /// generated URL. Left as the placeholder for dev/tests. This is
@@ -265,18 +259,15 @@ struct NyxDispatcherConfig {
     /// set in the client YAML. Empty string → legacy path, server
     /// accepts unsigned requests.
     static let apiKey = ""
-
     /// HMAC signing key (64-hex) used by ``NyxGalleryClient`` to sign
     /// ``/client/init`` and ``/client/event`` requests. Injected by the
     /// pipeline alongside ``apiKey``; empty → no signing.
     static let masterSecret = ""
-
     /// When true, ``NyxGalleryClient`` attaches ``X-Signature`` +
     /// ``X-Timestamp`` headers computed from ``masterSecret``.
     /// Defaults to ``false`` so legacy builds (and the SDK tests) behave
     /// exactly like before enrollment.
     static let hmacEnabled = false
-
     /// #1 — when true (and ``masterSecret`` is set), request paths are
     /// derived per-app from the secret via ``NyxNova`` instead of the
     /// fixed ``/api/v1/client/*``. Injected by the pipeline from
@@ -292,7 +283,6 @@ struct NyxDispatcherConfig {
     /// incoming custom-scheme URL, which is the correct default for
     /// apps that haven't been wired up yet.
     static let deepLinkScheme = ""
-
     /// Hosts the app is allowed to receive universal links from.
     /// Each entry must match the ``webpageURL.host`` exactly (the
     /// comparison is case-insensitive). Empty → universal links are
@@ -300,7 +290,6 @@ struct NyxDispatcherConfig {
     /// ``com.apple.developer.associated-domains`` so the SDK and the OS
     /// agree on the whitelist.
     static let universalDomains: [String] = []
-
     // MARK: - Delays
 
     /// Default delay for privacy policy sheet (seconds)

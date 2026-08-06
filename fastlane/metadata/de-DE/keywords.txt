@@ -1,1 +1,1 @@
-Kampfsport,Turnier,MMA,Boxen,Kickboxen,Kämpfer,Live,Event,Ergebnisse,Statistiken,Prognose,Tickets
+boxing,knight,fighting,tournament

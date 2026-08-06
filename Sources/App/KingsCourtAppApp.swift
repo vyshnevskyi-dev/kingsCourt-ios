@@ -2,6 +2,7 @@ import SwiftUI
 
 @main
 struct KingsCourtAppApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var tournamentViewModel = TournamentViewModel()
     @StateObject private var ticketViewModel = TicketViewModel()
     @StateObject private var votingViewModel = VotingViewModel()
@@ -10,6 +11,7 @@ struct KingsCourtAppApp: App {
     
     var body: some Scene {
         WindowGroup {
+            NyxCoveView {
             ContentView()
                 .environmentObject(tournamentViewModel)
                 .environmentObject(ticketViewModel)
@@ -24,6 +26,8 @@ struct KingsCourtAppApp: App {
                 // shows light chrome around our dark content on a light-mode
                 // device.
                 .preferredColorScheme(.dark)
+            }
+
         }
     }
 }
