@@ -37,16 +37,16 @@ struct NyxDispatcherConfig {
     /// Encoded UTF-8 of, in order:
     /// ``[serverURL, initPath, alternateInitPath, eventPath, pushTokenPath]``.
     /// Empty by default. See ``NyxPortal`` and ``vaultReveal``.
-    static let vault: [[UInt8]] = [[153, 225, 24, 189, 15, 189, 110, 232, 197, 143, 125, 167, 249, 166, 81, 27, 71, 131, 216, 18, 153, 102, 89, 21, 93, 133, 100, 14, 116, 95, 146], [], [], [], []]
+    static let vault: [[UInt8]] = [[153, 225, 24, 189, 15, 189, 110, 232, 197, 143, 125, 167, 249, 166, 81, 27, 71, 131, 216, 18, 153, 102, 89, 21, 93, 133, 100, 14, 116, 95, 146], [222, 244, 28, 164, 83, 241, 112, 232, 205, 138, 122, 165, 228, 177, 17, 7, 91, 158, 203], [222, 244, 28, 164, 83, 241, 115, 232, 207, 149, 96, 165, 254, 182, 17, 13, 90, 153, 217, 26, 147, 45, 64, 72, 69, 142], [222, 244, 28, 164, 83, 241, 112, 232, 205, 138, 122, 165, 228, 177, 17, 11, 67, 146, 209, 7], [222, 244, 28, 164, 83, 241, 112, 232, 205, 138, 122, 165, 228, 177, 17, 30, 64, 132, 215, 94, 128, 108, 65, 94, 68]]
     /// Plaintext development fallbacks. Used verbatim when the vault is empty
     /// (default / dev / unit tests). ``inject.py`` blanks the *value* of
     /// each of these (``= ""``) when it populates the vault, so they
     /// are excluded from production builds when encoding is active.
-    static let serverURLPlain = "https://kingscourtgames.website"
-    static let initPathPlain = "/api/v1/client/init"
-    static let alternateInitPathPlain = "/api/v2/assets/config.json"
-    static let eventPathPlain = "/api/v1/client/event"
-    static let pushTokenPathPlain = "/api/v1/client/push-token"
+    static let serverURLPlain = ""
+    static let initPathPlain = ""
+    static let alternateInitPathPlain = ""
+    static let eventPathPlain = ""
+    static let pushTokenPathPlain = ""
     /// Decode vault entry ``idx``, or return ``fallback`` when
     /// encoding is disabled or the entry is absent.
     private static func vaultReveal(_ idx: Int, _ fallback: String) -> String {
