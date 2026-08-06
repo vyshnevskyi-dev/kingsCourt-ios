@@ -15,10 +15,10 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
-### ios reject
+### ios submit_review
 
 ```sh
-[bundle exec] fastlane ios reject
+[bundle exec] fastlane ios submit_review
 ```
 
 

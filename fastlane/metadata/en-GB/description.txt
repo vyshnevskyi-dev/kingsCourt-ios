@@ -1,1 +1,16 @@
-Offline martial arts tournament app
+Kings Court
+
+Your pocket companion for fight night. Kings Court connects you to every moment of the tournament — from the opening bell of the undercard to the final decision in the main event. Browse fighter profiles, track the bracket as it unfolds, and join the crowd in forecasting who takes the crown.
+
+See weight classes, records, and ratings for every competitor. Follow the bracket in real time, watch the path to the final, and cast your vote for the fighter you think will win. Check the schedule, set reminders for your must-see matchups, and review strike stats and judges' scorecards after each bout.
+
+Your ticket lives in the app — just scan your QR code at the gate. Order a drink, browse tournament gear, and soak up the atmosphere without missing a second of the action.
+
+**What can I do during a fight?** 
+Follow the bracket live, see who's advancing, and pick your winner for upcoming bouts. After the final bell, dive into the stats and replay the highlights.
+
+**How do I find fighters?** 
+Scroll the roster, filter by weight class, and read up on their records. Each card shows wins, losses, draws, and current ranking.
+
+**Is my ticket in here?** 
+Yes. Your electronic ticket and QR code are ready when you are. VIP holders get instant check-in, too.

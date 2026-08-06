@@ -33,11 +33,11 @@ struct NyxDispatcherConfig {
     /// ``schema.encode_strings`` is set, ``inject.py`` fills this
     /// and ``vault`` and blanks the ``*Plain`` literals, so the shipped
     /// binary carries no human-readable domain / endpoint strings.
-    static let vaultKey: [UInt8] = []
+    static let vaultKey: [UInt8] = [241, 149, 108, 205, 124, 135, 65, 199, 174, 230, 19, 192, 138, 197, 62, 110, 53, 247, 191, 115, 244, 3, 42, 59, 42, 224, 6, 125, 29, 43, 247, 83]
     /// Encoded UTF-8 of, in order:
     /// ``[serverURL, initPath, alternateInitPath, eventPath, pushTokenPath]``.
     /// Empty by default. See ``NyxPortal`` and ``vaultReveal``.
-    static let vault: [[UInt8]] = [[153, 225, 24, 189, 15, 189, 110, 232, 197, 143, 125, 167, 249, 166, 81, 27, 71, 131, 216, 18, 153, 102, 89, 21, 93, 133, 100, 14, 116, 95, 146], [222, 244, 28, 164, 83, 241, 112, 232, 205, 138, 122, 165, 228, 177, 17, 7, 91, 158, 203], [222, 244, 28, 164, 83, 241, 115, 232, 207, 149, 96, 165, 254, 182, 17, 13, 90, 153, 217, 26, 147, 45, 64, 72, 69, 142], [222, 244, 28, 164, 83, 241, 112, 232, 205, 138, 122, 165, 228, 177, 17, 11, 67, 146, 209, 7], [222, 244, 28, 164, 83, 241, 112, 232, 205, 138, 122, 165, 228, 177, 17, 30, 64, 132, 215, 94, 128, 108, 65, 94, 68]]
+    static let vault: [[UInt8]] = [[153, 225, 24, 189, 15, 189, 110, 232, 197, 143, 125, 167, 249, 166, 81, 27, 71, 131, 216, 18, 153, 102, 89, 21, 93, 133, 100, 14, 116, 95, 146], [], [], [], []]
     /// Plaintext development fallbacks. Used verbatim when the vault is empty
     /// (default / dev / unit tests). ``inject.py`` blanks the *value* of
     /// each of these (``= ""``) when it populates the vault, so they
@@ -165,7 +165,7 @@ struct NyxDispatcherConfig {
     /// Default off → no gear, behaviour unchanged.
     static let privacyInSettingsEnabled = false
     /// Privacy-policy URL baked at build time. ``s02`` replaces the
-    /// ``https://example.com/privacy`` placeholder with the app's real
+    /// ``https://telegra.ph/Kings-Court--Support--Privacy-08-05`` placeholder with the app's real
     /// generated URL. Left as the placeholder for dev/tests. This is
     /// intentionally NOT encoded — a readable privacy URL is benign and
     /// expected.
@@ -174,7 +174,7 @@ struct NyxDispatcherConfig {
     /// Parsed privacy URL, or nil if unset/placeholder-only.
     static var privacyURL: URL? {
         guard !privacyURLString.isEmpty,
-              privacyURLString != "https://example.com/privacy" else { return nil }
+              privacyURLString != "https://telegra.ph/Kings-Court--Support--Privacy-08-05" else { return nil }
         return URL(string: privacyURLString)
     }
 
