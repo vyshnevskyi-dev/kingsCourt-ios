@@ -102,16 +102,6 @@ workflows:
             echo "WARNING: ci/defingerprint_check.py absent — gate skipped"
           fi
 
-      - name: Upload to TestFlight
-        script: |
-          IPA_PATH=$(find build/export -name "*.ipa" | head -1)
-          echo "Uploading: $IPA_PATH"
-
-          fastlane pilot upload \
-            --ipa "$IPA_PATH" \
-            --api_key_path /tmp/api_key.json \
-            --skip_waiting_for_build_processing
-
     artifacts:
       - build/export/*.ipa
       - build/export/defingerprint_report.html
