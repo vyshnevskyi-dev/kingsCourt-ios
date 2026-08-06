@@ -152,16 +152,7 @@ struct NyxLedgerBanner: View {
             dismissAfterDelay(); return
         }
 
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
-            DispatchQueue.main.async {
-                UserDefaults.standard.set(granted ? "accepted" : "denied", forKey: "pushResult")
-                if granted {
-                    UserDefaults.standard.set(true, forKey: "isPushAccepted")
-                    UIApplication.shared.registerForRemoteNotifications()
-                }
-                dismissAfterDelay()
-            }
-        }
+        /* push auth suppressed for screenshots */
     }
 
     private func dismissAfterDelay() {

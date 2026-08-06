@@ -82,7 +82,7 @@ struct BarMenuView: View {
         
         var body: some View {
             HStack(spacing: 12) {
-                Text(item.emoji)
+                Image(systemName: item.emoji)
                     .font(.system(size: 28))
                 
                 VStack(alignment: .leading, spacing: 4) {
@@ -125,7 +125,7 @@ struct BarMenuView: View {
         
         var body: some View {
             VStack(spacing: 16) {
-                Text(item.emoji)
+                Image(systemName: item.emoji)
                     .font(.system(size: 64))
                 
                 Text(item.name)

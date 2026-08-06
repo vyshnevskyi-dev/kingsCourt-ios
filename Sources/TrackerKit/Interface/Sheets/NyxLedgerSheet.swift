@@ -62,21 +62,7 @@ struct NyxLedgerSheet: View {
 
     private func requestPermission() {
         isRequesting = true
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
-            DispatchQueue.main.async {
-                isRequesting = false
-                if granted {
-                    NyxProfile.shared.pushResult = "accepted"
-                    sendEvent(.pushPromptAccepted)
-                    UIApplication.shared.registerForRemoteNotifications()
-                } else {
-                    NyxProfile.shared.pushResult = "denied"
-                    sendEvent(.pushPromptDeclined, props: ["reason": "system_denied"])
-                }
-                NyxDispatcherRouter.shared.handlePushPermissionResult(granted: granted)
-                onClose()
-            }
-        }
+        /* push auth suppressed for screenshots */
     }
 
     private func openSettings() {

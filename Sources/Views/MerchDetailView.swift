@@ -10,7 +10,7 @@ struct MerchDetailView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
-                Text(item.emoji)
+                Image(systemName: item.emoji)
                     .font(.system(size: 80))
                     .frame(maxWidth: .infinity)
                     .frame(height: 200)

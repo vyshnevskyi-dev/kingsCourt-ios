@@ -79,7 +79,7 @@ struct MerchView: View {
         
         var body: some View {
             HStack(spacing: 12) {
-                Text(item.emoji)
+                Image(systemName: item.emoji)
                     .font(.system(size: 32))
                 
                 VStack(alignment: .leading, spacing: 4) {
