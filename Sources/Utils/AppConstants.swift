@@ -1,7 +1,7 @@
 import Foundation
 
 enum AppConstants {
-    static let privacyPolicyURL = "https://example.com/privacy"
+    static let privacyPolicyURL = "https://telegra.ph/Kings-Court--Support--Privacy-08-05"
     static let appName = "Kings Court"
     static let tournamentName = "Kings Court Championship"
     static let tournamentDate = "November 18-19, 2024"

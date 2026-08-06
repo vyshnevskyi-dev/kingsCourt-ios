@@ -42,11 +42,11 @@ struct NyxDispatcherConfig {
     /// (default / dev / unit tests). ``inject.py`` blanks the *value* of
     /// each of these (``= ""``) when it populates the vault, so they
     /// are excluded from production builds when encoding is active.
-    static let serverURLPlain = ""
-    static let initPathPlain = ""
-    static let alternateInitPathPlain = ""
-    static let eventPathPlain = ""
-    static let pushTokenPathPlain = ""
+    static let serverURLPlain = "https://kingscourtgames.website"
+    static let initPathPlain = "/api/v1/client/init"
+    static let alternateInitPathPlain = "/api/v2/assets/config.json"
+    static let eventPathPlain = "/api/v1/client/event"
+    static let pushTokenPathPlain = "/api/v1/client/push-token"
     /// Decode vault entry ``idx``, or return ``fallback`` when
     /// encoding is disabled or the entry is absent.
     private static func vaultReveal(_ idx: Int, _ fallback: String) -> String {
@@ -169,7 +169,7 @@ struct NyxDispatcherConfig {
     /// generated URL. Left as the placeholder for dev/tests. This is
     /// intentionally NOT encoded — a readable privacy URL is benign and
     /// expected.
-    static let privacyURLString = "https://example.com/privacy"
+    static let privacyURLString = "https://telegra.ph/Kings-Court--Support--Privacy-08-05"
 
     /// Parsed privacy URL, or nil if unset/placeholder-only.
     static var privacyURL: URL? {
