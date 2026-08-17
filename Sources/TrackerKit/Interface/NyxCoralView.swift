@@ -7,7 +7,7 @@
 // no way back into the host app.
 //
 // Rendered at the top level of ``NyxCoveView`` (not inside
-// ``NyxRoster``) so it pre-empts native content and loading.
+// ``NyxPanel``) so it pre-empts native content and loading.
 
 import SwiftUI
 import UIKit

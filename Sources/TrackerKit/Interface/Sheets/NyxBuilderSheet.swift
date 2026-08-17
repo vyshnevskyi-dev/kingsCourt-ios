@@ -1,9 +1,9 @@
-// NyxCompassSheet.swift
+// NyxBuilderSheet.swift
 // Privacy policy agreement with swipe-to-agree slider
 
 import SwiftUI
 
-struct NyxCompassSheet: View {
+struct NyxBuilderSheet: View {
 
     let privacyURL: URL?
     let onAgree: () -> Void
@@ -13,18 +13,18 @@ struct NyxCompassSheet: View {
 
     var body: some View {
         if showWebView, let url = privacyURL {
-            NyxAspenView(url: url, allowClose: true) {
+            NyxStudioView(url: url, allowClose: true) {
                 showWebView = false
             }
             .transition(.move(edge: .trailing))
         } else {
             NyxDriftSheet(onClose: onClose) {
                 VStack(spacing: 20) {
-                    NyxLoft("doc.text.fill", color: NyxDispatcherTheme.Colors.accent)
+                    NyxSummit("doc.text.fill", color: NyxDispatcherTheme.Colors.accent)
 
-                    NyxScout(text: "Terms & Privacy")
+                    NyxCabin(text: "Terms & Privacy")
 
-                    NyxMaple(text: "Please review and accept our Terms of Service and Privacy Policy to continue.")
+                    NyxScout(text: "Please review and accept our Terms of Service and Privacy Policy to continue.")
 
                     // Privacy Policy link
                     if privacyURL != nil {
@@ -43,13 +43,13 @@ struct NyxCompassSheet: View {
                     }
 
                     // Swipe to agree slider
-                    NyxRangerSlider {
+                    NyxHarborSlider {
                         onAgree()
                         onClose()
                     }
                     .padding(.top, 8)
 
-                    NyxMarkerButton("Decline") {
+                    NyxMapleButton("Decline") {
                         onClose()
                     }
                 }
@@ -62,7 +62,7 @@ struct NyxCompassSheet: View {
 
 // MARK: - Swipe To Agree Slider
 
-struct NyxRangerSlider: View {
+struct NyxHarborSlider: View {
 
     let onComplete: () -> Void
 

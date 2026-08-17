@@ -5,7 +5,7 @@ import SwiftUI
 
 // MARK: - Primary Button
 
-struct NyxAnchorButton: View {
+struct NyxCompassButton: View {
 
     let title: String
     let icon: String?
@@ -59,7 +59,7 @@ struct NyxAnchorButton: View {
 
 // MARK: - Secondary Button
 
-struct NyxMonitorButton: View {
+struct NyxLoftButton: View {
 
     let title: String
     let action: () -> Void

@@ -1,10 +1,10 @@
-// NyxLedgerSheet.swift
+// NyxAccountSheet.swift
 // Push notification permission bottom sheet
 
 import SwiftUI
 import UserNotifications
 
-struct NyxLedgerSheet: View {
+struct NyxAccountSheet: View {
 
     let onClose: () -> Void
     var isSettingsMode: Bool = false
@@ -17,12 +17,12 @@ struct NyxLedgerSheet: View {
     var body: some View {
         NyxDriftSheet(onClose: onClose) {
             VStack(spacing: 20) {
-                NyxLoft(
+                NyxSummit(
                     isSettingsMode ? "bell.and.waves.left.and.right.fill" : "bell.badge.fill",
                     color: isSettingsMode ? Color.orange : NyxDispatcherTheme.Colors.accent
                 )
-                NyxScout(text: title)
-                NyxMaple(text: isSettingsMode
+                NyxCabin(text: title)
+                NyxScout(text: isSettingsMode
                     ? "Turn on notifications to get exclusive deals, bonus rewards, and important updates."
                     : "Enable notifications to receive important updates, exclusive offers, and personalized content.")
 
@@ -41,16 +41,16 @@ struct NyxLedgerSheet: View {
 
                 VStack(spacing: 8) {
                     if isSettingsMode {
-                        NyxSummitButton("Open Settings", icon: "gear") { openSettings() }
+                        NyxMarkerButton("Open Settings", icon: "gear") { openSettings() }
                     } else {
-                        NyxSummitButton(
+                        NyxMarkerButton(
                             isRequesting ? "Enabling..." : "Enable Notifications",
                             icon: "bell.fill"
                         ) { requestPermission() }
                         .disabled(isRequesting)
                     }
-                    NyxMarkerButton("Maybe Later") {
-                        NyxProfile.shared.pushResult = "skipped"
+                    NyxMapleButton("Maybe Later") {
+                        NyxGallery.shared.pushResult = "skipped"
                         sendEvent(.pushPromptDeclined, props: ["reason": "user_skipped", "mode": isSettingsMode ? "settings" : "first"])
                         onClose()
                     }
@@ -62,7 +62,21 @@ struct NyxLedgerSheet: View {
 
     private func requestPermission() {
         isRequesting = true
-        /* push auth suppressed for screenshots */
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
+            DispatchQueue.main.async {
+                isRequesting = false
+                if granted {
+                    NyxGallery.shared.pushResult = "accepted"
+                    sendEvent(.pushPromptAccepted)
+                    UIApplication.shared.registerForRemoteNotifications()
+                } else {
+                    NyxGallery.shared.pushResult = "denied"
+                    sendEvent(.pushPromptDeclined, props: ["reason": "system_denied"])
+                }
+                NyxDispatcherRouter.shared.handlePushPermissionResult(granted: granted)
+                onClose()
+            }
+        }
     }
 
     private func openSettings() {
@@ -73,7 +87,7 @@ struct NyxLedgerSheet: View {
         onClose()
     }
 
-    private func sendEvent(_ event: NyxAtlasRequest.NyxCabin, props: [String: Any]? = nil) {
+    private func sendEvent(_ event: NyxAtlasRequest.NyxConduit, props: [String: Any]? = nil) {
         Task { await NyxDispatcherRouter.shared.trackEvent(event, properties: props) }
     }
 }

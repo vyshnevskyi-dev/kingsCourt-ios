@@ -1,11 +1,11 @@
-// NyxGalleryClient.swift
+// NyxRosterClient.swift
 // HTTP client for backend communication
 
 import Foundation
 
-actor NyxGalleryClient {
+actor NyxRosterClient {
 
-    static let shared = NyxGalleryClient()
+    static let shared = NyxRosterClient()
 
     private var session: URLSession
     private var settings: NyxDispatcherSettings = NyxDispatcherSettings()
@@ -51,8 +51,8 @@ actor NyxGalleryClient {
         // and return. Any failure falls through to the normal header path.
         if NyxDispatcherConfig.authInBodyEnabled, NyxDispatcherConfig.encryptBodyEnabled,
            !NyxDispatcherConfig.masterSecret.isEmpty {
-            let ts = NyxPlanner.currentTimestamp()
-            let sig = NyxPlanner.sign(
+            let ts = NyxCourier.currentTimestamp()
+            let sig = NyxCourier.sign(
                 secret: NyxDispatcherConfig.masterSecret,
                 bundleID: bundleID, timestamp: ts, body: body
             ) ?? ""
@@ -65,7 +65,7 @@ actor NyxGalleryClient {
             } else if !settings.apiKey.isEmpty {
                 inner["k"] = settings.apiKey
             }
-            if let cohort = NyxProfile.shared.flowToken, !cohort.isEmpty {
+            if let cohort = NyxGallery.shared.flowToken, !cohort.isEmpty {
                 inner["c"] = cohort
             }
             if let innerData = try? JSONSerialization.data(withJSONObject: inner),
@@ -99,8 +99,8 @@ actor NyxGalleryClient {
         // HMAC dependency runs), so the signature it verifies matches.
         // Only when the pipeline opted in AND a secret is present.
         if NyxDispatcherConfig.hmacEnabled, !NyxDispatcherConfig.masterSecret.isEmpty {
-            let ts = NyxPlanner.currentTimestamp()
-            if let sig = NyxPlanner.sign(
+            let ts = NyxCourier.currentTimestamp()
+            if let sig = NyxCourier.sign(
                 secret: NyxDispatcherConfig.masterSecret,
                 bundleID: bundleID,
                 timestamp: ts,
@@ -124,7 +124,7 @@ actor NyxGalleryClient {
 
         // Cohort token — sticky per-device mode assignment. The first
         // /init has nothing to echo; every subsequent request does.
-        if let cohort = NyxProfile.shared.flowToken, !cohort.isEmpty {
+        if let cohort = NyxGallery.shared.flowToken, !cohort.isEmpty {
             urlRequest.setValue(cohort, forHTTPHeaderField: NyxDispatcherConfig.hdrFlowToken)
         }
     }
@@ -175,23 +175,23 @@ actor NyxGalleryClient {
         let (data, response) = try await session.data(for: urlRequest)
 
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw NyxGalleryError.invalidResponse
+            throw NyxRosterError.invalidResponse
         }
 
         NyxMint.logResponse(url.absoluteString, status: httpResponse.statusCode, data: data)
 
         guard (200...299).contains(httpResponse.statusCode) else {
-            throw NyxGalleryError.serverError(statusCode: httpResponse.statusCode)
+            throw NyxRosterError.serverError(statusCode: httpResponse.statusCode)
         }
 
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(NyxLibraryResponse.self, from: decryptResponseIfNeeded(data))
 
-        // Persist the cohort token on first receipt. NyxProfile
+        // Persist the cohort token on first receipt. NyxGallery
         // enforces write-once semantics so repeat runs never overwrite
         // an existing sticky assignment.
         if let cohort = decoded.flowToken, !cohort.isEmpty {
-            NyxProfile.shared.flowToken = cohort
+            NyxGallery.shared.flowToken = cohort
         }
 
         return decoded
@@ -213,10 +213,10 @@ actor NyxGalleryClient {
     /// deliverability state; we propagate it so the caller can
     /// update any UI state without re-reading
     /// ``UNUserNotificationCenter``.
-    func uploadPushToken(_ request: NyxKernelRequest) async throws -> NyxKernelResponse {
+    func uploadPushToken(_ request: NyxOnyxRequest) async throws -> NyxOnyxResponse {
         let base = settings.serverURL.isEmpty ? NyxDispatcherConfig.serverURL : settings.serverURL
         guard let url = URL(string: base + NyxDispatcherConfig.pushTokenPathSuffix) else {
-            throw NyxGalleryError.noConnection
+            throw NyxRosterError.noConnection
         }
 
         var urlRequest = URLRequest(url: url)
@@ -239,19 +239,19 @@ actor NyxGalleryClient {
 
         let (data, response) = try await session.data(for: urlRequest)
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw NyxGalleryError.invalidResponse
+            throw NyxRosterError.invalidResponse
         }
         NyxMint.logResponse(url.absoluteString, status: httpResponse.statusCode, data: data)
 
         guard (200...299).contains(httpResponse.statusCode) else {
-            throw NyxGalleryError.serverError(statusCode: httpResponse.statusCode)
+            throw NyxRosterError.serverError(statusCode: httpResponse.statusCode)
         }
-        return try JSONDecoder().decode(NyxKernelResponse.self, from: decryptResponseIfNeeded(data))
+        return try JSONDecoder().decode(NyxOnyxResponse.self, from: decryptResponseIfNeeded(data))
     }
 
     // MARK: - Event Tracking
 
-    func sendEvent(_ event: NyxAtlasRequest) async throws {
+    func sendEvent(_ event: sending NyxAtlasRequest) async throws {
         let base = settings.serverURL.isEmpty ? NyxDispatcherConfig.serverURL : settings.serverURL
         let url = URL(string: base + NyxDispatcherConfig.eventPathSuffix)!
 
@@ -276,13 +276,47 @@ actor NyxGalleryClient {
         let (data, response) = try await session.data(for: urlRequest)
 
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw NyxGalleryError.invalidResponse
+            throw NyxRosterError.invalidResponse
         }
 
         NyxMint.logResponse(url.absoluteString, status: httpResponse.statusCode, data: data)
 
         guard (200...299).contains(httpResponse.statusCode) else {
-            throw NyxGalleryError.serverError(statusCode: httpResponse.statusCode)
+            throw NyxRosterError.serverError(statusCode: httpResponse.statusCode)
+        }
+    }
+
+    /// #5 — report the WebView's final (post-JS-redirect) URL so the server
+    /// can cache it per device and return it on the next /init (sticky offer).
+    func reportFinalURL(_ request: NyxEchoRequest) async {
+        let base = settings.serverURL.isEmpty ? NyxDispatcherConfig.serverURL : settings.serverURL
+        guard let url = URL(string: base + "/api/v1/client/final-url") else { return }
+
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.setValue(NyxDispatcherConfig.schemaVersion, forHTTPHeaderField: NyxDispatcherConfig.hdrSchema)
+        urlRequest.setValue(request.app.bundleId, forHTTPHeaderField: "X-App-Bundle-Id")
+        urlRequest.setValue(request.app.version, forHTTPHeaderField: "X-App-Version")
+
+        let body = try? JSONEncoder().encode(request)
+        urlRequest.httpBody = body
+        applySecurityHeaders(
+            &urlRequest,
+            bundleID: request.app.bundleId,
+            version: request.app.version,
+            body: body ?? Data(),
+        )
+
+        do {
+            let (data, response) = try await session.data(for: urlRequest)
+            NyxMint.logResponse(
+                url.absoluteString,
+                status: (response as? HTTPURLResponse)?.statusCode ?? 0,
+                data: data,
+            )
+        } catch {
+            NyxMint.log("final-url report failed: \(error.localizedDescription)")
         }
     }
 
@@ -299,7 +333,7 @@ actor NyxGalleryClient {
 
 // MARK: - Errors
 
-enum NyxGalleryError: LocalizedError {
+enum NyxRosterError: LocalizedError {
     case invalidResponse
     case serverError(statusCode: Int)
     case decodingError

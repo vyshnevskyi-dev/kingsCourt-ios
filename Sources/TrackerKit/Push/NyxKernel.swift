@@ -1,4 +1,4 @@
-// NyxQuartz.swift
+// NyxKernel.swift
 // Routes a tapped push notification to the right surface
 // (native screen / in-app webview / external Safari).
 //
@@ -7,7 +7,7 @@
 //   func userNotificationCenter(_ center: UNUserNotificationCenter,
 //                               didReceive response: UNNotificationResponse,
 //                               withCompletionHandler completionHandler: @escaping () -> Void) {
-//       NyxQuartz.handle(userInfo: response.notification.request.content.userInfo)
+//       NyxKernel.handle(userInfo: response.notification.request.content.userInfo)
 //       completionHandler()
 //   }
 //
@@ -28,7 +28,7 @@
 //   * ``in_app_webview`` uses SFSafariViewController so tracking
 //     cookies and user session stay on the partner's domain
 //     without App Store review dragging us through a "custom
-//     web view" flag. This is the same path NyxEchoSheet
+//     web view" flag. This is the same path NyxBeaconSheet
 //     uses for CTA landing pages.
 //   * ``external`` hands the URL to ``UIApplication.open`` which
 //     triggers the system smart-banner → App Store install flow
@@ -39,7 +39,7 @@ import SafariServices
 import UIKit
 
 @MainActor
-public enum NyxQuartz {
+public enum NyxKernel {
 
     /// Action key the server dispatcher writes into the APNs payload.
     public enum NyxCedar: String {

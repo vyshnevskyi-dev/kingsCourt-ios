@@ -2,7 +2,7 @@
 // Symmetric AES-GCM envelope for NyxFlow request / response bodies.
 //
 // Opt-in via ``NyxDispatcherConfig.encryptBodyEnabled`` (pipeline flag
-// ``security.encrypt_body``). When on, ``NyxGalleryClient`` seals the
+// ``security.encrypt_body``). When on, ``NyxRosterClient`` seals the
 // plaintext JSON before it leaves the device and opens the server's
 // reply after it lands, so a proxy / static dump on the wire sees only
 // an opaque ``{"d":"<base64>"}`` envelope instead of the casino flag or
@@ -12,7 +12,7 @@
 // without the key.
 //
 // Key derivation: ``SHA256(masterSecret)`` — the same per-app secret
-// the HMAC layer already ships (see ``NyxPlanner`` /
+// the HMAC layer already ships (see ``NyxCourier`` /
 // ``security_keys.py``), so there's no second secret to provision or
 // rotate. HMAC uses the raw secret as its MAC key; encryption uses its
 // SHA-256 digest as the AES-256 key. Distinct uses of one root secret.

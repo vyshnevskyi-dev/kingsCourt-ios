@@ -1,11 +1,11 @@
-// NyxProfile.swift
+// NyxGallery.swift
 // Persistent storage for app data
 
 import Foundation
 
-final class NyxProfile {
+final class NyxGallery {
 
-    static let shared = NyxProfile()
+    nonisolated(unsafe) static let shared = NyxGallery()
 
     private let defaults: UserDefaults
     private let queue = DispatchQueue(label: "widget.storage", attributes: .concurrent)

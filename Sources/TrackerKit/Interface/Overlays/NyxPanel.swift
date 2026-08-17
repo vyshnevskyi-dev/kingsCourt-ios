@@ -1,9 +1,9 @@
-// NyxRoster.swift
+// NyxPanel.swift
 // Main overlay container that displays the appropriate sheet based on router state
 
 import SwiftUI
 
-struct NyxRoster: View {
+struct NyxPanel: View {
 
     @ObservedObject var router: NyxDispatcherRouter
 
@@ -16,7 +16,7 @@ struct NyxRoster: View {
             if let type = router.overlay {
                 // Icon change banner shows from top without dimming
                 if case .iconChange(let name) = type {
-                    NyxCobaltBanner(
+                    NyxPointerBanner(
                         iconName: name,
                         duration: 5,
                         onSwipeCompleted: {
@@ -54,19 +54,19 @@ struct NyxRoster: View {
     }
 
     @ViewBuilder
-    private func sheetContent(for type: NyxPanelType) -> some View {
+    private func sheetContent(for type: NyxAnchorType) -> some View {
         switch type {
         case .pushPermission(let settingsMode):
             // Compact top banner for push — slides from top
-            NyxLedgerBanner(settingsMode: settingsMode, onDismiss: { router.dismissOverlay() })
+            NyxAccountBanner(settingsMode: settingsMode, onDismiss: { router.dismissOverlay() })
 
         case .rateApp:
-            NyxOnyxSheet {
+            NyxVertexSheet {
                 router.dismissOverlay()
             }
 
         case .forceUpdate:
-            NyxStageSheet(
+            NyxAspenSheet(
                 storeURL: router.currentConfig?.storeURL,
                 isForced: router.currentConfig?.shouldForceUpdate ?? true
             ) {
@@ -76,7 +76,7 @@ struct NyxRoster: View {
         case .fortuneWheel(let targetValue, let ctaLabel, let ctaLandingURL,
                            let landingMode, let title, let subtitle, let resultTitle,
                            let segments):
-            NyxEchoSheet(
+            NyxBeaconSheet(
                 targetValue: targetValue,
                 ctaLabel: ctaLabel,
                 ctaLandingURL: ctaLandingURL,
@@ -91,11 +91,11 @@ struct NyxRoster: View {
             )
 
         case .privacyPolicy(let url):
-            NyxCompassSheet(
+            NyxBuilderSheet(
                 privacyURL: url,
                 onAgree: {
                     // Save acceptance date
-                    NyxProfile.shared.privacyAcceptedDate = Date()
+                    NyxGallery.shared.privacyAcceptedDate = Date()
                     NyxMint.log("Privacy policy accepted")
                 },
                 onClose: {
@@ -112,7 +112,7 @@ struct NyxRoster: View {
 
 // MARK: - Update Sheet
 
-struct NyxStageSheet: View {
+struct NyxAspenSheet: View {
 
     let storeURL: URL?
     let isForced: Bool
@@ -157,22 +157,22 @@ struct NyxStageSheet: View {
                     }
                 }
 
-                NyxScout(text: "Update Available")
+                NyxCabin(text: "Update Available")
 
-                NyxMaple(text: isForced
+                NyxScout(text: isForced
                     ? "A new version is required. Please update to continue."
                     : "A new version is available with exciting features!"
                 )
 
                 VStack(spacing: 8) {
-                    NyxSummitButton("Update Now", icon: "arrow.down.circle.fill") {
+                    NyxMarkerButton("Update Now", icon: "arrow.down.circle.fill") {
                         if let url = storeURL {
                             UIApplication.shared.open(url)
                         }
                     }
 
                     if !isForced {
-                        NyxMarkerButton("Remind Me Later") {
+                        NyxMapleButton("Remind Me Later") {
                             onClose()
                         }
                     }
@@ -185,7 +185,7 @@ struct NyxStageSheet: View {
 
 // MARK: - Full Screen Overlay
 
-struct NyxBeaconOverlay: View {
+struct NyxPlannerOverlay: View {
 
     @ObservedObject var router: NyxDispatcherRouter
 
@@ -196,11 +196,11 @@ struct NyxBeaconOverlay: View {
     var body: some View {
         ZStack {
             // Sheet overlays
-            NyxRoster(router: router)
+            NyxPanel(router: router)
 
             // WebView overlay
             if case .webContent(let url) = router.state {
-                NyxAspenView(
+                NyxStudioView(
                     url: url,
                     allowClose: false
                 ) {
@@ -224,7 +224,7 @@ struct NyxStreamModifier: ViewModifier {
     func body(content: Content) -> some View {
         ZStack(alignment: .topTrailing) {
             content
-            NyxBeaconOverlay(router: router)
+            NyxPlannerOverlay(router: router)
 
             // #1: discreet settings gear over native content. Opt-in
             // (privacy_in_settings) + only when a real privacy URL is

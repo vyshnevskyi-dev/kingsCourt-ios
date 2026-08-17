@@ -1,4 +1,4 @@
-// NyxPortal.swift
+// NyxRanger.swift
 // Compile-time string obfuscation for the NyxFlow SDK.
 //
 // The AppFactory pipeline (``inject.py``, opt-in via
@@ -21,7 +21,7 @@
 
 import Foundation
 
-enum NyxPortal {
+enum NyxRanger {
 
     /// XOR-deobfuscate ``blob`` with the repeating ``key`` and decode
     /// the result as UTF-8.

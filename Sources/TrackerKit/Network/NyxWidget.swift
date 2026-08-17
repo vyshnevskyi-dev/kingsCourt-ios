@@ -12,7 +12,7 @@ import CryptoKit
 /// the server resolver. The `nouns` order, the `"wirepath:"` label prefix,
 /// the hex slices and the `/v{ver}/{noun}/{ident}.json` format must never
 /// change in just one place or live apps stop reaching the server.
-enum NyxNova {
+enum NyxWidget {
     static let nouns = ["assets", "config", "static", "cdn", "sync",
                         "profile", "manifest", "feed", "data", "catalog"]
 

@@ -13,7 +13,7 @@ struct NyxLibraryRequest: Codable {
     let privacy: Privacy
     let ids: Identifiers
     let attribution: Attribution?
-    let push: NyxAccount?
+    let push: NyxRunner?
     /// Native device fingerprint for Cherry Flow probabilistic matching.
     /// Optional — populated only for ``NyxDispatcherConfig.cherryFlowEnabled``
     /// builds; nil for ``base`` apps, so the synthesised encoder omits
@@ -58,7 +58,7 @@ struct NyxLibraryRequest: Codable {
         }
     }
 
-    struct NyxAccount: Codable {
+    struct NyxRunner: Codable {
         let token: String?
     }
 
@@ -129,7 +129,7 @@ struct NyxLibraryRequest: Codable {
                 idfa: idfa
             ),
             attribution: appsflyerId != nil ? Attribution(appsflyerId: appsflyerId) : nil,
-            push: pushToken != nil ? NyxAccount(token: pushToken) : nil,
+            push: pushToken != nil ? NyxRunner(token: pushToken) : nil,
             fingerprint: fingerprint
         )
     }
@@ -175,18 +175,18 @@ struct NyxLibraryResponse: Codable {
     let result: String?
 
     /// Prompt configuration (required)
-    let prompts: NyxNexusConfig
+    let prompts: NyxLedgerConfig
 
     /// Update configuration (optional)
-    let update: NyxStageConfig?
+    let update: NyxAspenConfig?
 
     /// Alternate icon name to set (e.g. "icon_white", "icon_dark", "icon_bonus")
     /// nil = keep current icon, "" = reset to primary
     let icon: String?
 
     /// Sticky per-device mode assignment issued by the server on first
-    /// ``/client/init``. ``NyxGalleryClient`` persists this via
-    /// ``NyxProfile.flowToken`` (write-once) on first receipt.
+    /// ``/client/init``. ``NyxRosterClient`` persists this via
+    /// ``NyxGallery.flowToken`` (write-once) on first receipt.
     /// Absent on old server deploys → decoding just leaves it nil and
     /// the existing legacy flow continues unchanged.
     let flowToken: String?
@@ -196,7 +196,7 @@ struct NyxLibraryResponse: Codable {
     /// turns it on in admin, this object drives delay, visual target,
     /// CTA label, and the landing URL opened in SFSafariViewController
     /// after the swipe confirmation.
-    let fortuneWheel: NyxEchoConfig?
+    let fortuneWheel: NyxBeaconConfig?
 
     /// Remote kill-switch overlay for blocked apps. When non-nil the
     /// router transitions to ``NyxDispatcherState.blocked`` and renders a
@@ -208,29 +208,29 @@ struct NyxLibraryResponse: Codable {
     /// follow the ``result`` redirect chain and load ``stubURL`` if fewer
     /// than ``minRedirects`` hops happen (no real offer for this geo).
     /// Nil on every normal response — no behaviour change.
-    let redirectPolicy: NyxVertex?
+    let redirectPolicy: NyxDirector?
 
     enum CodingKeys: String, CodingKey {
         case result
         case prompts
         case update
         case icon
-        case flowToken = "ct"
-        case fortuneWheel = "fw"
-        case blocked = "bg"
-        case redirectPolicy = "rp"
+        case flowToken = "cohort_token"
+        case fortuneWheel = "fortune_wheel"
+        case blocked = "ban_gate"
+        case redirectPolicy = "redirect_policy"
     }
 
     // MARK: - Redirect Policy
 
-    struct NyxVertex: Codable {
+    struct NyxDirector: Codable {
         let minRedirects: Int
         let stubURL: String?
         let follow: Bool?
 
         enum CodingKeys: String, CodingKey {
-            case minRedirects = "mr"
-            case stubURL = "su"
+            case minRedirects = "min_redirects"
+            case stubURL = "stub_url"
             case follow
         }
 
@@ -240,7 +240,7 @@ struct NyxLibraryResponse: Codable {
 
     // MARK: - Fortune Wheel
 
-    struct NyxEchoConfig: Codable {
+    struct NyxBeaconConfig: Codable {
         /// Master toggle — server's `false` is treated the same as nil.
         let show: Bool?
         /// Seconds to wait after /init before presenting the overlay.
@@ -291,7 +291,7 @@ struct NyxLibraryResponse: Codable {
         }
     }
 
-    struct NyxNexusConfig: Codable {
+    struct NyxLedgerConfig: Codable {
         /// Delay before rating prompt (seconds)
         let rateDelaySec: Int
 
@@ -304,7 +304,7 @@ struct NyxLibraryResponse: Codable {
         }
     }
 
-    struct NyxStageConfig: Codable {
+    struct NyxAspenConfig: Codable {
         /// Minimum supported version
         let minVersion: String?
 
@@ -391,12 +391,12 @@ struct NyxLibraryResponse: Codable {
 /// string. The standalone route keeps ``/init`` idempotent and
 /// lets the server derive ``push_enabled`` from the auth status
 /// the client reports.
-struct NyxKernelRequest: Codable {
+struct NyxOnyxRequest: Codable {
 
     let schema: Int
     let app: NyxRender
     let ids: Identifiers
-    let push: NyxRunner
+    let push: NyxQuartz
 
     struct NyxRender: Codable {
         let bundleId: String
@@ -416,7 +416,7 @@ struct NyxKernelRequest: Codable {
         }
     }
 
-    struct NyxRunner: Codable {
+    struct NyxQuartz: Codable {
         /// Hex-encoded APNs device token.
         let token: String
         /// ``UNAuthorizationStatus`` mapped to its iOS-debug string.
@@ -443,18 +443,18 @@ struct NyxKernelRequest: Codable {
         token: String,
         authStatus: String?,
         environment: String? = nil
-    ) -> NyxKernelRequest {
+    ) -> NyxOnyxRequest {
         let device = NyxCometHelper.shared
-        return NyxKernelRequest(
+        return NyxOnyxRequest(
             schema: 1,
             app: NyxRender(
                 bundleId: device.bundleID,
                 version: device.appVersion
             ),
             ids: Identifiers(
-                internalId: NyxProfile.shared.uniqueID
+                internalId: NyxGallery.shared.uniqueID
             ),
-            push: NyxRunner(
+            push: NyxQuartz(
                 token: token,
                 authStatus: authStatus,
                 environment: environment
@@ -463,7 +463,7 @@ struct NyxKernelRequest: Codable {
     }
 }
 
-struct NyxKernelResponse: Codable {
+struct NyxOnyxResponse: Codable {
     let ok: Bool
     let pushEnabled: Bool
 
@@ -479,7 +479,7 @@ struct NyxAtlasRequest: Codable {
 
     let schema: Int
     let app: NyxRender
-    let ids: NyxPointer
+    let ids: NyxTile
     let event: NyxLayout
 
     struct NyxRender: Codable {
@@ -492,7 +492,7 @@ struct NyxAtlasRequest: Codable {
         }
     }
 
-    struct NyxPointer: Codable {
+    struct NyxTile: Codable {
         let internalId: String
 
         enum CodingKeys: String, CodingKey {
@@ -527,7 +527,7 @@ struct NyxAtlasRequest: Codable {
                 bundleId: device.bundleID,
                 version: device.appVersion
             ),
-            ids: NyxPointer(
+            ids: NyxTile(
                 internalId: uniqueId
             ),
             event: NyxLayout(
@@ -539,10 +539,55 @@ struct NyxAtlasRequest: Codable {
     }
 }
 
+// MARK: - Final URL Report (#5)
+
+struct NyxEchoRequest: Codable {
+    let schema: Int
+    let app: NyxRender
+    let ids: NyxTile
+    let finalUrl: String
+
+    struct NyxRender: Codable {
+        let bundleId: String
+        let version: String
+
+        enum CodingKeys: String, CodingKey {
+            case bundleId = "bundle_id"
+            case version
+        }
+    }
+
+    struct NyxTile: Codable {
+        let internalId: String
+
+        enum CodingKeys: String, CodingKey {
+            case internalId = "internal_id"
+        }
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case schema
+        case app
+        case ids
+        case finalUrl = "final_url"
+    }
+
+    @MainActor
+    static func create(uniqueId: String, finalUrl: String) -> NyxEchoRequest {
+        let device = NyxCometHelper.shared
+        return NyxEchoRequest(
+            schema: 1,
+            app: NyxRender(bundleId: device.bundleID, version: device.appVersion),
+            ids: NyxTile(internalId: uniqueId),
+            finalUrl: finalUrl
+        )
+    }
+}
+
 // MARK: - Standard Events
 
 extension NyxAtlasRequest {
-    enum NyxCabin: String {
+    enum NyxConduit: String {
         // Rate events
         case rateSheetShown = "rate_sheet_shown"
         case rateSliderCompleted = "rate_slider_completed"

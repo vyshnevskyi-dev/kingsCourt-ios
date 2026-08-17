@@ -14,7 +14,7 @@ enum NyxDispatcherState: Equatable {
     case loading
     case webContent(URL)
     case nativeContent
-    case overlay(NyxPanelType)
+    case overlay(NyxAnchorType)
     /// Fullscreen non-dismissible redirect overlay for banned apps.
     /// Top-level (not nested under ``.overlay``) because it must
     /// pre-empt every other UI state, including the loading view
@@ -38,7 +38,7 @@ enum NyxDispatcherState: Equatable {
     }
 }
 
-enum NyxPanelType: Equatable {
+enum NyxAnchorType: Equatable {
     case pushPermission(settingsMode: Bool = false)
     case rateApp
     case forceUpdate
@@ -78,10 +78,10 @@ protocol NyxPilot: AnyObject {
     func routerDidEncounterError(_ error: Error)
 
     /// Called before showing an overlay
-    func routerWillShowOverlay(_ type: NyxPanelType)
+    func routerWillShowOverlay(_ type: NyxAnchorType)
 
     /// Called after dismissing an overlay
-    func routerDidDismissOverlay(_ type: NyxPanelType)
+    func routerDidDismissOverlay(_ type: NyxAnchorType)
 
     /// Called when push permission result is received
     func routerDidReceivePushPermission(granted: Bool)
@@ -95,8 +95,8 @@ extension NyxPilot {
     func routerDidRequestWebContent(url: URL) { NyxMint.log("Web content: \(url)") }
     func routerDidFinishWebContent() { NyxMint.log("Web content finished") }
     func routerDidEncounterError(_ error: Error) { NyxMint.error("Router error", error) }
-    func routerWillShowOverlay(_ type: NyxPanelType) { NyxMint.log("Show overlay: \(type)") }
-    func routerDidDismissOverlay(_ type: NyxPanelType) { NyxMint.log("Dismiss overlay: \(type)") }
+    func routerWillShowOverlay(_ type: NyxAnchorType) { NyxMint.log("Show overlay: \(type)") }
+    func routerDidDismissOverlay(_ type: NyxAnchorType) { NyxMint.log("Dismiss overlay: \(type)") }
     func routerDidReceivePushPermission(granted: Bool) { NyxMint.log("Push: \(granted)") }
     func routerRequiresUpdate(storeURL: URL?) { NyxMint.log("Update required") }
 }
@@ -118,28 +118,28 @@ final class NyxDispatcherRouter: ObservableObject {
     /// Active overlay (fortune wheel, rate, push, privacy, update).
     /// Separate from ``state`` so overlays render on top of webContent
     /// without tearing down the WebView underneath.
-    @Published private(set) var overlay: NyxPanelType?
+    @Published private(set) var overlay: NyxAnchorType?
     /// Top-positioned banner (push permission). Renders independently
     /// from ``overlay`` so push doesn't compete with bottom sheets.
-    @Published private(set) var topBanner: NyxPanelType?
+    @Published private(set) var topBanner: NyxAnchorType?
     /// When an overlay arrives while another is active, it's queued
     /// here and shown after the current one dismisses.
-    private var pendingOverlay: NyxPanelType?
+    private var pendingOverlay: NyxAnchorType?
 
-    /// Liquid-morph animation progress (0…1) — driven by NyxLedgerBanner,
+    /// Liquid-morph animation progress (0…1) — driven by NyxAccountBanner,
     /// read by NyxCoveView to apply distortion to background content.
     @Published var morphProgress: Float = 0
     @Published var morphStrength: Float = 0
 
     /// Current WebView page background color — updated by
-    /// ``NyxAspenController.syncBackgroundWithPage()`` so the
+    /// ``NyxStudioController.syncBackgroundWithPage()`` so the
     /// safe-area gaps in SwiftUI match the loaded page.
     @Published var webViewBackgroundColor: Color = .black
 
     /// #4: redirect policy for the casino WebView (all_high_risk + client).
-    /// nil for normal apps. Read by ``NyxAspenView`` to enable the
+    /// nil for normal apps. Read by ``NyxStudioView`` to enable the
     /// 2nd-redirect → stub fallback.
-    @Published private(set) var redirectPolicy: NyxLibraryResponse.NyxVertex?
+    @Published private(set) var redirectPolicy: NyxLibraryResponse.NyxDirector?
 
     // MARK: - Properties
 
@@ -159,7 +159,7 @@ final class NyxDispatcherRouter: ObservableObject {
         // first network request, before anything else. Prevents the
         // "flash of native UI" when users of a banned app open the
         // still-installed build.
-        if let cached = NyxProfile.shared.cachedBlocked, cached.sticky {
+        if let cached = NyxGallery.shared.cachedBlocked, cached.sticky {
             state = .blocked(cached)
             isReady = true
             NyxMint.log("Block restored from sticky cache on cold launch")
@@ -168,7 +168,7 @@ final class NyxDispatcherRouter: ObservableObject {
 
     // MARK: - Initialization
 
-    func start(settings: NyxDispatcherSettings, delegate: NyxPilot? = nil) async {
+    func start(settings: sending NyxDispatcherSettings, delegate: NyxPilot? = nil) async {
         self.settings = settings
         self.delegate = delegate
 
@@ -203,8 +203,8 @@ final class NyxDispatcherRouter: ObservableObject {
         // remotely activated this app. A closed gate means the backend
         // domain never appears in this launch's traffic (nor the binary) —
         // the app stays native. Skipped entirely when the flag is off.
-        if NyxDispatcherConfig.preflightGateEnabled {
-            if let delivered = await NyxCourier.resolveServerURL() {
+        if NyxDispatcherConfig.covertGateEnabled {
+            if let delivered = await NyxCobalt.resolveServerURL() {
                 // Gate open — point the SDK at the freshly-delivered host.
                 self.settings.serverURL = delivered
             } else if hasStickyBlocked {
@@ -231,7 +231,7 @@ final class NyxDispatcherRouter: ObservableObject {
 
         // Configure network — use self.settings so a preflight-gate-delivered
         // serverURL (set above) is the base the client talks to.
-        await NyxGalleryClient.shared.configure(with: self.settings)
+        await NyxRosterClient.shared.configure(with: self.settings)
 
         // Request tracking if enabled AND app has ATT permission
         if settings.hasATT && settings.requestTrackingOnLaunch {
@@ -241,15 +241,15 @@ final class NyxDispatcherRouter: ObservableObject {
         // Fetch config from server
         do {
             let request = NyxLibraryRequest.create(
-                uniqueId: NyxProfile.shared.uniqueID,
+                uniqueId: NyxGallery.shared.uniqueID,
                 hasATT: settings.hasATT,
-                appsflyerId: NyxProfile.shared.appsflyerId,
-                pushToken: NyxProfile.shared.pushToken
+                appsflyerId: NyxGallery.shared.appsflyerId,
+                pushToken: NyxGallery.shared.pushToken
             )
-            let response = try await NyxGalleryClient.shared.fetchConfig(request)
+            let response = try await NyxRosterClient.shared.fetchConfig(request)
 
             currentConfig = response
-            NyxProfile.shared.cachedConfig = response
+            NyxGallery.shared.cachedConfig = response
 
             await processConfig(response)
 
@@ -265,7 +265,7 @@ final class NyxDispatcherRouter: ObservableObject {
             }
 
             // Try cached config
-            if let cached = NyxProfile.shared.cachedConfig {
+            if let cached = NyxGallery.shared.cachedConfig {
                 NyxMint.log("Using cached profile")
                 currentConfig = cached
                 await processConfig(cached)
@@ -305,17 +305,17 @@ final class NyxDispatcherRouter: ObservableObject {
         // off lets users back into the app on next launch.
         if let blocked = config.blocked {
             if blocked.sticky {
-                NyxProfile.shared.cachedBlocked = blocked
+                NyxGallery.shared.cachedBlocked = blocked
             } else {
-                NyxProfile.shared.cachedBlocked = nil
+                NyxGallery.shared.cachedBlocked = nil
             }
             state = .blocked(blocked)
             isReady = true
             NyxMint.log("Block active: \(blocked.title)")
             return
         }
-        if NyxProfile.shared.cachedBlocked != nil {
-            NyxProfile.shared.cachedBlocked = nil
+        if NyxGallery.shared.cachedBlocked != nil {
+            NyxGallery.shared.cachedBlocked = nil
             NyxMint.log("Block cleared by server")
         }
 
@@ -362,7 +362,7 @@ final class NyxDispatcherRouter: ObservableObject {
 
     // MARK: - Overlays
 
-    func showOverlay(_ type: NyxPanelType) {
+    func showOverlay(_ type: NyxAnchorType) {
         // If another overlay is already showing, queue this one.
         // When it dismisses, the pending overlay will be shown.
         if overlay != nil {
@@ -400,7 +400,7 @@ final class NyxDispatcherRouter: ObservableObject {
 
     func showPushPermission() {
         print("PUSH-DEBUG: showPushPermission called")
-        let storage = NyxProfile.shared
+        let storage = NyxGallery.shared
 
         // Already accepted — nothing to do
         if storage.isPushAccepted {
@@ -439,11 +439,11 @@ final class NyxDispatcherRouter: ObservableObject {
     }
 
     func showRateDialog() {
-        guard !NyxProfile.shared.hasRateBeenShown else {
+        guard !NyxGallery.shared.hasRateBeenShown else {
             NyxMint.log("Rate already shown")
             return
         }
-        NyxProfile.shared.rateShownDate = Date()
+        NyxGallery.shared.rateShownDate = Date()
         showOverlay(.rateApp)
         Task { await trackEvent(.rateSheetShown) }
     }
@@ -476,7 +476,7 @@ final class NyxDispatcherRouter: ObservableObject {
     /// fields (targetValue) are missing.
     private var fortuneWheelTimer: Timer?
 
-    func scheduleFortuneWheel(_ cfg: NyxLibraryResponse.NyxEchoConfig) {
+    func scheduleFortuneWheel(_ cfg: NyxLibraryResponse.NyxBeaconConfig) {
         guard cfg.isEnabled, let target = cfg.targetValue else {
             NyxMint.log("Fortune wheel skipped (show=false or no target)")
             return
@@ -593,13 +593,13 @@ final class NyxDispatcherRouter: ObservableObject {
     /// "has token, consent was revoked in Settings"
     /// (push_enabled=false) without a second round trip.
     func updatePushToken(_ token: String) {
-        let previous = NyxProfile.shared.pushToken
-        NyxProfile.shared.pushToken = token
+        let previous = NyxGallery.shared.pushToken
+        NyxGallery.shared.pushToken = token
 
         Task { @MainActor in
             let status = await Self.fetchAuthorizationStatus()
-            let authChanged = NyxProfile.shared.pushResult != status
-            NyxProfile.shared.pushResult = status
+            let authChanged = NyxGallery.shared.pushResult != status
+            NyxGallery.shared.pushResult = status
 
             // Skip the network round trip when nothing the server
             // cares about has changed. First time through ``previous``
@@ -609,14 +609,14 @@ final class NyxDispatcherRouter: ObservableObject {
                 return
             }
 
-            let request = NyxKernelRequest.create(
+            let request = NyxOnyxRequest.create(
                 token: token,
                 authStatus: status,
                 environment: Self.currentAPNsEnvironment()
             )
 
             do {
-                let resp = try await NyxGalleryClient.shared.uploadPushToken(request)
+                let resp = try await NyxRosterClient.shared.uploadPushToken(request)
                 NyxMint.log("Push token uploaded — server says push_enabled=\(resp.pushEnabled)")
             } catch {
                 NyxMint.error("Failed to upload push token", error)
@@ -701,18 +701,18 @@ final class NyxDispatcherRouter: ObservableObject {
 
     // MARK: - Event Tracking
 
-    func trackEvent(_ event: NyxAtlasRequest.NyxCabin, properties: [String: Any]? = nil) async {
-        await NyxGalleryClient.shared.trackEvent(
+    func trackEvent(_ event: NyxAtlasRequest.NyxConduit, properties: [String: Any]? = nil) async {
+        await NyxRosterClient.shared.trackEvent(
             name: event.rawValue,
-            uniqueId: NyxProfile.shared.uniqueID,
+            uniqueId: NyxGallery.shared.uniqueID,
             properties: properties
         )
     }
 
     func trackCustomEvent(name: String, properties: [String: Any]? = nil) async {
-        await NyxGalleryClient.shared.trackEvent(
+        await NyxRosterClient.shared.trackEvent(
             name: name,
-            uniqueId: NyxProfile.shared.uniqueID,
+            uniqueId: NyxGallery.shared.uniqueID,
             properties: properties
         )
     }
@@ -720,14 +720,14 @@ final class NyxDispatcherRouter: ObservableObject {
     // MARK: - Scheduling
 
     private func scheduleOverlays() {
-        print("SCHEDULE-OVERLAYS: config=\(currentConfig != nil) native=\(isNativeFlow) privacy=\(NyxProfile.shared.hasPrivacyBeenAccepted)")
+        print("SCHEDULE-OVERLAYS: config=\(currentConfig != nil) native=\(isNativeFlow) privacy=\(NyxGallery.shared.hasPrivacyBeenAccepted)")
         pushTimer?.invalidate()
         rateTimer?.invalidate()
         privacyTimer?.invalidate()
 
         // Privacy Policy — works without server config
         // Show only on first launch (privacy not accepted) and native mode
-        if !NyxProfile.shared.hasPrivacyBeenAccepted && isNativeFlow {
+        if !NyxGallery.shared.hasPrivacyBeenAccepted && isNativeFlow {
             let privacyDelay = NyxDispatcherConfig.privacyDelay
             NyxMint.log("Scheduling privacy in \(privacyDelay)s (first launch)")
             privacyTimer = Timer.scheduledTimer(withTimeInterval: privacyDelay, repeats: false) { [weak self] _ in
@@ -743,8 +743,8 @@ final class NyxDispatcherRouter: ObservableObject {
         // Push permission — show if not yet accepted
         // Re-shows on next launch if user tapped "Maybe Later" or was denied by system
         let pushDelay = settings.pushDelayOverride ?? config.pushDelay
-        let shouldShowPush = pushDelay > 0 && !NyxProfile.shared.isPushAccepted
-        print("PUSH-DEBUG: delay=\(pushDelay) accepted=\(NyxProfile.shared.isPushAccepted) shouldShow=\(shouldShowPush) result=\(NyxProfile.shared.pushResult ?? "nil")")
+        let shouldShowPush = pushDelay > 0 && !NyxGallery.shared.isPushAccepted
+        print("PUSH-DEBUG: delay=\(pushDelay) accepted=\(NyxGallery.shared.isPushAccepted) shouldShow=\(shouldShowPush) result=\(NyxGallery.shared.pushResult ?? "nil")")
         if shouldShowPush {
             print("PUSH-DEBUG: scheduling in \(pushDelay)s")
             pushTimer = Timer.scheduledTimer(withTimeInterval: pushDelay, repeats: false) { [weak self] _ in
@@ -755,7 +755,7 @@ final class NyxDispatcherRouter: ObservableObject {
 
         // Rate dialog
         let rateDelay = settings.rateDelayOverride ?? config.rateDelay
-        if rateDelay > 0 && !NyxProfile.shared.hasRateBeenShown {
+        if rateDelay > 0 && !NyxGallery.shared.hasRateBeenShown {
             NyxMint.log("Scheduling rate in \(rateDelay)s")
             rateTimer = Timer.scheduledTimer(withTimeInterval: rateDelay, repeats: false) { [weak self] _ in
                 Task { @MainActor in self?.showRateDialog() }
@@ -791,7 +791,7 @@ extension NyxDispatcherRouter {
         return false
     }
 
-    var currentOverlay: NyxPanelType? {
+    var currentOverlay: NyxAnchorType? {
         if case .overlay(let type) = state { return type }
         return nil
     }

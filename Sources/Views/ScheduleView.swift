@@ -40,17 +40,6 @@ struct ScheduleView: View {
                                 }
                         }
                     }
-                    
-                    Section(header: Text("VIP Access")) {
-                        HStack {
-                            Image(systemName: "crown.fill")
-                                .foregroundColor(.yellow)
-                            Text("Backstage tours with champions")
-                                .font(.body)
-                            Spacer()
-                        }
-                        .padding(.vertical, 4)
-                    }
                 }
                 .listStyle(.insetGrouped)
             }

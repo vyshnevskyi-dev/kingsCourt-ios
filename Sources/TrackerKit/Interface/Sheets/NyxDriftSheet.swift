@@ -44,7 +44,7 @@ struct NyxDriftSheet<Content: View>: View {
                         .padding(.bottom, max(geo.safeAreaInsets.bottom, 24))
                 }
                 .background(sheetBackground)
-                .clipShape(NyxDirectorCorner(radius: 32, corners: [.topLeft, .topRight]))
+                .clipShape(NyxMonitorCorner(radius: 32, corners: [.topLeft, .topRight]))
                 .offset(y: offset)
                 .gesture(dragGesture)
             }
@@ -115,7 +115,7 @@ struct NyxDriftSheet<Content: View>: View {
 
 // MARK: - Rounded Corner Shape
 
-struct NyxDirectorCorner: Shape {
+struct NyxMonitorCorner: Shape {
     var radius: CGFloat
     var corners: UIRectCorner
 
@@ -131,7 +131,7 @@ struct NyxDirectorCorner: Shape {
 
 // MARK: - Sheet Title
 
-struct NyxScout: View {
+struct NyxCabin: View {
     let text: String
 
     var body: some View {
@@ -144,7 +144,7 @@ struct NyxScout: View {
 
 // MARK: - Sheet Subtitle
 
-struct NyxMaple: View {
+struct NyxScout: View {
     let text: String
 
     var body: some View {
@@ -158,7 +158,7 @@ struct NyxMaple: View {
 
 // MARK: - Sheet Icon
 
-struct NyxLoft: View {
+struct NyxSummit: View {
     let systemName: String
     let color: Color
     let size: CGFloat
@@ -196,7 +196,7 @@ struct NyxLoft: View {
 
 // MARK: - Sheet Primary Button
 
-struct NyxSummitButton: View {
+struct NyxMarkerButton: View {
     let title: String
     let icon: String?
     let action: () -> Void
@@ -245,7 +245,7 @@ struct NyxSummitButton: View {
 
 // MARK: - Sheet Secondary Button
 
-struct NyxMarkerButton: View {
+struct NyxMapleButton: View {
     let title: String
     let action: () -> Void
 

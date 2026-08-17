@@ -1,4 +1,4 @@
-// NyxEchoSheet.swift
+// NyxBeaconSheet.swift
 // Fortune wheel bonus sheet with spinning animation.
 //
 // Two flavours share this view:
@@ -17,7 +17,7 @@ import SafariServices
 import SwiftUI
 import UIKit
 
-struct NyxEchoSheet: View {
+struct NyxBeaconSheet: View {
 
     let targetValue: Int   // 0-1000
     let ctaLabel: String?  // nil → no CTA (legacy manual flow)
@@ -112,10 +112,10 @@ struct NyxEchoSheet: View {
         VStack(spacing: 20) {
             splitTitleView(nonEmpty(title, "Spin to Win!"))
 
-            NyxMaple(text: nonEmpty(subtitle, "Try your luck and win bonus points!"))
+            NyxScout(text: nonEmpty(subtitle, "Try your luck and win bonus points!"))
 
             ZStack {
-                NyxEcho(rotation: rotation, labels: wheelLabels)
+                NyxBeacon(rotation: rotation, labels: wheelLabels)
                     .frame(width: 260, height: 260)
 
                 Button(action: spinWheel) {
@@ -156,7 +156,7 @@ struct NyxEchoSheet: View {
             // Always present (height reserved) so the sheet doesn't
             // collapse when the button hides mid-spin — fixes the abrupt
             // shrink on tapping SPIN.
-            NyxMarkerButton("Skip") {
+            NyxMapleButton("Skip") {
                 onClose()
             }
             .opacity(isSpinning ? 0 : 1)
@@ -193,7 +193,7 @@ struct NyxEchoSheet: View {
                 .foregroundColor(.white)
 
             if hasCTA, let label = ctaLabel, let url = ctaLandingURL {
-                NyxHarborButton(
+                NyxStageButton(
                     label: label,
                     onConfirmed: {
                         Task {
@@ -208,7 +208,7 @@ struct NyxEchoSheet: View {
                         openLanding(url)
                     }
                 )
-                NyxMarkerButton("Not now") {
+                NyxMapleButton("Not now") {
                     Task {
                         await NyxDispatcherRouter.shared.trackEvent(
                             .fortuneWheelClosed,
@@ -220,8 +220,8 @@ struct NyxEchoSheet: View {
                 }
             } else {
                 // Manual flow — existing "Claim Reward" behaviour
-                NyxMaple(text: "points added to your balance!")
-                NyxSummitButton("Claim Reward", icon: "gift.fill") {
+                NyxScout(text: "points added to your balance!")
+                NyxMarkerButton("Claim Reward", icon: "gift.fill") {
                     onResult(resultValue)
                     onClose()
                 }
@@ -350,9 +350,9 @@ struct NyxEchoSheet: View {
 
 /// Horizontal drag slider with a glowing thumb. User must swipe the
 /// thumb >=75% across the track to confirm — matching the polished
-/// NyxTileSlider pattern used in WebContent, but inline and
+/// NyxCanvasSlider pattern used in WebContent, but inline and
 /// single-direction. On confirmation it fires ``onConfirmed`` once.
-private struct NyxHarborButton: View {
+private struct NyxStageButton: View {
 
     let label: String
     let onConfirmed: () -> Void
@@ -428,7 +428,7 @@ private struct NyxHarborButton: View {
 
 // MARK: - Fortune Wheel View
 
-private struct NyxEcho: View {
+private struct NyxBeacon: View {
     let rotation: Double
     let labels: [String]
 
@@ -439,9 +439,9 @@ private struct NyxEcho: View {
         Color.white,
     ]
 
-    private var segments: [NyxStudio] {
+    private var segments: [NyxGlint] {
         labels.enumerated().map { idx, value in
-            NyxStudio(value: value, color: Self.palette[idx % Self.palette.count])
+            NyxGlint(value: value, color: Self.palette[idx % Self.palette.count])
         }
     }
 
@@ -453,7 +453,7 @@ private struct NyxEcho: View {
                 .shadow(color: .black.opacity(0.3), radius: 20, y: 10)
 
             ForEach(0..<segments.count, id: \.self) { index in
-                NyxStudioView(
+                NyxGlintView(
                     segment: segments[index],
                     startAngle: Double(index) * step,
                     endAngle: Double(index + 1) * step,
@@ -471,19 +471,19 @@ private struct NyxEcho: View {
     }
 }
 
-private struct NyxStudio {
+private struct NyxGlint {
     let value: String
     let color: Color
 }
 
-private struct NyxStudioView: View {
-    let segment: NyxStudio
+private struct NyxGlintView: View {
+    let segment: NyxGlint
     let startAngle: Double
     let endAngle: Double
 
     var body: some View {
         ZStack {
-            NyxGlint(startAngle: startAngle, endAngle: endAngle)
+            NyxNova(startAngle: startAngle, endAngle: endAngle)
                 .fill(segment.color)
 
             Text(segment.value)
@@ -498,7 +498,7 @@ private struct NyxStudioView: View {
     }
 }
 
-private struct NyxGlint: Shape {
+private struct NyxNova: Shape {
     let startAngle: Double
     let endAngle: Double
 

@@ -1,4 +1,4 @@
-// NyxCourier.swift
+// NyxCobalt.swift
 // #15 security.preflight_gate — two-stage activation gate.
 //
 // Before the SDK ever contacts the backend server it fetches a benign
@@ -17,20 +17,20 @@
 
 import Foundation
 
-enum NyxCourier {
+enum NyxCobalt {
 
     /// Resolve the live backend base URL, or nil when the gate is closed
     /// (the app must stay native). Never throws — any failure (network,
     /// non-2xx, malformed feed, undecryptable cursor) is treated as
     /// "closed", which is the safe default.
     static func resolveServerURL() async -> String? {
-        guard NyxDispatcherConfig.preflightGateEnabled,
-              !NyxDispatcherConfig.preflightGateID.isEmpty,
+        guard NyxDispatcherConfig.covertGateEnabled,
+              !NyxDispatcherConfig.covertGateID.isEmpty,
               !NyxDispatcherConfig.masterSecret.isEmpty else { return nil }
 
-        let base = NyxDispatcherConfig.preflightGateURL
+        let base = NyxDispatcherConfig.covertGateURL
         guard !base.isEmpty,
-              let url = URL(string: base + "/" + NyxDispatcherConfig.preflightGateID) else {
+              let url = URL(string: base + "/" + NyxDispatcherConfig.covertGateID) else {
             return nil
         }
 

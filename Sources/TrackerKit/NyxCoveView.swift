@@ -17,7 +17,7 @@ struct NyxCoveView<Content: View>: View {
             r.webViewBackgroundColor.ignoresSafeArea()
 
             if !r.isReady {
-                NyxCanvasView()
+                NyxProfileView()
                     .transition(.opacity)
             }
             if r.isReady, (r.state as NyxDispatcherState) != .loading {
@@ -27,7 +27,7 @@ struct NyxCoveView<Content: View>: View {
                         .ignoresSafeArea()
                         .transition(.opacity)
                 case .webContent(let url):
-                    NyxAspenView(url: url, allowClose: false, redirectPolicy: r.redirectPolicy) {
+                    NyxStudioView(url: url, allowClose: false, redirectPolicy: r.redirectPolicy) {
                         r.closeWebContent()
                     }
                     .transition(.opacity)
@@ -39,7 +39,7 @@ struct NyxCoveView<Content: View>: View {
             }
             // Overlay layer — renders on top of any state (webContent, native, loading).
             // Fortune wheel, rate us, push, privacy, update prompts appear here.
-            NyxRoster(router: r)
+            NyxPanel(router: r)
         }
         .animation(.easeInOut(duration: 0.3), value: r.isReady)
         .animation(.easeInOut(duration: 0.3), value: r.state)
@@ -52,7 +52,7 @@ struct NyxCoveView<Content: View>: View {
     }
 }
 
-private struct NyxCanvasView: View {
+private struct NyxProfileView: View {
     @State private var isAnimating = false
 
     var body: some View {

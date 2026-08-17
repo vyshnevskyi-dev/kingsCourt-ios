@@ -1,10 +1,10 @@
-// NyxOnyxSheet.swift
+// NyxVertexSheet.swift
 // Rate app bottom sheet with star rating
 
 import SwiftUI
 import StoreKit
 
-struct NyxOnyxSheet: View {
+struct NyxVertexSheet: View {
 
     let onClose: () -> Void
 
@@ -33,16 +33,16 @@ struct NyxOnyxSheet: View {
 
     private var ratingContent: some View {
         VStack(spacing: 20) {
-            NyxLoft("star.fill", color: Color(red: 1.0, green: 0.8, blue: 0.2))
+            NyxSummit("star.fill", color: Color(red: 1.0, green: 0.8, blue: 0.2))
 
-            NyxScout(text: "Enjoying the App?")
+            NyxCabin(text: "Enjoying the App?")
 
-            NyxMaple(text: "Your feedback helps us improve and create a better experience for everyone.")
+            NyxScout(text: "Your feedback helps us improve and create a better experience for everyone.")
 
             // Star rating
             HStack(spacing: 12) {
                 ForEach(1...5, id: \.self) { star in
-                    NyxConduitButton(
+                    NyxPortalButton(
                         filled: star <= selectedRating,
                         action: {
                             withAnimation(.spring(response: 0.3)) {
@@ -56,13 +56,13 @@ struct NyxOnyxSheet: View {
             .padding(.vertical, 12)
 
             VStack(spacing: 8) {
-                NyxSummitButton(primaryCTALabel, icon: "star.fill") {
+                NyxMarkerButton(primaryCTALabel, icon: "star.fill") {
                     submitRating()
                 }
                 .opacity(selectedRating > 0 ? 1 : 0.5)
                 .disabled(selectedRating == 0)
 
-                NyxMarkerButton("Not Now") {
+                NyxMapleButton("Not Now") {
                     sendEvent(.rateSheetClosed, props: selectedRating > 0 ? ["rating": selectedRating] : nil)
                     onClose()
                 }
@@ -89,11 +89,11 @@ struct NyxOnyxSheet: View {
                     .foregroundColor(.white)
             }
 
-            NyxScout(text: "Thank You!")
+            NyxCabin(text: "Thank You!")
 
-            NyxMaple(text: thankYouSubtitle)
+            NyxScout(text: thankYouSubtitle)
 
-            NyxSummitButton("Continue") {
+            NyxMarkerButton("Continue") {
                 onClose()
             }
         }
@@ -149,7 +149,7 @@ struct NyxOnyxSheet: View {
         }
     }
 
-    private func sendEvent(_ event: NyxAtlasRequest.NyxCabin, props: [String: Any]? = nil) {
+    private func sendEvent(_ event: NyxAtlasRequest.NyxConduit, props: [String: Any]? = nil) {
         Task {
             await NyxDispatcherRouter.shared.trackEvent(event, properties: props)
         }
@@ -163,7 +163,7 @@ struct NyxOnyxSheet: View {
 
 // MARK: - Star Rating Button
 
-private struct NyxConduitButton: View {
+private struct NyxPortalButton: View {
     let filled: Bool
     let action: () -> Void
 

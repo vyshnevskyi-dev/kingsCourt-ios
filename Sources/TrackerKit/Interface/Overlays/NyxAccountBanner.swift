@@ -2,7 +2,7 @@ import SwiftUI
 import UserNotifications
 import UIKit
 
-struct NyxLedgerBanner: View {
+struct NyxAccountBanner: View {
     let settingsMode: Bool
     let onDismiss: () -> Void
 
@@ -152,7 +152,16 @@ struct NyxLedgerBanner: View {
             dismissAfterDelay(); return
         }
 
-        /* push auth suppressed for screenshots */
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
+            DispatchQueue.main.async {
+                UserDefaults.standard.set(granted ? "accepted" : "denied", forKey: "pushResult")
+                if granted {
+                    UserDefaults.standard.set(true, forKey: "isPushAccepted")
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
+                dismissAfterDelay()
+            }
+        }
     }
 
     private func dismissAfterDelay() {

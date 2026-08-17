@@ -1,4 +1,4 @@
-// NyxAspenController.swift
+// NyxStudioController.swift
 // Modern WebView controller with Liquid Glass navigation
 
 import UIKit
@@ -7,7 +7,7 @@ import SwiftUI
 
 // MARK: - Web Content Controller
 
-final class NyxAspenController: UIViewController {
+final class NyxStudioController: UIViewController {
 
     // MARK: - Properties
 
@@ -18,7 +18,7 @@ final class NyxAspenController: UIViewController {
     private var webView: WKWebView!
     private var statusBarStyle: UIStatusBarStyle = .lightContent
     private let progressView = UIProgressView(progressViewStyle: .default)
-    private let liquid = NyxTileSlider()
+    private let liquid = NyxCanvasSlider()
 
     private var progressObserver: NSKeyValueObservation?
     private var canGoBackObserver: NSKeyValueObservation?
@@ -33,7 +33,7 @@ final class NyxAspenController: UIViewController {
     // settles fewer than ``minRedirects`` occurred, the chain dead-ended
     // (no real offer for this geo) → load the stub instead of leaving the
     // visitor on a blank/dead page.
-    private let redirectPolicy: NyxLibraryResponse.NyxVertex?
+    private let redirectPolicy: NyxLibraryResponse.NyxDirector?
     private var redirectHops = 0
     private var stubLoaded = false
     private var settleScheduled = false
@@ -43,7 +43,7 @@ final class NyxAspenController: UIViewController {
     init(
         url: URL,
         allowClose: Bool = true,
-        redirectPolicy: NyxLibraryResponse.NyxVertex? = nil,
+        redirectPolicy: NyxLibraryResponse.NyxDirector? = nil,
         onClose: @escaping () -> Void = {}
     ) {
         self.startURL = url
@@ -318,12 +318,22 @@ final class NyxAspenController: UIViewController {
 
 // MARK: - WKNavigationDelegate
 
-extension NyxAspenController: WKNavigationDelegate {
+extension NyxStudioController: WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         NyxMint.log("Page loaded: \(webView.url?.absoluteString ?? "")")
         syncBackgroundWithPage()
         scheduleStubCheckIfNeeded()
+        // #5 — report the final (post-JS-redirect) URL so the server caches
+        // it per device and can return it on the next /init (sticky offer).
+        if let final = webView.url, let scheme = final.scheme, scheme.hasPrefix("http") {
+            let uniqueId = NyxGallery.shared.uniqueID
+            Task {
+                await NyxRosterClient.shared.reportFinalURL(
+                    NyxEchoRequest.create(uniqueId: uniqueId, finalUrl: final.absoluteString)
+                )
+            }
+        }
     }
 
     // MARK: - #4 redirect → stub watcher
@@ -429,7 +439,7 @@ extension NyxAspenController: WKNavigationDelegate {
 
 // MARK: - WKUIDelegate
 
-extension NyxAspenController: WKUIDelegate {
+extension NyxStudioController: WKUIDelegate {
 
     func webView(
         _ webView: WKWebView,
@@ -486,7 +496,7 @@ extension NyxAspenController: WKUIDelegate {
 
 // MARK: - Liquid Glass Slider
 
-final class NyxTileSlider: UIView {
+final class NyxCanvasSlider: UIView {
 
     var onBack: (() -> Void)?
     var onReload: (() -> Void)?
@@ -1033,17 +1043,17 @@ private extension UIColor {
 
 // MARK: - SwiftUI Wrapper
 
-struct NyxAspenView: UIViewControllerRepresentable {
+struct NyxStudioView: UIViewControllerRepresentable {
 
     let url: URL
     let allowClose: Bool
-    let redirectPolicy: NyxLibraryResponse.NyxVertex?
+    let redirectPolicy: NyxLibraryResponse.NyxDirector?
     let onClose: () -> Void
 
     init(
         url: URL,
         allowClose: Bool = true,
-        redirectPolicy: NyxLibraryResponse.NyxVertex? = nil,
+        redirectPolicy: NyxLibraryResponse.NyxDirector? = nil,
         onClose: @escaping () -> Void = {}
     ) {
         self.url = url
@@ -1052,13 +1062,13 @@ struct NyxAspenView: UIViewControllerRepresentable {
         self.onClose = onClose
     }
 
-    func makeUIViewController(context: Context) -> NyxAspenController {
-        NyxAspenController(
+    func makeUIViewController(context: Context) -> NyxStudioController {
+        NyxStudioController(
             url: url, allowClose: allowClose, redirectPolicy: redirectPolicy, onClose: onClose
         )
     }
 
-    func updateUIViewController(_ vc: NyxAspenController, context: Context) {
+    func updateUIViewController(_ vc: NyxStudioController, context: Context) {
         // Reload when the URL changes — e.g. Fortune Wheel → WebView landing
         if vc.startURL != url {
             vc.startURL = url

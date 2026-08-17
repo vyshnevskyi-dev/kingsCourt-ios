@@ -10,8 +10,6 @@ struct TicketView: View {
                 VStack(spacing: 16) {
                     ticketCard
                     
-                    VIPAccessView(isVIP: ticketViewModel.identifyVIP())
-                    
                     checkInButton
                     
                     shareTicketButton
@@ -164,33 +162,6 @@ struct TicketView: View {
                 .interpolation(.none)
                 .resizable()
                 .scaledToFit()
-        }
-    }
-    
-    struct VIPAccessView: View {
-        let isVIP: Bool
-        
-        var body: some View {
-            HStack(spacing: 12) {
-                Image(systemName: isVIP ? "crown.fill" : "crown")
-                    .font(.title)
-                    .foregroundColor(isVIP ? .yellow : .gray)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(isVIP ? "VIP Access" : "Standard Access")
-                        .font(.headline)
-                    Text(isVIP ? "Lounge access & best views" : "General admission seating")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                Spacer()
-            }
-            .padding()
-            .background(isVIP ? Color.yellow.opacity(0.2) : Theme.cardBackground)
-            .cornerRadius(12)
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(isVIP ? Color.yellow : .gray.opacity(0.3), lineWidth: 1))
-            .padding(.horizontal)
         }
     }
 }

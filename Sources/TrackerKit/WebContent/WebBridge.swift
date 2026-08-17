@@ -54,9 +54,9 @@ final class NyxSparkBridge: NSObject, WKScriptMessageHandler {
             if let v = dict[key] { props[key] = v }
         }
 
-        let uniqueId = NyxProfile.shared.uniqueID
+        let uniqueId = NyxGallery.shared.uniqueID
         Task { @MainActor in
-            await NyxGalleryClient.shared.trackEvent(
+            await NyxRosterClient.shared.trackEvent(
                 name: "web_\(rawEvent)",
                 uniqueId: uniqueId,
                 properties: props.isEmpty ? nil : props

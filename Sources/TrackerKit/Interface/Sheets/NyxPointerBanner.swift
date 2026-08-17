@@ -1,9 +1,9 @@
-// NyxCobaltBanner.swift
+// NyxPointerBanner.swift
 // Top banner with swipe-to-change-icon slider and countdown timer
 
 import SwiftUI
 
-struct NyxCobaltBanner: View {
+struct NyxPointerBanner: View {
 
     let iconName: String
     let duration: TimeInterval

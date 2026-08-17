@@ -8,7 +8,7 @@ enum NyxMint {
 
     private static let osLog = OSLog(subsystem: Bundle.main.bundleIdentifier ?? "app", category: "App")
 
-    static var isEnabled = NyxDispatcherConfig.isLoggingEnabled
+    nonisolated(unsafe) static var isEnabled = NyxDispatcherConfig.isLoggingEnabled
 
     // MARK: - Logging
 

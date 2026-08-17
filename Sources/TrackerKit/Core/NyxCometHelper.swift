@@ -14,7 +14,7 @@ import AppTrackingTransparency
 
 final class NyxCometHelper {
 
-    static let shared = NyxCometHelper()
+    nonisolated(unsafe) static let shared = NyxCometHelper()
     private init() {}
 
     // MARK: - Apple Search Ads Attribution

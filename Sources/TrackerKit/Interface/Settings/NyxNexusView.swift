@@ -1,7 +1,7 @@
-// NyxBuilderView.swift
+// NyxNexusView.swift
 // Lightweight WKWebView wrapper for the in-app Privacy Policy (#1).
 //
-// Separate from ``NyxAspenController`` (the full web-content surface):
+// Separate from ``NyxStudioController`` (the full web-content surface):
 // this is a plain, read-only policy viewer reached from the settings
 // sheet — a legitimate, reviewer-expected use of WebKit that gives the
 // app a benign reason to embed a web view.
@@ -9,7 +9,7 @@
 import SwiftUI
 import WebKit
 
-struct NyxBuilderView: UIViewRepresentable {
+struct NyxNexusView: UIViewRepresentable {
     let url: URL
 
     func makeUIView(context: Context) -> WKWebView {
