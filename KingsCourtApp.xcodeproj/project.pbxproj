@@ -10,32 +10,21 @@
 		089068063E85F7A12073738A /* NyxFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43BE23DA3818E9458BACCC2 /* NyxFeed.swift */; };
 		098200E2FB05CBE4AB2ED4F8 /* MerchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B66D7B2593423A3E659242 /* MerchView.swift */; };
 		09C5872BD7C468682FF2D0A7 /* MatchDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34DF3A93ADD465595A89E8CD /* MatchDetailView.swift */; };
-		0A1F8C02EE089F847D529ED3 /* NyxKernel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37066232ABD76A1D52F895EB /* NyxKernel.swift */; };
 		0F3167BBA961E69731CDC277 /* BracketNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3838C2317CE93C7ABD8C35F5 /* BracketNode.swift */; };
 		126A7B5AD5B625E21DC71C83 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23F563C5A8781022238F650 /* ScheduleView.swift */; };
-		13D4A15B17D97946D589BF5F /* NyxCoveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D563034585B5CAD19017ABC8 /* NyxCoveView.swift */; };
 		1494A1815A785E2685E00BFA /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F98D418EF9229FD2C3CA8CD /* ProfileView.swift */; };
-		186C238160D67F01E808930C /* NyxRanger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B74A0FDD30A939B11BA620D4 /* NyxRanger.swift */; };
 		18DA2393CEADD12D65F24F97 /* Match.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82E1933CAE29A05921BA3520 /* Match.swift */; };
 		1C29770100BB4B6CA45BA463 /* MerchDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98185198F7C293CE9AAA7C23 /* MerchDetailView.swift */; };
 		1D359864F94CB0DEC78255DD /* NetworkModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21223D25DADE7FB9A36D6A80 /* NetworkModels.swift */; };
 		1EDC182BAC7ACC0887141429 /* VotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40CB3FCD7E2DFB312B9B2C7 /* VotingView.swift */; };
-		23B90673A48DB3AB68F23019 /* NyxCourier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE6A0EFF22C213AC00C4E0 /* NyxCourier.swift */; };
-		2438969D67E9C0A2494525DD /* NyxMeadowRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C35A23E12545F71C5B1E6A /* NyxMeadowRouter.swift */; };
 		24A39E758884006F571A59D1 /* BarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81AA6CD1888AC7F2B02F5C1E /* BarViewModel.swift */; };
-		2926779B98DEA5EBBF4AF781 /* NyxDispatcherConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28EA7395D0D1C32CA34BCFC5 /* NyxDispatcherConfig.swift */; };
 		2D77790EF28C5806BF3C92AA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0079448AC5BC4A2B64CE36 /* AppDelegate.swift */; };
 		2ECC35B55E7113B40F122A1E /* MatchPredictionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E2795AE0F376793BB1612C4 /* MatchPredictionDetailView.swift */; };
 		3362389189E33024526278EB /* TournamentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE374AF392165BF207AE6AAC /* TournamentViewModel.swift */; };
 		3689CEBB1E0CA49B50DED745 /* NyxCobalt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7E1CE568308CD8C8B37574 /* NyxCobalt.swift */; };
 		38B71C787A13FA22823CC7F4 /* NyxBuilderSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D40D9B355D5C15B79E4241 /* NyxBuilderSheet.swift */; };
 		3A368D07E3D7C90F167C0004 /* VotingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F36545539493FC06F0EFCB /* VotingViewModel.swift */; };
-		438F2629E520BB45CD9E4676 /* NyxPointerBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA73FD17E37A790B4D050C26 /* NyxPointerBanner.swift */; };
-		452EC021F84D0705F68DAB47 /* NyxBeaconSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E05F7988CB1644D75D1D14 /* NyxBeaconSheet.swift */; };
 		463D22DFC11E1BC647EF235C /* MerchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7600568307A0981FCC56028 /* MerchViewModel.swift */; };
-		46D0F2E3B08FAD46AFC85574 /* NyxDispatcherTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7ABC16DC0064DFCB465A5D5 /* NyxDispatcherTheme.swift */; };
-		47E2223B868AE029A30CC1BF /* NyxCobalt.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5FDE60C2A90041329339BC /* NyxCobalt.swift */; };
-		4909BF30F5D20F28E3AEB86F /* NyxBrokerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E62D62712DACA609326FE4E /* NyxBrokerView.swift */; };
 		4B9A65CF94E35FF4CCE9424F /* NyxKernel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCCD734E13B455EC5AF8F057 /* NyxKernel.swift */; };
 		4CF4D5CABD3EF64ABD22AE67 /* NyxRosterClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85427B0B77C23213E2FEC39D /* NyxRosterClient.swift */; };
 		55EAD8A9A4C0D9BA8395DFAB /* NyxDispatcherRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EEE5057DED57BF4248412B /* NyxDispatcherRouter.swift */; };
@@ -48,60 +37,41 @@
 		5D9A9A02F61F74BB95494455 /* BracketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA878A56C7D4DD2706A2B509 /* BracketView.swift */; };
 		668FAAF711239E146B4953A2 /* NyxWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB1C554F0D8DA41A988FB7DD /* NyxWidget.swift */; };
 		66F8B28C101FD8196023A2CC /* NyxStudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D850214645163AF51919168 /* NyxStudioController.swift */; };
-		6820CEA24DCDF8E35F9718FC /* NyxGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9794D3668B171C2E88C2D2C3 /* NyxGallery.swift */; };
 		6B4A197D508936F5D2AFB675 /* NyxAccountSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21E520970BF5BC4D57C42387 /* NyxAccountSheet.swift */; };
-		6DD1B293A1BD4ED38513030B /* NyxDispatcherRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88640AFE8DE083C0D2A42BB0 /* NyxDispatcherRouter.swift */; };
 		6EC4725BBCF5E921D260264B /* Fighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 295478B040AC64E1ED95C941 /* Fighter.swift */; };
 		747A79E89E62B50CFACF294C /* TicketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1610C51817181448BE17507 /* TicketView.swift */; };
 		75047114B9EDAF1585C8524F /* FighterDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 279090274C9CBD405BDE558B /* FighterDetailView.swift */; };
-		769F120B075891B825BA8098 /* WebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 412507669196FCE3D33178C2 /* WebBridge.swift */; };
 		770FC8C3766151EB630772F1 /* NyxNexusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F018E4F198E3E80F2668942 /* NyxNexusView.swift */; };
 		77D5988FC1B804597C6EED4E /* Vote.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFBED4F0AD27E47BB6E5930F /* Vote.swift */; };
-		7AF9A8AE285B53F744FFF27D /* AppButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3CE6250CF320D5167F7ED37 /* AppButtons.swift */; };
 		7C0F7193476D8D6090CEA36F /* BarOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE13C513A7ABA6DE5AB21CD /* BarOrder.swift */; };
 		7C5655D49126279EF36246BE /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4E867BBE54F42EC6905E266 /* SettingsView.swift */; };
 		7DA8AD9B26456AEFEAC7DF03 /* BarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC243A7A7DC564098959361C /* BarItem.swift */; };
 		8139A6B381DF1FF6CDCB116F /* NyxCoralView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49921A9D004CE94FB3065492 /* NyxCoralView.swift */; };
 		89AB33E5615C05902182B06A /* AppButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 623ADE5D0E0BC39E91172465 /* AppButtons.swift */; };
 		8ED34612029371765992B560 /* NyxBeaconSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C905B46D0A188A91DF85649 /* NyxBeaconSheet.swift */; };
-		8F11735673B2958E47C8EA6A /* NyxAccountBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E08A77163E0F227726DE1AE /* NyxAccountBanner.swift */; };
-		90AB2C26121CFF98F81207F6 /* NyxCometHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21284A87D708959979FC94 /* NyxCometHelper.swift */; };
 		94DF912689B3D75857C08348 /* TicketViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C073CDD36B8CEA3D4E5B1C00 /* TicketViewModel.swift */; };
 		9520E398EB563420875346C0 /* NyxCourier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971B784556D5776B4C5B765A /* NyxCourier.swift */; };
 		9542346E9EDEFE42781A5D28 /* NyxCoveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E2FF9054AECCFADC3EED4C /* NyxCoveView.swift */; };
 		986A48D9D5825F25613C8943 /* NyxBrokerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C0F2E0132768DA91ADA3D4 /* NyxBrokerView.swift */; };
 		9BC812496C601D3E817E1EFE /* FightersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2967928380BC81F1065CB3 /* FightersView.swift */; };
-		9CE3F1099F3CC6E2404601CC /* NyxAccountSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6A4F31E453C552A216FA2F /* NyxAccountSheet.swift */; };
-		9D6A7E6F0DBBEB436A2AD7CC /* NetworkModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D8490BD83CE5126727DF29 /* NetworkModels.swift */; };
 		A078A7526D5C42E2509426E4 /* NyxDispatcherTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18314027158C79E5F7EA2F3E /* NyxDispatcherTheme.swift */; };
 		A14780D7BE64249CD9D3C5E4 /* NyxAccountBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CA3A85C1D47940A8668F750 /* NyxAccountBanner.swift */; };
-		A188AB6071A7E354B198331A /* NyxMint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 261DACB696E7BF8C2BA8E22E /* NyxMint.swift */; };
-		A76737B8E228FF511E532623 /* NyxBuilderSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96BBF03DEA05A7FCE8144021 /* NyxBuilderSheet.swift */; };
 		A77D26382E55554C838F1DB7 /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5BD39149F752C2ABDC7C06A /* ResultsView.swift */; };
 		A7A185FE2D53422B7B2E575F /* MerchCartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 275920391802A519C50C5F74 /* MerchCartView.swift */; };
-		A802C27CB73321EBE853D27A /* NyxNexusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42587A8862789D6C7E133E56 /* NyxNexusView.swift */; };
 		AC8FA063BE989CD79AB79FDF /* KingsCourtAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5603872025626597EC3BFB4 /* KingsCourtAppApp.swift */; };
 		AF969FF6EB302BA46BF83C76 /* NyxMint.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC08B89C64F6EA6351631639 /* NyxMint.swift */; };
-		B3A317922F9B673648A0B7EB /* NyxWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F7CE84C2CFF58FA9C3BC70A /* NyxWidget.swift */; };
 		B77D5774828FD91DB130C79F /* NyxDriftSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88D8D9CE792E9D83837FA18A /* NyxDriftSheet.swift */; };
 		BB58D0371F826CA0A19B06AE /* MerchOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9927B2967CB4AD3E7B5560 /* MerchOrder.swift */; };
-		BDF83774B8929E1B70004341 /* NyxCoralView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E468E36EECAEB24A36507A2 /* NyxCoralView.swift */; };
 		BE70692C96B6FCDDCBD5AF2C /* NyxPointerBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACD4407384465E606928724 /* NyxPointerBanner.swift */; };
-		C6D8901A4B18C617726CD357 /* NyxRosterClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F8DEB96F4FBD68B290C04C /* NyxRosterClient.swift */; };
-		C8BE9E619818853CCAC0BF35 /* NyxVertexSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 337FEBD566F52372E2136D0D /* NyxVertexSheet.swift */; };
 		CD6190B8569C9C89BE9473CA /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20213A7A1109F6B25EA9392 /* Theme.swift */; };
 		CD6F37C5BCCBD19ED1B863E7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6AE6AB0094366ED1C14D5F /* ContentView.swift */; };
 		D302248C3B30710A4F8D1BF4 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F996DAC097F862554C0D15 /* AppConstants.swift */; };
-		D9FD13B8839F95A26E4575E0 /* NyxStudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A75D81FA513C836E2731BB36 /* NyxStudioController.swift */; };
 		DAE667489A5EE62E4DDEDA88 /* NyxRanger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DD30932C6683E5E5DE46E48 /* NyxRanger.swift */; };
 		DFCF2D1304F0ED4FFB606D29 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3F838C5C973985FFA0D0C338 /* Assets.xcassets */; };
-		E2478213D0DA66740CF14EA3 /* NyxFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 368343D8ABC99AEA52AEBF41 /* NyxFeed.swift */; };
 		E51C77184F98C3BE88DC9743 /* BarOrdersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFE15D50C1DC96ED4696356 /* BarOrdersView.swift */; };
 		E8022946703F21FA3C1C5CA4 /* MerchItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B88522FE11F9FDB24AD57C1 /* MerchItem.swift */; };
 		E9492F84045A5F718277C932 /* NyxCometHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1251D5E0BDDA7177451B57C7 /* NyxCometHelper.swift */; };
 		E9898FD053FE598F0E81A17D /* VoteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F8E94059EB1CE64107409C /* VoteDetailView.swift */; };
-		EE0D798A2B74ABE88BA6550F /* NyxPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6089AE56340E74BDBAC21461 /* NyxPanel.swift */; };
-		F25010AD3760FED6804A5998 /* NyxDriftSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E0051AC6A1044512E00A42F /* NyxDriftSheet.swift */; };
 		F8CFA719BDCB2A6886045083 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B7B69F49CEAE9425B8AE0A /* Color+Hex.swift */; };
 		FBF46DD9650A5CA6EF188F2F /* BarMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93EBAB067ACFD9E41F214CF3 /* BarMenuView.swift */; };
 		FC95AC89CC512C58A2BF4809 /* NyxDispatcherConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0221D96931F2D9F2ED1C9CD9 /* NyxDispatcherConfig.swift */; };
@@ -114,46 +84,30 @@
 		18314027158C79E5F7EA2F3E /* NyxDispatcherTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxDispatcherTheme.swift; sourceTree = "<group>"; };
 		21223D25DADE7FB9A36D6A80 /* NetworkModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkModels.swift; sourceTree = "<group>"; };
 		21E520970BF5BC4D57C42387 /* NyxAccountSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxAccountSheet.swift; sourceTree = "<group>"; };
-		261DACB696E7BF8C2BA8E22E /* NyxMint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxMint.swift; sourceTree = "<group>"; };
 		275920391802A519C50C5F74 /* MerchCartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MerchCartView.swift; sourceTree = "<group>"; };
 		279090274C9CBD405BDE558B /* FighterDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FighterDetailView.swift; sourceTree = "<group>"; };
-		28EA7395D0D1C32CA34BCFC5 /* NyxDispatcherConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxDispatcherConfig.swift; sourceTree = "<group>"; };
 		295478B040AC64E1ED95C941 /* Fighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fighter.swift; sourceTree = "<group>"; };
 		2B7E1CE568308CD8C8B37574 /* NyxCobalt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxCobalt.swift; sourceTree = "<group>"; };
-		2E0051AC6A1044512E00A42F /* NyxDriftSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxDriftSheet.swift; sourceTree = "<group>"; };
-		337FEBD566F52372E2136D0D /* NyxVertexSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxVertexSheet.swift; sourceTree = "<group>"; };
 		34DF3A93ADD465595A89E8CD /* MatchDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchDetailView.swift; sourceTree = "<group>"; };
-		368343D8ABC99AEA52AEBF41 /* NyxFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxFeed.swift; sourceTree = "<group>"; };
-		37066232ABD76A1D52F895EB /* NyxKernel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxKernel.swift; sourceTree = "<group>"; };
 		3838C2317CE93C7ABD8C35F5 /* BracketNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BracketNode.swift; sourceTree = "<group>"; };
 		3E2795AE0F376793BB1612C4 /* MatchPredictionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchPredictionDetailView.swift; sourceTree = "<group>"; };
 		3F018E4F198E3E80F2668942 /* NyxNexusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxNexusView.swift; sourceTree = "<group>"; };
 		3F838C5C973985FFA0D0C338 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3F98D418EF9229FD2C3CA8CD /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
-		412507669196FCE3D33178C2 /* WebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebBridge.swift; sourceTree = "<group>"; };
-		42587A8862789D6C7E133E56 /* NyxNexusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxNexusView.swift; sourceTree = "<group>"; };
-		43D8490BD83CE5126727DF29 /* NetworkModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkModels.swift; sourceTree = "<group>"; };
 		49921A9D004CE94FB3065492 /* NyxCoralView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxCoralView.swift; sourceTree = "<group>"; };
 		4AFE15D50C1DC96ED4696356 /* BarOrdersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarOrdersView.swift; sourceTree = "<group>"; };
 		4C2967928380BC81F1065CB3 /* FightersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FightersView.swift; sourceTree = "<group>"; };
-		4E468E36EECAEB24A36507A2 /* NyxCoralView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxCoralView.swift; sourceTree = "<group>"; };
 		52F996DAC097F862554C0D15 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		56B2B0D294BE36E2090BA94D /* NyxVertexSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxVertexSheet.swift; sourceTree = "<group>"; };
-		5B21284A87D708959979FC94 /* NyxCometHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxCometHelper.swift; sourceTree = "<group>"; };
 		5C905B46D0A188A91DF85649 /* NyxBeaconSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxBeaconSheet.swift; sourceTree = "<group>"; };
 		5CA3A85C1D47940A8668F750 /* NyxAccountBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxAccountBanner.swift; sourceTree = "<group>"; };
-		6089AE56340E74BDBAC21461 /* NyxPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxPanel.swift; sourceTree = "<group>"; };
 		623ADE5D0E0BC39E91172465 /* AppButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppButtons.swift; sourceTree = "<group>"; };
-		66C35A23E12545F71C5B1E6A /* NyxMeadowRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxMeadowRouter.swift; sourceTree = "<group>"; };
 		6B88522FE11F9FDB24AD57C1 /* MerchItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MerchItem.swift; sourceTree = "<group>"; };
 		6D850214645163AF51919168 /* NyxStudioController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxStudioController.swift; sourceTree = "<group>"; };
-		6E62D62712DACA609326FE4E /* NyxBrokerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxBrokerView.swift; sourceTree = "<group>"; };
 		75D40D9B355D5C15B79E4241 /* NyxBuilderSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxBuilderSheet.swift; sourceTree = "<group>"; };
-		7F7CE84C2CFF58FA9C3BC70A /* NyxWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxWidget.swift; sourceTree = "<group>"; };
 		81AA6CD1888AC7F2B02F5C1E /* BarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarViewModel.swift; sourceTree = "<group>"; };
 		82E1933CAE29A05921BA3520 /* Match.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Match.swift; sourceTree = "<group>"; };
 		85427B0B77C23213E2FEC39D /* NyxRosterClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxRosterClient.swift; sourceTree = "<group>"; };
-		88640AFE8DE083C0D2A42BB0 /* NyxDispatcherRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxDispatcherRouter.swift; sourceTree = "<group>"; };
 		88D8D9CE792E9D83837FA18A /* NyxDriftSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxDriftSheet.swift; sourceTree = "<group>"; };
 		8964AB2FE42F5CD2E6A39DDC /* NyxPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxPanel.swift; sourceTree = "<group>"; };
 		8ACD4407384465E606928724 /* NyxPointerBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxPointerBanner.swift; sourceTree = "<group>"; };
@@ -161,33 +115,21 @@
 		8DD30932C6683E5E5DE46E48 /* NyxRanger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxRanger.swift; sourceTree = "<group>"; };
 		919081B61B0B869211AA5471 /* KingsCourtApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = KingsCourtApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		93EBAB067ACFD9E41F214CF3 /* BarMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarMenuView.swift; sourceTree = "<group>"; };
-		96BBF03DEA05A7FCE8144021 /* NyxBuilderSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxBuilderSheet.swift; sourceTree = "<group>"; };
 		971B784556D5776B4C5B765A /* NyxCourier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxCourier.swift; sourceTree = "<group>"; };
-		9794D3668B171C2E88C2D2C3 /* NyxGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxGallery.swift; sourceTree = "<group>"; };
 		98185198F7C293CE9AAA7C23 /* MerchDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MerchDetailView.swift; sourceTree = "<group>"; };
-		9E08A77163E0F227726DE1AE /* NyxAccountBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxAccountBanner.swift; sourceTree = "<group>"; };
 		A0B66D7B2593423A3E659242 /* MerchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MerchView.swift; sourceTree = "<group>"; };
-		A75D81FA513C836E2731BB36 /* NyxStudioController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxStudioController.swift; sourceTree = "<group>"; };
-		B3CE6250CF320D5167F7ED37 /* AppButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppButtons.swift; sourceTree = "<group>"; };
 		B4E867BBE54F42EC6905E266 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B5603872025626597EC3BFB4 /* KingsCourtAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KingsCourtAppApp.swift; sourceTree = "<group>"; };
-		B74A0FDD30A939B11BA620D4 /* NyxRanger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxRanger.swift; sourceTree = "<group>"; };
-		B8F8DEB96F4FBD68B290C04C /* NyxRosterClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxRosterClient.swift; sourceTree = "<group>"; };
 		B9E2FF9054AECCFADC3EED4C /* NyxCoveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxCoveView.swift; sourceTree = "<group>"; };
 		BB2CE3E2B485686683D6961F /* NyxMeadowRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxMeadowRouter.swift; sourceTree = "<group>"; };
 		BE21F6CC585FC7A33DD11F98 /* Ticket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ticket.swift; sourceTree = "<group>"; };
 		BF6AE6AB0094366ED1C14D5F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BFBED4F0AD27E47BB6E5930F /* Vote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vote.swift; sourceTree = "<group>"; };
 		C073CDD36B8CEA3D4E5B1C00 /* TicketViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketViewModel.swift; sourceTree = "<group>"; };
-		C0DE6A0EFF22C213AC00C4E0 /* NyxCourier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxCourier.swift; sourceTree = "<group>"; };
 		C20213A7A1109F6B25EA9392 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		C4F36545539493FC06F0EFCB /* VotingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingViewModel.swift; sourceTree = "<group>"; };
 		C7EEE5057DED57BF4248412B /* NyxDispatcherRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxDispatcherRouter.swift; sourceTree = "<group>"; };
-		C8E05F7988CB1644D75D1D14 /* NyxBeaconSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxBeaconSheet.swift; sourceTree = "<group>"; };
-		CA73FD17E37A790B4D050C26 /* NyxPointerBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxPointerBanner.swift; sourceTree = "<group>"; };
 		CA878A56C7D4DD2706A2B509 /* BracketView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BracketView.swift; sourceTree = "<group>"; };
-		CE6A4F31E453C552A216FA2F /* NyxAccountSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxAccountSheet.swift; sourceTree = "<group>"; };
-		D563034585B5CAD19017ABC8 /* NyxCoveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxCoveView.swift; sourceTree = "<group>"; };
 		DB1C554F0D8DA41A988FB7DD /* NyxWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxWidget.swift; sourceTree = "<group>"; };
 		DCE13C513A7ABA6DE5AB21CD /* BarOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarOrder.swift; sourceTree = "<group>"; };
 		DE374AF392165BF207AE6AAC /* TournamentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TournamentViewModel.swift; sourceTree = "<group>"; };
@@ -195,14 +137,12 @@
 		E2B7B69F49CEAE9425B8AE0A /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		E43BE23DA3818E9458BACCC2 /* NyxFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxFeed.swift; sourceTree = "<group>"; };
 		E5BD39149F752C2ABDC7C06A /* ResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsView.swift; sourceTree = "<group>"; };
-		EC5FDE60C2A90041329339BC /* NyxCobalt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxCobalt.swift; sourceTree = "<group>"; };
 		F1610C51817181448BE17507 /* TicketView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketView.swift; sourceTree = "<group>"; };
 		F1C0F2E0132768DA91ADA3D4 /* NyxBrokerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxBrokerView.swift; sourceTree = "<group>"; };
 		F40CB3FCD7E2DFB312B9B2C7 /* VotingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingView.swift; sourceTree = "<group>"; };
 		F6F8E94059EB1CE64107409C /* VoteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoteDetailView.swift; sourceTree = "<group>"; };
 		F75E6E9561B1B57F0F98FBC0 /* WebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebBridge.swift; sourceTree = "<group>"; };
 		F7600568307A0981FCC56028 /* MerchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MerchViewModel.swift; sourceTree = "<group>"; };
-		F7ABC16DC0064DFCB465A5D5 /* NyxDispatcherTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxDispatcherTheme.swift; sourceTree = "<group>"; };
 		F96FF28400DA45E9C7A77F5B /* NyxGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxGallery.swift; sourceTree = "<group>"; };
 		FC08B89C64F6EA6351631639 /* NyxMint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NyxMint.swift; sourceTree = "<group>"; };
 		FC243A7A7DC564098959361C /* BarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarItem.swift; sourceTree = "<group>"; };
@@ -271,14 +211,6 @@
 			path = DeepLink;
 			sourceTree = "<group>";
 		};
-		3F589F3DBB6A3A73F2C1D7F7 /* Components */ = {
-			isa = PBXGroup;
-			children = (
-				B3CE6250CF320D5167F7ED37 /* AppButtons.swift */,
-			);
-			path = Components;
-			sourceTree = "<group>";
-		};
 		449C8C6BB1B27A1C8ABAA8BD /* Security */ = {
 			isa = PBXGroup;
 			children = (
@@ -344,36 +276,6 @@
 			);
 			sourceTree = "<group>";
 		};
-		6D90097184AE3685DC464FA5 /* Storage */ = {
-			isa = PBXGroup;
-			children = (
-				9794D3668B171C2E88C2D2C3 /* NyxGallery.swift */,
-			);
-			path = Storage;
-			sourceTree = "<group>";
-		};
-		735F6FE4EE98F8618DCEAD13 /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				6E62D62712DACA609326FE4E /* NyxBrokerView.swift */,
-				42587A8862789D6C7E133E56 /* NyxNexusView.swift */,
-			);
-			path = Settings;
-			sourceTree = "<group>";
-		};
-		73C6675041DD8F716DB207F1 /* Interface */ = {
-			isa = PBXGroup;
-			children = (
-				4E468E36EECAEB24A36507A2 /* NyxCoralView.swift */,
-				3F589F3DBB6A3A73F2C1D7F7 /* Components */,
-				B87EA85066A49AC6066C6E96 /* Overlays */,
-				735F6FE4EE98F8618DCEAD13 /* Settings */,
-				B1FC557DD6625C69DD8DEE05 /* Sheets */,
-				B3377BCBE0B4EA39A389E10B /* Theme */,
-			);
-			path = Interface;
-			sourceTree = "<group>";
-		};
 		7EB19A535D967FE40328C8A7 /* Overlays */ = {
 			isa = PBXGroup;
 			children = (
@@ -381,23 +283,6 @@
 				8964AB2FE42F5CD2E6A39DDC /* NyxPanel.swift */,
 			);
 			path = Overlays;
-			sourceTree = "<group>";
-		};
-		82FCCA2B3DC2B06DBD03D423 /* WebContent */ = {
-			isa = PBXGroup;
-			children = (
-				A75D81FA513C836E2731BB36 /* NyxStudioController.swift */,
-				412507669196FCE3D33178C2 /* WebBridge.swift */,
-			);
-			path = WebContent;
-			sourceTree = "<group>";
-		};
-		85193676A1DF423C5E962254 /* Push */ = {
-			isa = PBXGroup;
-			children = (
-				37066232ABD76A1D52F895EB /* NyxKernel.swift */,
-			);
-			path = Push;
 			sourceTree = "<group>";
 		};
 		9154BE230D992A6373C9C11F /* Views */ = {
@@ -474,27 +359,6 @@
 			path = WebContent;
 			sourceTree = "<group>";
 		};
-		B1FC557DD6625C69DD8DEE05 /* Sheets */ = {
-			isa = PBXGroup;
-			children = (
-				CE6A4F31E453C552A216FA2F /* NyxAccountSheet.swift */,
-				C8E05F7988CB1644D75D1D14 /* NyxBeaconSheet.swift */,
-				96BBF03DEA05A7FCE8144021 /* NyxBuilderSheet.swift */,
-				2E0051AC6A1044512E00A42F /* NyxDriftSheet.swift */,
-				CA73FD17E37A790B4D050C26 /* NyxPointerBanner.swift */,
-				337FEBD566F52372E2136D0D /* NyxVertexSheet.swift */,
-			);
-			path = Sheets;
-			sourceTree = "<group>";
-		};
-		B3377BCBE0B4EA39A389E10B /* Theme */ = {
-			isa = PBXGroup;
-			children = (
-				F7ABC16DC0064DFCB465A5D5 /* NyxDispatcherTheme.swift */,
-			);
-			path = Theme;
-			sourceTree = "<group>";
-		};
 		B55C71015B6B20E05B0F5ABD /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -513,15 +377,6 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		B87EA85066A49AC6066C6E96 /* Overlays */ = {
-			isa = PBXGroup;
-			children = (
-				9E08A77163E0F227726DE1AE /* NyxAccountBanner.swift */,
-				6089AE56340E74BDBAC21461 /* NyxPanel.swift */,
-			);
-			path = Overlays;
-			sourceTree = "<group>";
-		};
 		BF45C156EF324FBD6F253BA4 /* Theme */ = {
 			isa = PBXGroup;
 			children = (
@@ -530,19 +385,10 @@
 			path = Theme;
 			sourceTree = "<group>";
 		};
-		C2AB038ED8C40AEBDB516D3C /* DeepLink */ = {
-			isa = PBXGroup;
-			children = (
-				66C35A23E12545F71C5B1E6A /* NyxMeadowRouter.swift */,
-			);
-			path = DeepLink;
-			sourceTree = "<group>";
-		};
 		C3B38951FC4128D027CE8AD4 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
 				0CC68B9E2745AFDCB9979187 /* App */,
-				CB85DF34DADADB362C312550 /* AppFlow */,
 				4E71397483F165505EE57B9D /* Models */,
 				92C37F98A9C185E2937121BE /* TrackerKit */,
 				B55C71015B6B20E05B0F5ABD /* Utils */,
@@ -550,33 +396,6 @@
 				9154BE230D992A6373C9C11F /* Views */,
 			);
 			path = Sources;
-			sourceTree = "<group>";
-		};
-		C883ED14CDB12D629141BC42 /* Security */ = {
-			isa = PBXGroup;
-			children = (
-				C0DE6A0EFF22C213AC00C4E0 /* NyxCourier.swift */,
-				368343D8ABC99AEA52AEBF41 /* NyxFeed.swift */,
-				B74A0FDD30A939B11BA620D4 /* NyxRanger.swift */,
-			);
-			path = Security;
-			sourceTree = "<group>";
-		};
-		CB85DF34DADADB362C312550 /* AppFlow */ = {
-			isa = PBXGroup;
-			children = (
-				D563034585B5CAD19017ABC8 /* NyxCoveView.swift */,
-				DC4509D7794B339F6468A25A /* Core */,
-				C2AB038ED8C40AEBDB516D3C /* DeepLink */,
-				73C6675041DD8F716DB207F1 /* Interface */,
-				F706F1D9FF1D66D09DC50C8E /* Network */,
-				85193676A1DF423C5E962254 /* Push */,
-				FF49617C3D280B43814CECB1 /* Router */,
-				C883ED14CDB12D629141BC42 /* Security */,
-				6D90097184AE3685DC464FA5 /* Storage */,
-				82FCCA2B3DC2B06DBD03D423 /* WebContent */,
-			);
-			path = AppFlow;
 			sourceTree = "<group>";
 		};
 		D02C530E89F4CC9300BCBE52 /* Network */ = {
@@ -588,35 +407,6 @@
 				DB1C554F0D8DA41A988FB7DD /* NyxWidget.swift */,
 			);
 			path = Network;
-			sourceTree = "<group>";
-		};
-		DC4509D7794B339F6468A25A /* Core */ = {
-			isa = PBXGroup;
-			children = (
-				5B21284A87D708959979FC94 /* NyxCometHelper.swift */,
-				28EA7395D0D1C32CA34BCFC5 /* NyxDispatcherConfig.swift */,
-				261DACB696E7BF8C2BA8E22E /* NyxMint.swift */,
-			);
-			path = Core;
-			sourceTree = "<group>";
-		};
-		F706F1D9FF1D66D09DC50C8E /* Network */ = {
-			isa = PBXGroup;
-			children = (
-				43D8490BD83CE5126727DF29 /* NetworkModels.swift */,
-				EC5FDE60C2A90041329339BC /* NyxCobalt.swift */,
-				B8F8DEB96F4FBD68B290C04C /* NyxRosterClient.swift */,
-				7F7CE84C2CFF58FA9C3BC70A /* NyxWidget.swift */,
-			);
-			path = Network;
-			sourceTree = "<group>";
-		};
-		FF49617C3D280B43814CECB1 /* Router */ = {
-			isa = PBXGroup;
-			children = (
-				88640AFE8DE083C0D2A42BB0 /* NyxDispatcherRouter.swift */,
-			);
-			path = Router;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -690,7 +480,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7AF9A8AE285B53F744FFF27D /* AppButtons.swift in Sources */,
 				89AB33E5615C05902182B06A /* AppButtons.swift in Sources */,
 				D302248C3B30710A4F8D1BF4 /* AppConstants.swift in Sources */,
 				2D77790EF28C5806BF3C92AA /* AppDelegate.swift in Sources */,
@@ -716,61 +505,33 @@
 				BB58D0371F826CA0A19B06AE /* MerchOrder.swift in Sources */,
 				098200E2FB05CBE4AB2ED4F8 /* MerchView.swift in Sources */,
 				463D22DFC11E1BC647EF235C /* MerchViewModel.swift in Sources */,
-				9D6A7E6F0DBBEB436A2AD7CC /* NetworkModels.swift in Sources */,
 				1D359864F94CB0DEC78255DD /* NetworkModels.swift in Sources */,
-				8F11735673B2958E47C8EA6A /* NyxAccountBanner.swift in Sources */,
 				A14780D7BE64249CD9D3C5E4 /* NyxAccountBanner.swift in Sources */,
-				9CE3F1099F3CC6E2404601CC /* NyxAccountSheet.swift in Sources */,
 				6B4A197D508936F5D2AFB675 /* NyxAccountSheet.swift in Sources */,
-				452EC021F84D0705F68DAB47 /* NyxBeaconSheet.swift in Sources */,
 				8ED34612029371765992B560 /* NyxBeaconSheet.swift in Sources */,
-				4909BF30F5D20F28E3AEB86F /* NyxBrokerView.swift in Sources */,
 				986A48D9D5825F25613C8943 /* NyxBrokerView.swift in Sources */,
-				A76737B8E228FF511E532623 /* NyxBuilderSheet.swift in Sources */,
 				38B71C787A13FA22823CC7F4 /* NyxBuilderSheet.swift in Sources */,
-				47E2223B868AE029A30CC1BF /* NyxCobalt.swift in Sources */,
 				3689CEBB1E0CA49B50DED745 /* NyxCobalt.swift in Sources */,
-				90AB2C26121CFF98F81207F6 /* NyxCometHelper.swift in Sources */,
 				E9492F84045A5F718277C932 /* NyxCometHelper.swift in Sources */,
-				BDF83774B8929E1B70004341 /* NyxCoralView.swift in Sources */,
 				8139A6B381DF1FF6CDCB116F /* NyxCoralView.swift in Sources */,
-				23B90673A48DB3AB68F23019 /* NyxCourier.swift in Sources */,
 				9520E398EB563420875346C0 /* NyxCourier.swift in Sources */,
-				13D4A15B17D97946D589BF5F /* NyxCoveView.swift in Sources */,
 				9542346E9EDEFE42781A5D28 /* NyxCoveView.swift in Sources */,
-				2926779B98DEA5EBBF4AF781 /* NyxDispatcherConfig.swift in Sources */,
 				FC95AC89CC512C58A2BF4809 /* NyxDispatcherConfig.swift in Sources */,
-				6DD1B293A1BD4ED38513030B /* NyxDispatcherRouter.swift in Sources */,
 				55EAD8A9A4C0D9BA8395DFAB /* NyxDispatcherRouter.swift in Sources */,
-				46D0F2E3B08FAD46AFC85574 /* NyxDispatcherTheme.swift in Sources */,
 				A078A7526D5C42E2509426E4 /* NyxDispatcherTheme.swift in Sources */,
-				F25010AD3760FED6804A5998 /* NyxDriftSheet.swift in Sources */,
 				B77D5774828FD91DB130C79F /* NyxDriftSheet.swift in Sources */,
-				E2478213D0DA66740CF14EA3 /* NyxFeed.swift in Sources */,
 				089068063E85F7A12073738A /* NyxFeed.swift in Sources */,
-				6820CEA24DCDF8E35F9718FC /* NyxGallery.swift in Sources */,
 				5C73C3F5E67556DF29A259D8 /* NyxGallery.swift in Sources */,
-				0A1F8C02EE089F847D529ED3 /* NyxKernel.swift in Sources */,
 				4B9A65CF94E35FF4CCE9424F /* NyxKernel.swift in Sources */,
-				2438969D67E9C0A2494525DD /* NyxMeadowRouter.swift in Sources */,
 				56EBF60F21FA00024A8F1F8C /* NyxMeadowRouter.swift in Sources */,
-				A188AB6071A7E354B198331A /* NyxMint.swift in Sources */,
 				AF969FF6EB302BA46BF83C76 /* NyxMint.swift in Sources */,
-				A802C27CB73321EBE853D27A /* NyxNexusView.swift in Sources */,
 				770FC8C3766151EB630772F1 /* NyxNexusView.swift in Sources */,
-				EE0D798A2B74ABE88BA6550F /* NyxPanel.swift in Sources */,
 				59043DF26C0571D789624B90 /* NyxPanel.swift in Sources */,
-				438F2629E520BB45CD9E4676 /* NyxPointerBanner.swift in Sources */,
 				BE70692C96B6FCDDCBD5AF2C /* NyxPointerBanner.swift in Sources */,
-				186C238160D67F01E808930C /* NyxRanger.swift in Sources */,
 				DAE667489A5EE62E4DDEDA88 /* NyxRanger.swift in Sources */,
-				C6D8901A4B18C617726CD357 /* NyxRosterClient.swift in Sources */,
 				4CF4D5CABD3EF64ABD22AE67 /* NyxRosterClient.swift in Sources */,
-				D9FD13B8839F95A26E4575E0 /* NyxStudioController.swift in Sources */,
 				66F8B28C101FD8196023A2CC /* NyxStudioController.swift in Sources */,
-				C8BE9E619818853CCAC0BF35 /* NyxVertexSheet.swift in Sources */,
 				5982F56EC3DE7D4FCD4B510D /* NyxVertexSheet.swift in Sources */,
-				B3A317922F9B673648A0B7EB /* NyxWidget.swift in Sources */,
 				668FAAF711239E146B4953A2 /* NyxWidget.swift in Sources */,
 				1494A1815A785E2685E00BFA /* ProfileView.swift in Sources */,
 				A77D26382E55554C838F1DB7 /* ResultsView.swift in Sources */,
@@ -785,7 +546,6 @@
 				E9898FD053FE598F0E81A17D /* VoteDetailView.swift in Sources */,
 				1EDC182BAC7ACC0887141429 /* VotingView.swift in Sources */,
 				3A368D07E3D7C90F167C0004 /* VotingViewModel.swift in Sources */,
-				769F120B075891B825BA8098 /* WebBridge.swift in Sources */,
 				5839E294C8DD98E7851D49C3 /* WebBridge.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -798,7 +558,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 799QCM8MAT;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0.1;
@@ -814,7 +574,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 799QCM8MAT;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0.1;

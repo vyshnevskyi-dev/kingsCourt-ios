@@ -33,11 +33,11 @@ struct NyxDispatcherConfig {
     /// ``schema.encode_strings`` is set, ``inject.py`` fills this
     /// and ``vault`` and blanks the ``*Plain`` literals, so the shipped
     /// binary carries no human-readable domain / endpoint strings.
-    static let vaultKey: [UInt8] = [38, 75, 250, 28, 121, 65, 119, 16, 251, 93, 198, 145, 64, 217, 131, 77, 146, 28, 118, 23, 10, 24, 1, 103]
+    static let vaultKey: [UInt8] = [202, 137, 70, 234, 240, 140, 94, 138, 234, 151, 104, 49, 94, 185, 228, 15, 39, 149, 13, 137, 216, 168, 201, 184]
     /// Encoded UTF-8 of, in order:
     /// ``[serverURL, initPath, alternateInitPath, eventPath, pushTokenPath]``.
     /// Empty by default. See ``NyxRanger`` and ``vaultReveal``.
-    static let vault: [[UInt8]] = [[77, 34, 148, 123, 10, 34, 24, 101, 137, 41, 161, 240, 45, 188, 240, 99, 229, 121, 20, 100, 99, 108, 100], [9, 42, 138, 117, 86, 55, 70, 63, 152, 49, 175, 244, 46, 173, 172, 36, 252, 117, 2], [9, 42, 138, 117, 86, 55, 69, 63, 154, 46, 181, 244, 52, 170, 172, 46, 253, 114, 16, 126, 109, 54, 107, 20, 73, 37], [9, 42, 138, 117, 86, 55, 70, 63, 152, 49, 175, 244, 46, 173, 172, 40, 228, 121, 24, 99], [9, 42, 138, 117, 86, 55, 70, 63, 152, 49, 175, 244, 46, 173, 172, 61, 231, 111, 30, 58, 126, 119, 106, 2, 72]]
+    static let vault: [[UInt8]] = [[161, 224, 40, 141, 131, 239, 49, 255, 152, 227, 15, 80, 51, 220, 151, 33, 80, 240, 111, 250, 177, 220, 172], [229, 232, 54, 131, 223, 250, 111, 165, 137, 251, 1, 84, 48, 205, 203, 102, 73, 252, 121], [229, 232, 54, 131, 223, 250, 108, 165, 139, 228, 27, 84, 42, 202, 203, 108, 72, 251, 107, 224, 191, 134, 163, 203, 165, 231], [229, 232, 54, 131, 223, 250, 111, 165, 137, 251, 1, 84, 48, 205, 203, 106, 81, 240, 99, 253], [229, 232, 54, 131, 223, 250, 111, 165, 137, 251, 1, 84, 48, 205, 203, 127, 82, 230, 101, 164, 172, 199, 162, 221, 164]]
     /// Plaintext development fallbacks. Used verbatim when the vault is empty
     /// (default / dev / unit tests). ``inject.py`` blanks the *value* of
     /// each of these (``= ""``) when it populates the vault, so they
