@@ -25,6 +25,27 @@ workflows:
           }))
           path.chmod(0o600)
           PY
+          ruby - <<'RUBY'
+          require "json"
+          require "spaceship"
+          key = JSON.parse(File.read("/tmp/appfactory_asc_key.json"))
+          Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(
+            key_id: key.fetch("key_id"),
+            issuer_id: key.fetch("issuer_id"),
+            key: key.fetch("key")
+          )
+          app = Spaceship::ConnectAPI::App.all.find { |item| item.bundle_id == ENV.fetch("BUNDLE_ID") }
+          abort("ASC app not found") unless app
+          version = app.get_app_store_versions.find do |item|
+            item.platform == Spaceship::ConnectAPI::Platform::IOS &&
+              item.version_string == ENV.fetch("MARKETING_VERSION")
+          end
+          abort("ASC version not found") unless version
+          build = version.get_build
+          abort("ASC build not selected") unless build
+          build.update(attributes: { uses_non_exempt_encryption: false })
+          puts "[COMPLIANCE] Export compliance confirmed for build #{build.version}"
+          RUBY
           fastlane deliver \
             --api_key_path /tmp/appfactory_asc_key.json \
             --app_identifier "$BUNDLE_ID" \
