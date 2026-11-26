@@ -1,9 +1,9 @@
-// NyxPanel.swift
-// Main overlay container that displays the appropriate sheet based on router state
+
+
 
 import SwiftUI
 
-struct NyxPanel: View {
+struct NyxBuilder: View {
 
     @ObservedObject var router: NyxDispatcherRouter
 
@@ -14,7 +14,7 @@ struct NyxPanel: View {
     var body: some View {
         ZStack {
             if let type = router.overlay {
-                // Icon change banner shows from top without dimming
+                
                 if case .iconChange(let name) = type {
                     NyxPointerBanner(
                         iconName: name,
@@ -31,11 +31,15 @@ struct NyxPanel: View {
                     )
                     .transition(.move(edge: .top).combined(with: .opacity))
                 } else if case .pushPermission = type {
-                    // Push — top banner, slides from top
+                    
                     sheetContent(for: type)
                         .transition(.move(edge: .top).combined(with: .opacity))
+                } else if case .nativeAd = type {
+                    
+                    sheetContent(for: type)
+                        .transition(.opacity)
                 } else {
-                    // Dimmed background for bottom sheets
+                    
                     Color.black.opacity(0.5)
                         .ignoresSafeArea()
                         .transition(.opacity)
@@ -44,7 +48,7 @@ struct NyxPanel: View {
                             router.dismissOverlay()
                         }
 
-                    // Sheet content
+                    
                     sheetContent(for: type)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
@@ -54,19 +58,19 @@ struct NyxPanel: View {
     }
 
     @ViewBuilder
-    private func sheetContent(for type: NyxAnchorType) -> some View {
+    private func sheetContent(for type: NyxNexusType) -> some View {
         switch type {
         case .pushPermission(let settingsMode):
-            // Compact top banner for push — slides from top
-            NyxAccountBanner(settingsMode: settingsMode, onDismiss: { router.dismissOverlay() })
+            
+            NyxOnyxBanner(settingsMode: settingsMode, onDismiss: { router.dismissOverlay() })
 
         case .rateApp:
-            NyxVertexSheet {
+            NyxSummitSheet {
                 router.dismissOverlay()
             }
 
         case .forceUpdate:
-            NyxAspenSheet(
+            NyxTempoSheet(
                 storeURL: router.currentConfig?.storeURL,
                 isForced: router.currentConfig?.shouldForceUpdate ?? true
             ) {
@@ -90,11 +94,27 @@ struct NyxPanel: View {
                 }
             )
 
+        case .nativeAd(let mediaURL, let mediaType, let adID, let advertiserName,
+                       let targetingDisclosure, let autoCloseSec):
+            NyxPanelSheet(
+                mediaURL: mediaURL,
+                mediaType: mediaType,
+                adID: adID,
+                advertiserName: advertiserName,
+                targetingDisclosure: targetingDisclosure,
+                autoCloseSec: autoCloseSec,
+                onReport: { reason in
+                    router.reportNativeAd(adID: adID, reason: reason, advertiser: advertiserName)
+                },
+                onClose: { router.dismissOverlay() }
+            )
+
         case .privacyPolicy(let url):
-            NyxBuilderSheet(
-                privacyURL: url,
+            NyxRunnerSheet(
+                privacyURL: url ?? NyxDispatcherConfig.privacyURL,
+                termsURL: NyxDispatcherConfig.termsURL,
                 onAgree: {
-                    // Save acceptance date
+                    
                     NyxGallery.shared.privacyAcceptedDate = Date()
                     NyxMint.log("Privacy policy accepted")
                 },
@@ -104,15 +124,15 @@ struct NyxPanel: View {
             )
 
         case .iconChange:
-            // Handled directly in body (top banner, not bottom sheet)
+            
             EmptyView()
         }
     }
 }
 
-// MARK: - Update Sheet
 
-struct NyxAspenSheet: View {
+
+struct NyxTempoSheet: View {
 
     let storeURL: URL?
     let isForced: Bool
@@ -123,7 +143,7 @@ struct NyxAspenSheet: View {
     var body: some View {
         NyxDriftSheet(showClose: !isForced, onClose: isForced ? {} : onClose) {
             VStack(spacing: 20) {
-                // Animated icon
+                
                 ZStack {
                     Circle()
                         .stroke(
@@ -157,22 +177,22 @@ struct NyxAspenSheet: View {
                     }
                 }
 
-                NyxCabin(text: "Update Available")
+                NyxStage(text: "Update Available")
 
-                NyxScout(text: isForced
+                NyxHarbor(text: isForced
                     ? "A new version is required. Please update to continue."
                     : "A new version is available with exciting features!"
                 )
 
                 VStack(spacing: 8) {
-                    NyxMarkerButton("Update Now", icon: "arrow.down.circle.fill") {
+                    NyxPortalButton("Update Now", icon: "arrow.down.circle.fill") {
                         if let url = storeURL {
                             UIApplication.shared.open(url)
                         }
                     }
 
                     if !isForced {
-                        NyxMapleButton("Remind Me Later") {
+                        NyxRangerButton("Remind Me Later") {
                             onClose()
                         }
                     }
@@ -183,7 +203,7 @@ struct NyxAspenSheet: View {
     }
 }
 
-// MARK: - Full Screen Overlay
+
 
 struct NyxPlannerOverlay: View {
 
@@ -195,12 +215,12 @@ struct NyxPlannerOverlay: View {
 
     var body: some View {
         ZStack {
-            // Sheet overlays
-            NyxPanel(router: router)
+            
+            NyxBuilder(router: router)
 
-            // WebView overlay
+            
             if case .webContent(let url) = router.state {
-                NyxStudioView(
+                NyxVaultView(
                     url: url,
                     allowClose: false
                 ) {
@@ -214,7 +234,7 @@ struct NyxPlannerOverlay: View {
     }
 }
 
-// MARK: - View Modifier
+
 
 struct NyxStreamModifier: ViewModifier {
 
@@ -226,10 +246,10 @@ struct NyxStreamModifier: ViewModifier {
             content
             NyxPlannerOverlay(router: router)
 
-            // #1: discreet settings gear over native content. Opt-in
-            // (privacy_in_settings) + only when a real privacy URL is
-            // baked AND native content is showing — never over the
-            // WebView / blocked screen / a dimmed overlay sheet.
+            
+            
+            
+            
             if showSettingsGear {
                 Button {
                     showSettings = true
@@ -250,8 +270,8 @@ struct NyxStreamModifier: ViewModifier {
         }
     }
 
-    /// Show the gear only on native content, when the feature is on and a
-    /// real (non-placeholder) privacy URL is present.
+    
+    
     private var showSettingsGear: Bool {
         guard NyxDispatcherConfig.privacyInSettingsEnabled, NyxDispatcherConfig.privacyURL != nil else {
             return false
@@ -262,11 +282,10 @@ struct NyxStreamModifier: ViewModifier {
 }
 
 extension View {
-    /// Adds app flow overlay system to this view
+    
     func withNyxFlow() -> some View {
         modifier(NyxStreamModifier())
     }
 }
 
-// MARK: - Preview
 

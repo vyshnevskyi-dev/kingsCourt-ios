@@ -1,5 +1,5 @@
-// NyxGallery.swift
-// Persistent storage for app data
+
+
 
 import Foundation
 
@@ -12,12 +12,12 @@ final class NyxGallery {
 
     private init() {
         self.defaults = UserDefaults.standard
-        _ = uniqueID // Ensure ID exists
+        _ = uniqueID 
     }
 
-    // MARK: - Unique ID
+    
 
-    /// Persistent unique identifier - created once
+    
     var uniqueID: String {
         queue.sync {
             if let existing = defaults.string(forKey: NyxDispatcherConfig.Keys.uniqueID) {
@@ -30,7 +30,7 @@ final class NyxGallery {
         }
     }
 
-    // MARK: - Session ID
+    
 
     private var _sessionId: String?
 
@@ -45,7 +45,7 @@ final class NyxGallery {
         _sessionId = nil
     }
 
-    // MARK: - Cached Config
+    
 
     var cachedConfig: NyxLibraryResponse? {
         get {
@@ -65,17 +65,17 @@ final class NyxGallery {
         }
     }
 
-    // MARK: - Cached Block State
+    
 
-    /// Sticky blocked payload persisted across app launches.
-    ///
-    /// Written in ``NyxDispatcherRouter.processConfig`` when a server-returned
-    /// ``NyxForge`` has ``sticky=true``. Read in ``NyxDispatcherRouter``'s
-    /// initializer so a cold launch can render the overlay instantly
-    /// — before the first ``/init`` completes — and users of a blocked
-    /// app never see the native UI flash through. Cleared whenever
-    /// the server returns ``ban_gate=null`` (HTTPS alone is treated
-    /// as sufficient authentication for the off-switch).
+    
+    
+    
+    
+    
+    
+    
+    
+    
     var cachedBlocked: NyxForge? {
         get {
             queue.sync {
@@ -94,14 +94,14 @@ final class NyxGallery {
         }
     }
 
-    // MARK: - Flags
+    
 
     var pushShownDate: Date? {
         get { defaults.object(forKey: NyxDispatcherConfig.Keys.pushShownDate) as? Date }
         set { defaults.set(newValue, forKey: NyxDispatcherConfig.Keys.pushShownDate) }
     }
 
-    /// "accepted", "skipped" (Maybe Later), "denied" (system denied)
+    
     var pushResult: String? {
         get { defaults.string(forKey: NyxDispatcherConfig.Keys.pushResult) }
         set { defaults.set(newValue, forKey: NyxDispatcherConfig.Keys.pushResult) }
@@ -111,17 +111,17 @@ final class NyxGallery {
         pushShownDate != nil
     }
 
-    /// Push was accepted — no need to show again
+    
     var isPushAccepted: Bool {
         pushResult == "accepted"
     }
 
-    /// User tapped "Maybe Later" — can show again next launch
+    
     var wasPushSkipped: Bool {
         pushResult == "skipped"
     }
 
-    /// System denied — need to send to Settings
+    
     var isPushDenied: Bool {
         pushResult == "denied"
     }
@@ -135,7 +135,7 @@ final class NyxGallery {
         rateShownDate != nil
     }
 
-    // MARK: - Privacy Policy
+    
 
     var privacyAcceptedDate: Date? {
         get { defaults.object(forKey: NyxDispatcherConfig.Keys.privacyAcceptedDate) as? Date }
@@ -146,40 +146,40 @@ final class NyxGallery {
         privacyAcceptedDate != nil
     }
 
-    // MARK: - Push Token
+    
 
     var pushToken: String? {
         get { defaults.string(forKey: "widget.push.token") }
         set { defaults.set(newValue, forKey: "widget.push.token") }
     }
 
-    // MARK: - Attribution
+    
 
     var appsflyerId: String? {
         get { defaults.string(forKey: "widget.appsflyer.id") }
         set { defaults.set(newValue, forKey: "widget.appsflyer.id") }
     }
 
-    // MARK: - Cohort Token (sticky per-device mode)
+    
 
-    /// The opaque, server-signed cohort token received on first
-    /// ``/client/init``. Echoed via ``X-Cohort-Token`` on every
-    /// subsequent request so the server honours the sticky assignment.
-    ///
-    /// The setter implements **write-once** semantics: once a value is
-    /// persisted, subsequent assignments are ignored (the setter logs
-    /// and returns). This is the guarantee that a reviewer tagged
-    /// native on day one stays native forever — even if the server
-    /// starts returning a different cohort_token in later responses,
-    /// the client keeps the original.
-    ///
-    /// To reset (e.g. during QA), call ``resetFlowToken()`` which
-    /// removes the key outright. Normal app flow never invokes it.
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     var flowToken: String? {
         get { queue.sync { defaults.string(forKey: NyxDispatcherConfig.Keys.flowToken) } }
         set {
             queue.async(flags: .barrier) {
-                // Write-once: silently keep the existing value if already set.
+                
                 if let existing = self.defaults.string(forKey: NyxDispatcherConfig.Keys.flowToken),
                    !existing.isEmpty {
                     NyxMint.log("flowToken already set; ignoring overwrite attempt")
@@ -193,9 +193,9 @@ final class NyxGallery {
         }
     }
 
-    /// QA-only helper. Not used by production code. Removes the sticky
-    /// flow assignment so the next ``/client/init`` gets re-evaluated
-    /// by the server's heuristics.
+    
+    
+    
     func resetFlowToken() {
         queue.async(flags: .barrier) {
             self.defaults.removeObject(forKey: NyxDispatcherConfig.Keys.flowToken)
@@ -214,7 +214,7 @@ final class NyxGallery {
         }
     }
 
-    // MARK: - Generic Storage
+    
 
     func set(_ value: Any?, forKey key: String) {
         queue.async(flags: .barrier) {
@@ -238,7 +238,7 @@ final class NyxGallery {
         }
     }
 
-    // MARK: - Reset
+    
 
     func resetAll(keepUniqueID: Bool = true) {
         queue.async(flags: .barrier) {

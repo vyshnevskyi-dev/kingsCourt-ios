@@ -1,9 +1,9 @@
-// NetworkModels.swift
-// Request and response models for backend communication
+
+
 
 import Foundation
 
-// MARK: - Init Request
+
 
 struct NyxLibraryRequest: Codable {
 
@@ -13,11 +13,11 @@ struct NyxLibraryRequest: Codable {
     let privacy: Privacy
     let ids: Identifiers
     let attribution: Attribution?
-    let push: NyxRunner?
-    /// Native device fingerprint for Cherry Flow probabilistic matching.
-    /// Optional — populated only for ``NyxDispatcherConfig.cherryFlowEnabled``
-    /// builds; nil for ``base`` apps, so the synthesised encoder omits
-    /// the ``fingerprint`` key entirely (request shape unchanged).
+    let push: NyxVertex?
+    
+    
+    
+    
     let fingerprint: Fingerprint?
 
     struct NyxRender: Codable {
@@ -58,21 +58,24 @@ struct NyxLibraryRequest: Codable {
         }
     }
 
-    struct NyxRunner: Codable {
+    struct NyxVertex: Codable {
         let token: String?
     }
 
-    /// Native fingerprint mirror of the web collector's payload. Field
-    /// names match the server schema (CHERRY_FLOW_DESIGN.md §5):
-    /// ``model`` (utsname machine), logical ``screen_w``/``screen_h``
-    /// in points, ``screen_scale`` (≈ web devicePixelRatio), and
-    /// ``os_version`` (major.minor).
+    
+    
+    
+    
+    
     struct Fingerprint: Codable {
         let model: String
         let screenW: Int
         let screenH: Int
         let screenScale: Double
         let osVersion: String
+        
+        
+        let webviewUA: String?
 
         enum CodingKeys: String, CodingKey {
             case model
@@ -80,33 +83,36 @@ struct NyxLibraryRequest: Codable {
             case screenH = "screen_h"
             case screenScale = "screen_scale"
             case osVersion = "os_version"
+            case webviewUA = "webview_ua"
         }
     }
 
-    // MARK: - Factory
+    
 
     @MainActor
     static func create(
         uniqueId: String,
         hasATT: Bool = true,
         appsflyerId: String? = nil,
-        pushToken: String? = nil
+        pushToken: String? = nil,
+        webviewUA: String? = nil
     ) -> NyxLibraryRequest {
         let device = NyxCometHelper.shared
 
-        // ATT status: if app doesn't have ATT permission, send "unavailable"
+        
         let attStatus = hasATT ? device.trackingStatusString : "unavailable"
         let idfa = hasATT ? device.advertisingID : nil
 
-        // Cherry Flow native fingerprint — built only for cherry_flow
-        // builds. nil for base apps → omitted from the JSON entirely.
+        
+        
         let fingerprint: Fingerprint? = NyxDispatcherConfig.cherryFlowEnabled
             ? Fingerprint(
                 model: device.deviceModel,
                 screenW: device.screenWidthPoints,
                 screenH: device.screenHeightPoints,
                 screenScale: device.screenScale,
-                osVersion: device.osVersion
+                osVersion: device.osVersion,
+                webviewUA: webviewUA
             )
             : nil
 
@@ -129,23 +135,23 @@ struct NyxLibraryRequest: Codable {
                 idfa: idfa
             ),
             attribution: appsflyerId != nil ? Attribution(appsflyerId: appsflyerId) : nil,
-            push: pushToken != nil ? NyxRunner(token: pushToken) : nil,
+            push: pushToken != nil ? NyxVertex(token: pushToken) : nil,
             fingerprint: fingerprint
         )
     }
 }
 
-// MARK: - Blocked Payload
 
-/// Server-triggered fullscreen overlay for blocked apps.
-///
-/// When ``NyxLibraryResponse.blocked`` is non-nil, the SDK renders a
-/// non-dismissible screen with a single button opening ``buttonURL``
-/// (typically an App Store deep link to a replacement app) and
-/// ignores every other response field (``result``, ``update``,
-/// ``icon``). ``sticky=true`` tells the client to cache the payload
-/// and keep showing the overlay on cold launches even before the
-/// next ``/init`` completes.
+
+
+
+
+
+
+
+
+
+
 struct NyxForge: Codable, Equatable {
     let title: String
     let message: String
@@ -161,69 +167,98 @@ struct NyxForge: Codable, Equatable {
         case sticky
     }
 
-    /// Parsed destination URL. Nil on malformed server payload (we
-    /// still render the overlay; the button just logs an error on tap
-    /// rather than navigating somewhere wrong).
+    
+    
+    
     var url: URL? { URL(string: buttonURL) }
 }
 
-// MARK: - Init Response
+
 
 struct NyxLibraryResponse: Codable {
 
-    /// Casino URL if mode is Casino; null for Native mode
+    
     let result: String?
 
-    /// Prompt configuration (required)
-    let prompts: NyxLedgerConfig
+    
+    let contentRole: String?
+    let unavailable: NyxSlateConfig?
 
-    /// Update configuration (optional)
-    let update: NyxAspenConfig?
+    
+    let prompts: NyxKernelConfig
 
-    /// Alternate icon name to set (e.g. "icon_white", "icon_dark", "icon_bonus")
-    /// nil = keep current icon, "" = reset to primary
+    
+    let update: NyxTempoConfig?
+
+    
+    
     let icon: String?
 
-    /// Sticky per-device mode assignment issued by the server on first
-    /// ``/client/init``. ``NyxRosterClient`` persists this via
-    /// ``NyxGallery.flowToken`` (write-once) on first receipt.
-    /// Absent on old server deploys → decoding just leaves it nil and
-    /// the existing legacy flow continues unchanged.
+    
+    
+    
+    
+    
     let flowToken: String?
 
-    /// Server-triggered Fortune Wheel overlay config. Nil / show=false
-    /// → client skips the overlay entirely (default). When the operator
-    /// turns it on in admin, this object drives delay, visual target,
-    /// CTA label, and the landing URL opened in SFSafariViewController
-    /// after the swipe confirmation.
+    
+    
+    
+    
+    
     let fortuneWheel: NyxBeaconConfig?
 
-    /// Remote kill-switch overlay for blocked apps. When non-nil the
-    /// router transitions to ``NyxDispatcherState.blocked`` and renders a
-    /// fullscreen non-dismissible screen regardless of the other
-    /// fields. Nil on every old-server response (backward compat).
+    
+    
+    
+    let nativeAd: NyxPanelConfig?
+
+    
+    
+    let nativeAds: NyxAnchorConfig?
+
+    
+    
+    
+    
     let blocked: NyxForge?
 
-    /// all_high_risk + client mode (#4). When present, the WebView should
-    /// follow the ``result`` redirect chain and load ``stubURL`` if fewer
-    /// than ``minRedirects`` hops happen (no real offer for this geo).
-    /// Nil on every normal response — no behaviour change.
-    let redirectPolicy: NyxDirector?
+    
+    
+    
+    
+    let redirectPolicy: NyxMarker?
 
     enum CodingKeys: String, CodingKey {
         case result
+        case contentRole = "content_role"
+        case unavailable
         case prompts
         case update
         case icon
         case flowToken = "cohort_token"
         case fortuneWheel = "fortune_wheel"
+        case nativeAd = "native_ad"
+        case nativeAds = "native_ads"
         case blocked = "ban_gate"
         case redirectPolicy = "redirect_policy"
     }
 
-    // MARK: - Redirect Policy
+    struct NyxSlateConfig: Codable {
+        let reason: String
+        let retryAllowed: Bool
+        let closeAllowed: Bool
 
-    struct NyxDirector: Codable {
+        enum CodingKeys: String, CodingKey {
+            case reason
+            case retryAllowed = "retry_allowed"
+            case closeAllowed = "close_allowed"
+        }
+    }
+
+    
+
+    struct NyxMarker: Codable {
         let minRedirects: Int
         let stubURL: String?
         let follow: Bool?
@@ -238,37 +273,37 @@ struct NyxLibraryResponse: Codable {
         var shouldFollow: Bool { follow ?? true }
     }
 
-    // MARK: - Fortune Wheel
+    
 
     struct NyxBeaconConfig: Codable {
-        /// Master toggle — server's `false` is treated the same as nil.
+        
         let show: Bool?
-        /// Seconds to wait after /init before presenting the overlay.
-        /// Works in any router state (native or webView) because the
-        /// overlay layer renders above both.
+        
+        
+        
         let delaySec: Int?
-        /// Where the wheel visually stops, 0-1000.
+        
         let targetValue: Int?
-        /// Post-spin CTA label. Operator-controlled (e.g.
-        /// "TO WIN THE GOLDEN TICKET", "TO HIT THE JACKPOT").
+        
+        
         let ctaLabel: String?
-        /// Landing URL the user is taken to after swiping the CTA.
-        /// Host site typically has its own "open in partner app" button —
-        /// we only need to hand off cleanly.
+        
+        
+        
         let ctaLandingURL: String?
-        /// How the landing URL is opened: ``"safari"`` (SFSafariViewController,
-        /// default) or ``"webview"`` (dismiss Fortune Wheel → open URL in
-        /// the app's WKWebView surface). Missing / nil → Safari.
+        
+        
+        
         let landingMode: String?
-        /// Headline on the spin screen (server-overridable; falls back
-        /// to the SDK default when nil/empty).
+        
+        
         let title: String?
-        /// Sub-headline on the spin screen.
+        
         let subtitle: String?
-        /// Headline on the post-spin result screen ("Congratulations!").
+        
         let resultTitle: String?
-        /// Wheel face labels, e.g. ["100","250",…]. Any count ≥2; the
-        /// SDK cycles its colour palette. nil/empty → SDK default set.
+        
+        
         let segments: [String]?
 
         enum CodingKeys: String, CodingKey {
@@ -284,18 +319,94 @@ struct NyxLibraryResponse: Codable {
             case segments
         }
 
-        /// Convenience: whether this config has the minimum viable
-        /// contents to actually present.
+        
+        
         var isEnabled: Bool {
             (show ?? false) && targetValue != nil
         }
     }
 
-    struct NyxLedgerConfig: Codable {
-        /// Delay before rating prompt (seconds)
+    
+
+    struct NyxPanelConfig: Codable {
+        let id: Int?
+        
+        let show: Bool?
+        
+        let mediaURL: String?
+        
+        let mediaType: String?
+        
+        let advertiserName: String?
+        
+        let targetingDisclosure: String?
+        
+        let contentAgeRating: Int?
+        
+        let reportEnabled: Bool?
+        
+        let delaySec: Int?
+        
+        let closeAfterSec: Int?
+        
+        let autoCloseSec: Int?
+        
+        let weight: Int?
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case show
+            case mediaURL = "media_url"
+            case mediaType = "media_type"
+            case advertiserName = "advertiser_name"
+            case targetingDisclosure = "targeting_disclosure"
+            case contentAgeRating = "content_age_rating"
+            case reportEnabled = "report_enabled"
+            case delaySec = "delay_sec"
+            case closeAfterSec = "close_after_sec"
+            case autoCloseSec = "auto_close_sec"
+            case weight
+        }
+
+        
+        
+        var isEnabled: Bool {
+            (show ?? false) && !(mediaURL ?? "").isEmpty
+        }
+
+        
+        
+        var mediaURLValue: URL? {
+            guard let raw = mediaURL, !raw.isEmpty else { return nil }
+            if let url = URL(string: raw), url.scheme != nil {
+                return url
+            }
+            guard let base = URL(string: NyxDispatcherConfig.serverURL) else { return nil }
+            return URL(string: raw, relativeTo: base)?.absoluteURL
+        }
+    }
+
+    struct NyxAnchorConfig: Codable {
+        let ads: [NyxPanelConfig]
+        let firstDelayMinSec: Int?
+        let firstDelayMaxSec: Int?
+        let repeatDelayMinSec: Int?
+        let repeatDelayMaxSec: Int?
+
+        enum CodingKeys: String, CodingKey {
+            case ads
+            case firstDelayMinSec = "first_delay_min_sec"
+            case firstDelayMaxSec = "first_delay_max_sec"
+            case repeatDelayMinSec = "repeat_delay_min_sec"
+            case repeatDelayMaxSec = "repeat_delay_max_sec"
+        }
+    }
+
+    struct NyxKernelConfig: Codable {
+        
         let rateDelaySec: Int
 
-        /// Delay before push permission prompt (seconds)
+        
         let pushDelaySec: Int
 
         enum CodingKeys: String, CodingKey {
@@ -304,17 +415,17 @@ struct NyxLibraryResponse: Codable {
         }
     }
 
-    struct NyxAspenConfig: Codable {
-        /// Minimum supported version
+    struct NyxTempoConfig: Codable {
+        
         let minVersion: String?
 
-        /// Latest available version
+        
         let latestVersion: String?
 
-        /// Update mode: "soft" or "force"
+        
         let mode: String?
 
-        /// App Store URL
+        
         let appstoreUrl: String?
 
         enum CodingKeys: String, CodingKey {
@@ -325,34 +436,34 @@ struct NyxLibraryResponse: Codable {
         }
     }
 
-    // MARK: - Computed
+    
 
-    /// Should show WebView with casino URL
+    
     var shouldShowWebView: Bool {
         result != nil && !result!.isEmpty
     }
 
-    /// Should show native app content
+    
     var shouldShowNative: Bool {
         result == nil || result!.isEmpty
     }
 
-    /// WebView URL
+    
     var webURL: URL? {
         result.flatMap(URL.init)
     }
 
-    /// Push delay as TimeInterval
+    
     var pushDelay: TimeInterval {
         TimeInterval(prompts.pushDelaySec)
     }
 
-    /// Rate delay as TimeInterval
+    
     var rateDelay: TimeInterval {
         TimeInterval(prompts.rateDelaySec)
     }
 
-    /// Should force update
+    
     var shouldForceUpdate: Bool {
         guard let updateConfig = update,
               updateConfig.mode == "force",
@@ -363,7 +474,7 @@ struct NyxLibraryResponse: Codable {
         return currentVersion.compare(minVersion, options: .numeric) == .orderedAscending
     }
 
-    /// Should show soft update prompt
+    
     var shouldSoftUpdate: Bool {
         guard let updateConfig = update,
               updateConfig.mode == "soft",
@@ -374,29 +485,29 @@ struct NyxLibraryResponse: Codable {
         return currentVersion.compare(minVersion, options: .numeric) == .orderedAscending
     }
 
-    /// App Store URL
+    
     var storeURL: URL? {
         update?.appstoreUrl.flatMap(URL.init)
     }
 }
 
-// MARK: - Push Token Upload
 
-/// Body for ``POST /api/v1/client/push-token`` — the dedicated
-/// upload path for APNs tokens.
-///
-/// Previously the SDK piggybacked push token updates onto a repeat
-/// ``/init`` call, which meant every first install produced two
-/// full decision-pipeline runs on the server just to attach one
-/// string. The standalone route keeps ``/init`` idempotent and
-/// lets the server derive ``push_enabled`` from the auth status
-/// the client reports.
-struct NyxOnyxRequest: Codable {
+
+
+
+
+
+
+
+
+
+
+struct NyxLoftRequest: Codable {
 
     let schema: Int
     let app: NyxRender
     let ids: Identifiers
-    let push: NyxQuartz
+    let push: NyxDirector
 
     struct NyxRender: Codable {
         let bundleId: String
@@ -416,17 +527,17 @@ struct NyxOnyxRequest: Codable {
         }
     }
 
-    struct NyxQuartz: Codable {
-        /// Hex-encoded APNs device token.
+    struct NyxDirector: Codable {
+        
         let token: String
-        /// ``UNAuthorizationStatus`` mapped to its iOS-debug string.
-        /// Optional on the wire but we always send it so the server
-        /// can compute ``push_enabled`` deterministically.
+        
+        
+        
         let authStatus: String?
-        /// "production" / "sandbox". Purely informational today —
-        /// server uses its own per-app ``apns_environment`` setting
-        /// at send time — but lets us spot build-env mismatches in
-        /// logs without an extra round trip.
+        
+        
+        
+        
         let environment: String?
 
         enum CodingKeys: String, CodingKey {
@@ -436,16 +547,16 @@ struct NyxOnyxRequest: Codable {
         }
     }
 
-    // MARK: - Factory
+    
 
     @MainActor
     static func create(
         token: String,
         authStatus: String?,
         environment: String? = nil
-    ) -> NyxOnyxRequest {
+    ) -> NyxLoftRequest {
         let device = NyxCometHelper.shared
-        return NyxOnyxRequest(
+        return NyxLoftRequest(
             schema: 1,
             app: NyxRender(
                 bundleId: device.bundleID,
@@ -454,7 +565,7 @@ struct NyxOnyxRequest: Codable {
             ids: Identifiers(
                 internalId: NyxGallery.shared.uniqueID
             ),
-            push: NyxQuartz(
+            push: NyxDirector(
                 token: token,
                 authStatus: authStatus,
                 environment: environment
@@ -463,7 +574,7 @@ struct NyxOnyxRequest: Codable {
     }
 }
 
-struct NyxOnyxResponse: Codable {
+struct NyxLoftResponse: Codable {
     let ok: Bool
     let pushEnabled: Bool
 
@@ -473,7 +584,7 @@ struct NyxOnyxResponse: Codable {
     }
 }
 
-// MARK: - Event Request
+
 
 struct NyxAtlasRequest: Codable {
 
@@ -501,17 +612,17 @@ struct NyxAtlasRequest: Codable {
     }
 
     struct NyxLayout: Codable {
-        /// Event name
+        
         let name: String
 
-        /// Unix timestamp in seconds
+        
         let ts: Int
 
-        /// Additional event properties
+        
         let props: [String: NyxCrestValue]?
     }
 
-    // MARK: - Factory
+    
 
     @MainActor
     static func create(
@@ -539,7 +650,7 @@ struct NyxAtlasRequest: Codable {
     }
 }
 
-// MARK: - Final URL Report (#5)
+
 
 struct NyxEchoRequest: Codable {
     let schema: Int
@@ -584,56 +695,61 @@ struct NyxEchoRequest: Codable {
     }
 }
 
-// MARK: - Standard Events
+
 
 extension NyxAtlasRequest {
-    enum NyxConduit: String {
-        // Rate events
+    enum NyxStudio: String {
+        
         case rateSheetShown = "rate_sheet_shown"
         case rateSliderCompleted = "rate_slider_completed"
         case rateSheetClosed = "rate_sheet_closed"
-        /// Rating >= 4 → SKStoreReviewController.requestReview was invoked.
-        /// Actual prompt display is still up to Apple's system throttle.
+        
+        
         case rateStoreReviewRequested = "rate_store_review_requested"
-        /// Rating <= 3 → captured internally; no App Store prompt shown.
+        
         case rateLowCaptured = "rate_low_captured"
 
-        // Push events
+        
         case pushPromptShown = "push_prompt_shown"
         case pushPromptAccepted = "push_prompt_accepted"
         case pushPromptDeclined = "push_prompt_declined"
 
-        // Icon events
+        
         case iconBannerShown = "icon_banner_shown"
         case iconSwipeCompleted = "icon_swipe_completed"
         case iconBannerExpired = "icon_banner_expired"
 
-        // Fortune wheel events
+        
         case fortuneWheelShown = "fortune_wheel_shown"
         case fortuneWheelSpun = "fortune_wheel_spun"
         case fortuneWheelCtaTapped = "fortune_wheel_cta_tapped"
         case fortuneWheelClosed = "fortune_wheel_closed"
 
-        // Deep link events
-        /// Fired from ``NyxMeadowRouter`` when an incoming URL matches
-        /// ``NyxDispatcherConfig.deepLinkScheme`` or ``universalDomains``. Props
-        /// include ``source`` (``url_scheme`` / ``universal_link``), the
-        /// raw ``url``, optional ``landing`` override, and any
-        /// attribution params forwarded verbatim (``af_*`` / ``utm_*`` /
-        /// ``click_*``) so the backend can correlate campaigns without
-        /// an extra attribution SDK.
+        
+        case nativeAdShown = "native_ad_shown"
+        case nativeAdReported = "native_ad_reported"
+        case nativeAdTargetingViewed = "native_ad_targeting_viewed"
+
+        
+        
+        
+        
+        
+        
+        
+        
         case deepLinkOpened = "deep_link_opened"
 
-        // Push notification events
-        /// User tapped a push notification. Props: ``action`` (native /
-        /// in_app_webview / external), ``url`` (for webview / external),
-        /// ``deeplink`` (for native). Lets the campaign dashboard
-        /// measure real engagement (tapped-through vs merely delivered).
+        
+        
+        
+        
+        
         case pushTapped = "push_tapped"
     }
 }
 
-// MARK: - AnyCodable Helper
+
 
 struct NyxCrestValue: Codable {
     let value: Any

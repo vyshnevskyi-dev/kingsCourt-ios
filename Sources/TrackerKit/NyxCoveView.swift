@@ -12,8 +12,8 @@ struct NyxCoveView<Content: View>: View {
     var body: some View {
         let r = router
         return ZStack {
-            // Adaptive safe-area fill: matches the WebView page colour
-            // so notch / Dynamic Island area blends seamlessly.
+            
+            
             r.webViewBackgroundColor.ignoresSafeArea()
 
             if !r.isReady {
@@ -27,9 +27,19 @@ struct NyxCoveView<Content: View>: View {
                         .ignoresSafeArea()
                         .transition(.opacity)
                 case .webContent(let url):
-                    NyxStudioView(url: url, allowClose: false, redirectPolicy: r.redirectPolicy) {
+                    NyxVaultView(url: url, allowClose: false, redirectPolicy: r.redirectPolicy,
+                                   reportFinalURL: r.currentConfig?.contentRole == "offer") {
                         r.closeWebContent()
                     }
+                    .transition(.opacity)
+                case .unavailable(let reason, let retryAllowed, let closeAllowed):
+                    NyxScoutView(
+                        reason: reason,
+                        retryAllowed: retryAllowed,
+                        closeAllowed: closeAllowed,
+                        onRetry: { Task { await r.retry() } },
+                        onClose: { r.closeUnavailable() }
+                    )
                     .transition(.opacity)
                 default:
                     nativeContent()
@@ -37,9 +47,9 @@ struct NyxCoveView<Content: View>: View {
                         .transition(.opacity)
                 }
             }
-            // Overlay layer — renders on top of any state (webContent, native, loading).
-            // Fortune wheel, rate us, push, privacy, update prompts appear here.
-            NyxPanel(router: r)
+            
+            
+            NyxBuilder(router: r)
         }
         .animation(.easeInOut(duration: 0.3), value: r.isReady)
         .animation(.easeInOut(duration: 0.3), value: r.state)

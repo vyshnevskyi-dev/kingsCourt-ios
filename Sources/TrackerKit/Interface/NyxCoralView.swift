@@ -1,13 +1,13 @@
-// NyxCoralView.swift
-// Fullscreen non-dismissible overlay for blocked apps.
-//
-// Mirrors the iOS "force update" UX: one big headline, one body
-// paragraph, one filled button that deep-links to a replacement
-// app in the App Store. Nothing else on screen; no close gesture;
-// no way back into the host app.
-//
-// Rendered at the top level of ``NyxCoveView`` (not inside
-// ``NyxPanel``) so it pre-empts native content and loading.
+
+
+
+
+
+
+
+
+
+
 
 import SwiftUI
 import UIKit
@@ -53,10 +53,10 @@ struct NyxCoralView: View {
                 .padding(.bottom, 32)
             }
         }
-        // Swallow every gesture the system would otherwise route
-        // underneath. Combined with the top-level placement in the
-        // root ZStack this guarantees there is no way to dismiss
-        // the screen from the app side.
+        
+        
+        
+        
         .contentShape(Rectangle())
         .allowsHitTesting(true)
         .statusBar(hidden: true)

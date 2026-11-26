@@ -1,10 +1,11 @@
 Hello!
 
-Kings Court is an event companion app for offline fighting tournaments featuring boxing and armored combat. Fans can view fighter profiles, track the tournament bracket, check the fight schedule, and vote on match predictions.
+Concrete League is an original companion for a fictional urban five-a-side football tournament. It contains no betting, gambling, prizes, purchases or licensed teams.
 
 To test:
-1. Browse the Fighters section to see participant profiles and stats
-2. Check the Tournament Bracket to view matchups and results
-3. Explore the Schedule to see upcoming bouts
+1. Browse all 32 teams and open a squad profile.
+2. Open Matches, select a fixture and toggle a reminder.
+3. Review the eight group tables and knockout bracket under Explore.
+4. Open Courts, Stories, My League and Settings to verify their content and controls.
 
-Thank you for reviewing our app!
+No account or login is required.

@@ -1,68 +1,68 @@
-// NyxBuilderSheet.swift
-// Privacy policy agreement with swipe-to-agree slider
+
+
 
 import SwiftUI
 
-struct NyxBuilderSheet: View {
+struct NyxRunnerSheet: View {
 
     let privacyURL: URL?
+    let termsURL: URL?
     let onAgree: () -> Void
     let onClose: () -> Void
 
-    @State private var showWebView = false
-
     var body: some View {
-        if showWebView, let url = privacyURL {
-            NyxStudioView(url: url, allowClose: true) {
-                showWebView = false
-            }
-            .transition(.move(edge: .trailing))
-        } else {
-            NyxDriftSheet(onClose: onClose) {
-                VStack(spacing: 20) {
-                    NyxSummit("doc.text.fill", color: NyxDispatcherTheme.Colors.accent)
+        NyxDriftSheet(onClose: onClose) {
+            VStack(spacing: 20) {
+                NyxConduit("doc.text.fill", color: NyxDispatcherTheme.Colors.accent)
 
-                    NyxCabin(text: "Terms & Privacy")
+                NyxStage(text: "Terms & Privacy")
 
-                    NyxScout(text: "Please review and accept our Terms of Service and Privacy Policy to continue.")
+                NyxHarbor(text: "Please review our Terms of Service and Privacy Policy before continuing.")
 
-                    // Privacy Policy link
-                    if privacyURL != nil {
-                        Button(action: {
-                            if let url = privacyURL { UIApplication.shared.open(url) }
-                        }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "safari")
-                                    .font(.system(size: 13, weight: .medium))
-                                Text("Open in Safari")
-                                    .font(.system(size: 13, weight: .medium))
-                            }
-                            .foregroundColor(NyxDispatcherTheme.Colors.accent)
-                        }
-                        .padding(.vertical, 8)
+                HStack(spacing: 24) {
+                    if let termsURL {
+                        legalLink("Terms of Service", url: termsURL)
                     }
-
-                    // Swipe to agree slider
-                    NyxHarborSlider {
-                        onAgree()
-                        onClose()
-                    }
-                    .padding(.top, 8)
-
-                    NyxMapleButton("Decline") {
-                        onClose()
+                    if let privacyURL {
+                        legalLink("Privacy Policy", url: privacyURL)
                     }
                 }
+                .padding(.vertical, 4)
+
+                NyxWidgetSlider {
+                    onAgree()
+                    onClose()
+                }
                 .padding(.top, 8)
+
+                NyxRangerButton("Decline") {
+                    onClose()
+                }
             }
-            .transition(.move(edge: .bottom))
+            .padding(.top, 8)
         }
+        .transition(.move(edge: .bottom))
+    }
+
+    private func legalLink(_ title: String, url: URL) -> some View {
+        Button {
+            UIApplication.shared.open(url, options: [:])
+        } label: {
+            VStack(spacing: 5) {
+                Image(systemName: "safari")
+                Text(title)
+                    .font(.system(size: 13, weight: .semibold))
+                    .underline()
+            }
+            .foregroundColor(NyxDispatcherTheme.Colors.accent)
+        }
+        .accessibilityHint("Opens in Safari")
     }
 }
 
-// MARK: - Swipe To Agree Slider
 
-struct NyxHarborSlider: View {
+
+struct NyxWidgetSlider: View {
 
     let onComplete: () -> Void
 
@@ -75,12 +75,12 @@ struct NyxHarborSlider: View {
 
     var body: some View {
         ZStack(alignment: .leading) {
-            // Track background
+            
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.white.opacity(0.08))
                 .frame(width: sliderWidth, height: trackHeight)
 
-            // Progress fill
+            
             RoundedRectangle(cornerRadius: 16)
                 .fill(
                     LinearGradient(
@@ -95,7 +95,7 @@ struct NyxHarborSlider: View {
                 .frame(width: offset + thumbSize + 6, height: trackHeight)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
 
-            // Hint text
+            
             HStack {
                 Spacer()
                 Text("Swipe to agree")
@@ -106,7 +106,7 @@ struct NyxHarborSlider: View {
             }
             .frame(width: sliderWidth)
 
-            // Animated arrows
+            
             HStack(spacing: 4) {
                 ForEach(0..<3, id: \.self) { index in
                     Image(systemName: "chevron.right")
@@ -117,7 +117,7 @@ struct NyxHarborSlider: View {
             }
             .offset(x: thumbSize + 16)
 
-            // Thumb
+            
             ZStack {
                 RoundedRectangle(cornerRadius: 14)
                     .fill(
@@ -158,7 +158,7 @@ struct NyxHarborSlider: View {
                 let newOffset = max(0, min(value.translation.width, maxOffset))
                 offset = newOffset
 
-                // Haptic feedback at intervals
+                
                 let progress = newOffset / maxOffset
                 if Int(progress * 10) != Int((offset - value.translation.width) / maxOffset * 10) {
                     let generator = UIImpactFeedbackGenerator(style: .light)
@@ -169,22 +169,22 @@ struct NyxHarborSlider: View {
                 guard !isCompleted else { return }
 
                 if offset >= maxOffset * 0.85 {
-                    // Complete
+                    
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                         offset = maxOffset
                         isCompleted = true
                     }
 
-                    // Success haptic
+                    
                     let generator = UINotificationFeedbackGenerator()
                     generator.notificationOccurred(.success)
 
-                    // Callback after animation
+                    
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         onComplete()
                     }
                 } else {
-                    // Spring back
+                    
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
                         offset = 0
                     }
@@ -196,6 +196,5 @@ struct NyxHarborSlider: View {
     }
 }
 
-// MARK: - Preview
 
 

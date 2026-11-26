@@ -1,38 +1,38 @@
-// NyxMeadowRouter.swift
-// Custom-scheme + universal-link dispatcher for NyxFlow apps.
-//
-// Host-app SceneDelegate wiring:
-//
-//   func scene(_ scene: UIScene, openURLContexts ctx: Set<UIOpenURLContext>) {
-//       if let url = ctx.first?.url { NyxMeadowRouter.shared.handle(url: url) }
-//   }
-//   func scene(_ scene: UIScene, continue activity: NSUserActivity) {
-//       NyxMeadowRouter.shared.handle(userActivity: activity)
-//   }
-//
-// Behaviour:
-//   - URL is accepted only if the scheme matches ``NyxDispatcherConfig.deepLinkScheme``
-//     OR the host matches an entry in ``NyxDispatcherConfig.universalDomains``. Every
-//     other URL is dropped so a rogue universal link can't smuggle state
-//     into the router.
-//   - Recognised URLs emit a ``deep_link_opened`` event with ``source``,
-//     raw ``url``, optional ``landing`` override, plus every attribution
-//     parameter (``af_*`` / ``utm_*`` / ``click_*``) forwarded verbatim.
-//   - When a query parameter named ``open_url`` / ``landing_url`` / ``l``
-//     carries an http(s) URL, the router is flipped into ``.webContent``.
-//     This lets partner campaigns land users directly on the target page
-//     without a second ``/init`` round trip.
-//   - Host apps may intercept via ``NyxCluster``; returning
-//     ``true`` from ``deepLinkRouter(shouldHandle:)`` fully short-circuits
-//     the built-in pipeline (no event, no state change).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import Foundation
 import UIKit
 
 @MainActor
 protocol NyxCluster: AnyObject {
-    /// Return ``true`` if the host app fully handled this URL. The SDK
-    /// will then skip its own dispatch (no event emit, no state change).
+    
+    
     func deepLinkRouter(shouldHandle url: URL) -> Bool
 }
 
@@ -43,33 +43,33 @@ extension NyxCluster {
 @MainActor
 final class NyxMeadowRouter {
 
-    // MARK: - Singleton
+    
 
     static let shared = NyxMeadowRouter()
 
     weak var delegate: NyxCluster?
 
-    // MARK: - Config
+    
 
-    /// Query-parameter names interpreted as "open this URL in the web
-    /// content view". Order matters: first match wins.
+    
+    
     private static let landingParamKeys: [String] = [
         "open_url", "landing_url", "l",
     ]
 
-    /// Prefixes that identify attribution params we forward to the
-    /// backend. Kept intentionally narrow — any other params stay
-    /// private to the app.
+    
+    
+    
     private static let attributionPrefixes: [String] = [
         "af_", "utm_", "click_",
     ]
 
     private init() {}
 
-    // MARK: - Public entrypoints
+    
 
-    /// Handle a custom-scheme URL (e.g. ``myapp://open?…``) received
-    /// via ``scene(_:openURLContexts:)``.
+    
+    
     func handle(url: URL) {
         guard isRecognised(url: url) else {
             NyxMint.log("DeepLink: ignoring \(url.absoluteString) — not for this app")
@@ -78,8 +78,8 @@ final class NyxMeadowRouter {
         dispatch(url: url, source: "url_scheme")
     }
 
-    /// Handle an ``NSUserActivity`` from a universal link received via
-    /// ``scene(_:continue:)``.
+    
+    
     func handle(userActivity: NSUserActivity) {
         guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
               let url = userActivity.webpageURL else {
@@ -92,7 +92,7 @@ final class NyxMeadowRouter {
         dispatch(url: url, source: "universal_link")
     }
 
-    // MARK: - Dispatch
+    
 
     private func dispatch(url: URL, source: String) {
         if delegate?.deepLinkRouter(shouldHandle: url) == true {
@@ -125,7 +125,7 @@ final class NyxMeadowRouter {
         }
     }
 
-    // MARK: - Recognition
+    
 
     private func isRecognised(url: URL) -> Bool {
         if let scheme = url.scheme?.lowercased() {
@@ -141,7 +141,7 @@ final class NyxMeadowRouter {
         return false
     }
 
-    // MARK: - Parsing
+    
 
     private func queryParams(from url: URL) -> [String: String] {
         guard let comps = URLComponents(url: url, resolvingAgainstBaseURL: false),

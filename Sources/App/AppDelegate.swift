@@ -1,18 +1,15 @@
 import UIKit
 import UserNotifications
 
-class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Set push delegate for deep link handling
-        UNUserNotificationCenter.current().delegate = self
-
         // Request push token early so it's available before init request
         application.registerForRemoteNotifications()
 
         Task { @MainActor in
             let settings = NyxDispatcherSettings.create()
-                .serverURL("https://wildcherry.cloud")
+                .serverURL("https://kingscourtgames.website")
                 .hasATT(false)
                 .build()
             await NyxDispatcherRouter.shared.start(settings: settings)

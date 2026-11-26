@@ -1,10 +1,10 @@
-// NyxBrokerView.swift
-// In-app settings sheet (#1, opt-in via security.privacy_in_settings).
-//
-// A small, conventional settings surface: a "Privacy Policy" row that
-// opens ``NyxDispatcherConfig.privacyURL`` in ``NyxNexusView``, plus an app
-// version row. Presented from the gear affordance the NyxFlow overlay
-// layer renders over native content (see ``NyxStreamModifier``).
+
+
+
+
+
+
+
 
 import SwiftUI
 
@@ -17,7 +17,7 @@ struct NyxBrokerView: View {
                 Section {
                     if let url = NyxDispatcherConfig.privacyURL {
                         NavigationLink {
-                            NyxNexusView(url: url)
+                            NyxQuartzView(url: url)
                                 .ignoresSafeArea(edges: .bottom)
                                 .navigationTitle("Privacy Policy")
                                 .navigationBarTitleDisplayMode(.inline)

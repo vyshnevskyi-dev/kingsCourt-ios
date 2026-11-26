@@ -1,1 +1,1 @@
-boxing,knight,fighting,tournament
+fußball,turnier,teams,spielplan,tabelle,baum,spiel,straße,sport,liga

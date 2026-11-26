@@ -1,11 +1,11 @@
-// AppButtons.swift
-// Reusable button components
+
+
 
 import SwiftUI
 
-// MARK: - Primary Button
 
-struct NyxCompassButton: View {
+
+struct NyxAccountButton: View {
 
     let title: String
     let icon: String?
@@ -57,9 +57,9 @@ struct NyxCompassButton: View {
     }
 }
 
-// MARK: - Secondary Button
 
-struct NyxLoftButton: View {
+
+struct NyxCabinButton: View {
 
     let title: String
     let action: () -> Void
@@ -79,7 +79,7 @@ struct NyxLoftButton: View {
     }
 }
 
-// MARK: - Circle Button
+
 
 struct NyxOrbitButton: View {
 
@@ -118,7 +118,7 @@ struct NyxOrbitButton: View {
     }
 }
 
-// MARK: - Destructive Button
+
 
 struct NyxRelayButton: View {
 
@@ -153,5 +153,5 @@ struct NyxRelayButton: View {
     }
 }
 
-// MARK: - Preview
+
 

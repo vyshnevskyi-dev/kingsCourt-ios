@@ -1,1 +1,1 @@
-MMA,boxing,fighting,fighter,combat,sports,tournament,bracket,predictions,matches,stats,tickets,arena
+football,tournament,teams,fixtures,standings,bracket,match,street,sport,league

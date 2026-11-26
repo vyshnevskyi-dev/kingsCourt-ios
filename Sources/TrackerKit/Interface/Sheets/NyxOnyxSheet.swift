@@ -1,10 +1,10 @@
-// NyxAccountSheet.swift
-// Push notification permission bottom sheet
+
+
 
 import SwiftUI
 import UserNotifications
 
-struct NyxAccountSheet: View {
+struct NyxOnyxSheet: View {
 
     let onClose: () -> Void
     var isSettingsMode: Bool = false
@@ -17,12 +17,12 @@ struct NyxAccountSheet: View {
     var body: some View {
         NyxDriftSheet(onClose: onClose) {
             VStack(spacing: 20) {
-                NyxSummit(
+                NyxConduit(
                     isSettingsMode ? "bell.and.waves.left.and.right.fill" : "bell.badge.fill",
                     color: isSettingsMode ? Color.orange : NyxDispatcherTheme.Colors.accent
                 )
-                NyxCabin(text: title)
-                NyxScout(text: isSettingsMode
+                NyxStage(text: title)
+                NyxHarbor(text: isSettingsMode
                     ? "Turn on notifications to get exclusive deals, bonus rewards, and important updates."
                     : "Enable notifications to receive important updates, exclusive offers, and personalized content.")
 
@@ -41,15 +41,15 @@ struct NyxAccountSheet: View {
 
                 VStack(spacing: 8) {
                     if isSettingsMode {
-                        NyxMarkerButton("Open Settings", icon: "gear") { openSettings() }
+                        NyxPortalButton("Open Settings", icon: "gear") { openSettings() }
                     } else {
-                        NyxMarkerButton(
+                        NyxPortalButton(
                             isRequesting ? "Enabling..." : "Enable Notifications",
                             icon: "bell.fill"
                         ) { requestPermission() }
                         .disabled(isRequesting)
                     }
-                    NyxMapleButton("Maybe Later") {
+                    NyxRangerButton("Maybe Later") {
                         NyxGallery.shared.pushResult = "skipped"
                         sendEvent(.pushPromptDeclined, props: ["reason": "user_skipped", "mode": isSettingsMode ? "settings" : "first"])
                         onClose()
@@ -87,7 +87,7 @@ struct NyxAccountSheet: View {
         onClose()
     }
 
-    private func sendEvent(_ event: NyxAtlasRequest.NyxConduit, props: [String: Any]? = nil) {
+    private func sendEvent(_ event: NyxAtlasRequest.NyxStudio, props: [String: Any]? = nil) {
         Task { await NyxDispatcherRouter.shared.trackEvent(event, properties: props) }
     }
 }

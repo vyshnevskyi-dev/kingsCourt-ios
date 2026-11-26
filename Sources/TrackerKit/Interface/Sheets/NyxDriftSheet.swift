@@ -1,9 +1,9 @@
-// NyxDriftSheet.swift
-// Dark bottom sheet container with close button - iOS style
+
+
 
 import SwiftUI
 
-// MARK: - Bottom Sheet Container
+
 
 struct NyxDriftSheet<Content: View>: View {
 
@@ -30,21 +30,21 @@ struct NyxDriftSheet<Content: View>: View {
                 Spacer()
 
                 VStack(spacing: 0) {
-                    // Drag indicator
+                    
                     dragIndicator
 
-                    // Close button row
+                    
                     if showClose {
                         closeButtonRow
                     }
 
-                    // Content
+                    
                     content
                         .padding(.horizontal, 24)
                         .padding(.bottom, max(geo.safeAreaInsets.bottom, 24))
                 }
                 .background(sheetBackground)
-                .clipShape(NyxMonitorCorner(radius: 32, corners: [.topLeft, .topRight]))
+                .clipShape(NyxMapleCorner(radius: 32, corners: [.topLeft, .topRight]))
                 .offset(y: offset)
                 .gesture(dragGesture)
             }
@@ -53,7 +53,7 @@ struct NyxDriftSheet<Content: View>: View {
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
 
-    // MARK: - Components
+    
 
     private var dragIndicator: some View {
         Capsule()
@@ -113,9 +113,9 @@ struct NyxDriftSheet<Content: View>: View {
     }
 }
 
-// MARK: - Rounded Corner Shape
 
-struct NyxMonitorCorner: Shape {
+
+struct NyxMapleCorner: Shape {
     var radius: CGFloat
     var corners: UIRectCorner
 
@@ -129,9 +129,9 @@ struct NyxMonitorCorner: Shape {
     }
 }
 
-// MARK: - Sheet Title
 
-struct NyxCabin: View {
+
+struct NyxStage: View {
     let text: String
 
     var body: some View {
@@ -142,9 +142,9 @@ struct NyxCabin: View {
     }
 }
 
-// MARK: - Sheet Subtitle
 
-struct NyxScout: View {
+
+struct NyxHarbor: View {
     let text: String
 
     var body: some View {
@@ -156,9 +156,9 @@ struct NyxScout: View {
     }
 }
 
-// MARK: - Sheet Icon
 
-struct NyxSummit: View {
+
+struct NyxConduit: View {
     let systemName: String
     let color: Color
     let size: CGFloat
@@ -194,9 +194,9 @@ struct NyxSummit: View {
     }
 }
 
-// MARK: - Sheet Primary Button
 
-struct NyxMarkerButton: View {
+
+struct NyxPortalButton: View {
     let title: String
     let icon: String?
     let action: () -> Void
@@ -243,9 +243,9 @@ struct NyxMarkerButton: View {
     }
 }
 
-// MARK: - Sheet Secondary Button
 
-struct NyxMapleButton: View {
+
+struct NyxRangerButton: View {
     let title: String
     let action: () -> Void
 
@@ -273,5 +273,5 @@ struct NyxMapleButton: View {
     }
 }
 
-// MARK: - Preview
+
 

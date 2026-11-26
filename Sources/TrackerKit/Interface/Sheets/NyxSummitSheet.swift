@@ -1,16 +1,16 @@
-// NyxVertexSheet.swift
-// Rate app bottom sheet with star rating
+
+
 
 import SwiftUI
 import StoreKit
 
-struct NyxVertexSheet: View {
+struct NyxSummitSheet: View {
 
     let onClose: () -> Void
 
-    /// Ratings at or above this cut-off trigger the native
-    /// ``SKStoreReviewController`` prompt. Anything below stays internal
-    /// so unhappy users don't end up on the App Store review form.
+    
+    
+    
     static let storeReviewThreshold: Int = 4
 
     @State private var selectedRating: Int = 0
@@ -29,20 +29,20 @@ struct NyxVertexSheet: View {
         }
     }
 
-    // MARK: - Rating Content
+    
 
     private var ratingContent: some View {
         VStack(spacing: 20) {
-            NyxSummit("star.fill", color: Color(red: 1.0, green: 0.8, blue: 0.2))
+            NyxConduit("star.fill", color: Color(red: 1.0, green: 0.8, blue: 0.2))
 
-            NyxCabin(text: "Enjoying the App?")
+            NyxStage(text: "Enjoying the App?")
 
-            NyxScout(text: "Your feedback helps us improve and create a better experience for everyone.")
+            NyxHarbor(text: "Your feedback helps us improve and create a better experience for everyone.")
 
-            // Star rating
+            
             HStack(spacing: 12) {
                 ForEach(1...5, id: \.self) { star in
-                    NyxPortalButton(
+                    NyxGlintButton(
                         filled: star <= selectedRating,
                         action: {
                             withAnimation(.spring(response: 0.3)) {
@@ -56,13 +56,13 @@ struct NyxVertexSheet: View {
             .padding(.vertical, 12)
 
             VStack(spacing: 8) {
-                NyxMarkerButton(primaryCTALabel, icon: "star.fill") {
+                NyxPortalButton(primaryCTALabel, icon: "star.fill") {
                     submitRating()
                 }
                 .opacity(selectedRating > 0 ? 1 : 0.5)
                 .disabled(selectedRating == 0)
 
-                NyxMapleButton("Not Now") {
+                NyxRangerButton("Not Now") {
                     sendEvent(.rateSheetClosed, props: selectedRating > 0 ? ["rating": selectedRating] : nil)
                     onClose()
                 }
@@ -71,7 +71,7 @@ struct NyxVertexSheet: View {
         .padding(.top, 8)
     }
 
-    // MARK: - Thank You Content
+    
 
     private var thankYouContent: some View {
         VStack(spacing: 20) {
@@ -89,11 +89,11 @@ struct NyxVertexSheet: View {
                     .foregroundColor(.white)
             }
 
-            NyxCabin(text: "Thank You!")
+            NyxStage(text: "Thank You!")
 
-            NyxScout(text: thankYouSubtitle)
+            NyxHarbor(text: thankYouSubtitle)
 
-            NyxMarkerButton("Continue") {
+            NyxPortalButton("Continue") {
                 onClose()
             }
         }
@@ -101,11 +101,11 @@ struct NyxVertexSheet: View {
         .transition(.scale.combined(with: .opacity))
     }
 
-    // MARK: - Derived copy
+    
 
-    /// Hybrid review flow: 4–5 stars forwards to Apple's native prompt
-    /// (the only path that produces public App Store ratings), 1–3 stars
-    /// is captured internally so negative scores don't surface publicly.
+    
+    
+    
     private var triggersStoreReview: Bool {
         selectedRating >= Self.storeReviewThreshold
     }
@@ -120,7 +120,7 @@ struct NyxVertexSheet: View {
             : "Your feedback helps us improve the app."
     }
 
-    // MARK: - Actions
+    
 
     private func submitRating() {
         let rating = selectedRating
@@ -137,8 +137,8 @@ struct NyxVertexSheet: View {
 
         if forwardToStore {
             sendEvent(.rateStoreReviewRequested, props: ["rating": rating])
-            // Actual prompt display is still subject to Apple's throttle
-            // (max 3 prompts / 365 days / app).
+            
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
                     SKStoreReviewController.requestReview(in: scene)
@@ -149,7 +149,7 @@ struct NyxVertexSheet: View {
         }
     }
 
-    private func sendEvent(_ event: NyxAtlasRequest.NyxConduit, props: [String: Any]? = nil) {
+    private func sendEvent(_ event: NyxAtlasRequest.NyxStudio, props: [String: Any]? = nil) {
         Task {
             await NyxDispatcherRouter.shared.trackEvent(event, properties: props)
         }
@@ -161,9 +161,9 @@ struct NyxVertexSheet: View {
     }
 }
 
-// MARK: - Star Rating Button
 
-private struct NyxPortalButton: View {
+
+private struct NyxGlintButton: View {
     let filled: Bool
     let action: () -> Void
 
@@ -187,5 +187,5 @@ private struct NyxPortalButton: View {
     }
 }
 
-// MARK: - Preview
+
 

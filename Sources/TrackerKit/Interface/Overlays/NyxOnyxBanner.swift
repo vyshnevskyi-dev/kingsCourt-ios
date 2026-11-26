@@ -2,7 +2,7 @@ import SwiftUI
 import UserNotifications
 import UIKit
 
-struct NyxAccountBanner: View {
+struct NyxOnyxBanner: View {
     let settingsMode: Bool
     let onDismiss: () -> Void
 
@@ -10,16 +10,17 @@ struct NyxAccountBanner: View {
     @State private var opacity: Double = 0
     @State private var isRequesting = false
     @State private var swipeOffset: CGFloat = 0
+    @State private var swipeTrackWidth: CGFloat = 0
 
     @State private var glowPhase: CGFloat = 0
 
-    private let accent = Color(red: 0.922, green: 0.271, blue: 0.353)  // #EB455A
+    private let accent = Color(red: 0.922, green: 0.271, blue: 0.353)  
     private let gtimer = Timer.publish(every: 0.04, on: .main, in: .common).autoconnect()
 
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 16) {
-                // WILD CHERRY-style heading: Unbounded 600
+                
                 (
                     Text("GET MORE ")
                         .font(.custom("Unbounded", size: 26).weight(.semibold))
@@ -35,27 +36,27 @@ struct NyxAccountBanner: View {
                     .font(.system(size: 14)).foregroundStyle(.white.opacity(0.45))
                     .multilineTextAlignment(.center).lineSpacing(4)
 
-                // Swipe track
+                
                 GeometryReader { geo in
                     let trackWidth = geo.size.width
                     ZStack(alignment: .leading) {
-                        // Track background
+                        
                         RoundedRectangle(cornerRadius: 28)
                             .fill(Color.white.opacity(0.07))
                             .frame(height: 56)
 
-                        // Filled progress
+                        
                         RoundedRectangle(cornerRadius: 28)
                             .fill(accent.opacity(0.3))
                             .frame(width: max(56, swipeOffset + 28), height: 56)
 
-                        // Text hint (fades as user swipes)
+                        
                         Text("Slide to allow →")
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(.white.opacity(0.4 - swipeOffset / trackWidth * 0.4))
                             .frame(maxWidth: .infinity)
 
-                        // Draggable handle with arrow
+                        
                         ZStack {
                             Circle()
                                 .fill(accent)
@@ -84,6 +85,11 @@ struct NyxAccountBanner: View {
                                     }
                                 }
                         )
+                    }
+                    .onAppear { swipeTrackWidth = trackWidth }
+                    .onChange(of: trackWidth) { _, newWidth in
+                        swipeTrackWidth = newWidth
+                        swipeOffset = min(swipeOffset, max(0, newWidth - 56))
                     }
                 }
                 .frame(height: 56)
@@ -143,7 +149,9 @@ struct NyxAccountBanner: View {
 
     private func swipeAccepted() {
         isRequesting = true
-        withAnimation(.easeOut(duration: 0.3)) { swipeOffset = UIScreen.main.bounds.width }
+        withAnimation(.easeOut(duration: 0.2)) {
+            swipeOffset = max(0, swipeTrackWidth - 56)
+        }
 
         if settingsMode {
             if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -152,14 +160,17 @@ struct NyxAccountBanner: View {
             dismissAfterDelay(); return
         }
 
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
-            DispatchQueue.main.async {
-                UserDefaults.standard.set(granted ? "accepted" : "denied", forKey: "pushResult")
-                if granted {
-                    UserDefaults.standard.set(true, forKey: "isPushAccepted")
-                    UIApplication.shared.registerForRemoteNotifications()
+        withAnimation(.easeOut(duration: 0.2)) { yOffset = -500; opacity = 0 }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
+                DispatchQueue.main.async {
+                    UserDefaults.standard.set(granted ? "accepted" : "denied", forKey: "pushResult")
+                    if granted {
+                        UserDefaults.standard.set(true, forKey: "isPushAccepted")
+                        UIApplication.shared.registerForRemoteNotifications()
+                    }
+                    onDismiss()
                 }
-                dismissAfterDelay()
             }
         }
     }

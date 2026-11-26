@@ -1,17 +1,17 @@
-// NyxBeaconSheet.swift
-// Fortune wheel bonus sheet with spinning animation.
-//
-// Two flavours share this view:
-//   * Manual trigger (``NyxDispatcherRouter.showFortuneWheel(targetValue:)``) —
-//     no CTA, result screen closes via "Claim Reward" button. Used
-//     for debugging and by host-app code that wants to drop a wheel
-//     on-demand.
-//   * Server-triggered (``NyxDispatcherRouter.scheduleFortuneWheel(_:)``) — the
-//     result screen shows a swipe-to-confirm CTA whose label comes
-//     from the server (e.g. "TO WIN THE GOLDEN TICKET"). Swiping
-//     presents an ``SFSafariViewController`` pointed at the server's
-//     landing URL. The landing owns the next hop (partner-app open,
-//     App Store deeplink, etc.).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import SafariServices
 import SwiftUI
@@ -19,15 +19,15 @@ import UIKit
 
 struct NyxBeaconSheet: View {
 
-    let targetValue: Int   // 0-1000
-    let ctaLabel: String?  // nil → no CTA (legacy manual flow)
+    let targetValue: Int   
+    let ctaLabel: String?  
     let ctaLandingURL: URL?
-    /// How the landing URL is opened: ``"safari"`` (default) or ``"webview"``.
+    
     let landingMode: String?
-    let title: String?         // server-overridable headline
-    let subtitle: String?      // server-overridable sub-headline
-    let resultTitle: String?   // server-overridable result headline
-    let segments: [String]?    // server-overridable wheel labels
+    let title: String?         
+    let subtitle: String?      
+    let resultTitle: String?   
+    let segments: [String]?    
     let onClose: () -> Void
     let onResult: (Int) -> Void
 
@@ -66,10 +66,10 @@ struct NyxBeaconSheet: View {
         ctaLabel != nil && ctaLandingURL != nil
     }
 
-    /// Default wheel face when the server doesn't supply one.
+    
     private static let defaultLabels = ["100", "250", "50", "500", "75", "200", "1000", "150"]
 
-    /// Resolved wheel labels (server override → default). ≥2 enforced.
+    
     private var wheelLabels: [String] {
         let s = (segments ?? []).filter { !$0.isEmpty }
         return s.count >= 2 ? s : Self.defaultLabels
@@ -106,13 +106,13 @@ struct NyxBeaconSheet: View {
         }
     }
 
-    // MARK: - Wheel Content
+    
 
     private var wheelContent: some View {
         VStack(spacing: 20) {
             splitTitleView(nonEmpty(title, "Spin to Win!"))
 
-            NyxScout(text: nonEmpty(subtitle, "Try your luck and win bonus points!"))
+            NyxHarbor(text: nonEmpty(subtitle, "Try your luck and win bonus points!"))
 
             ZStack {
                 NyxBeacon(rotation: rotation, labels: wheelLabels)
@@ -120,7 +120,7 @@ struct NyxBeaconSheet: View {
 
                 Button(action: spinWheel) {
                     ZStack {
-                        // Pulsing outer ring
+                        
                         Circle()
                             .stroke(NyxDispatcherTheme.Colors.accent, lineWidth: 2)
                             .frame(width: 70, height: 70)
@@ -153,10 +153,10 @@ struct NyxBeaconSheet: View {
             }
             .padding(.vertical, 16)
 
-            // Always present (height reserved) so the sheet doesn't
-            // collapse when the button hides mid-spin — fixes the abrupt
-            // shrink on tapping SPIN.
-            NyxMapleButton("Skip") {
+            
+            
+            
+            NyxRangerButton("Skip") {
                 onClose()
             }
             .opacity(isSpinning ? 0 : 1)
@@ -165,7 +165,7 @@ struct NyxBeaconSheet: View {
         }
     }
 
-    // MARK: - Result Content
+    
 
     private var resultContent: some View {
         VStack(spacing: 20) {
@@ -193,7 +193,7 @@ struct NyxBeaconSheet: View {
                 .foregroundColor(.white)
 
             if hasCTA, let label = ctaLabel, let url = ctaLandingURL {
-                NyxStageButton(
+                NyxPulseButton(
                     label: label,
                     onConfirmed: {
                         Task {
@@ -208,7 +208,7 @@ struct NyxBeaconSheet: View {
                         openLanding(url)
                     }
                 )
-                NyxMapleButton("Not now") {
+                NyxRangerButton("Not now") {
                     Task {
                         await NyxDispatcherRouter.shared.trackEvent(
                             .fortuneWheelClosed,
@@ -219,9 +219,9 @@ struct NyxBeaconSheet: View {
                     onClose()
                 }
             } else {
-                // Manual flow — existing "Claim Reward" behaviour
-                NyxScout(text: "points added to your balance!")
-                NyxMarkerButton("Claim Reward", icon: "gift.fill") {
+                
+                NyxHarbor(text: "points added to your balance!")
+                NyxPortalButton("Claim Reward", icon: "gift.fill") {
                     onResult(resultValue)
                     onClose()
                 }
@@ -230,15 +230,15 @@ struct NyxBeaconSheet: View {
         .transition(.scale.combined(with: .opacity))
     }
 
-    // MARK: - Landing URL routing
+    
 
     private func openLanding(_ url: URL) {
         print("FW-CTA: landingMode=\(landingMode ?? "nil") url=\(url)")
         if landingMode == "webview" {
             print("FW-CTA: → WebView")
-            // 1. Open WebView UNDER the sheet (state change)
-            // 2. Wait one frame for WebView to mount
-            // 3. Then dismiss the Fortune Wheel sheet — WebView stays alive
+            
+            
+            
             onResult(self.resultValue)
             NyxDispatcherRouter.shared.openWebContent(url: url)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -247,12 +247,12 @@ struct NyxBeaconSheet: View {
             NyxMint.log("Fortune wheel: landing via WebView → \(url)")
         } else {
             print("FW-CTA: → Safari")
-            // Default: SFSafariViewController
+            
             presentSafari(url)
         }
     }
 
-    // MARK: - Safari presentation
+    
 
     private func presentSafari(_ url: URL) {
         guard let windowScene = UIApplication.shared.connectedScenes
@@ -263,8 +263,8 @@ struct NyxBeaconSheet: View {
             onClose()
             return
         }
-        // Present from rootVC (not topMost) so Safari survives when the
-        // Fortune Wheel sheet is dismissed underneath it.
+        
+        
         let config = SFSafariViewController.Configuration()
         config.entersReaderIfAvailable = false
         config.barCollapsingEnabled = true
@@ -289,7 +289,7 @@ struct NyxBeaconSheet: View {
         return vc
     }
 
-    // MARK: - Spin Action
+    
 
     private func spinWheel() {
         guard !isSpinning else { return }
@@ -302,19 +302,19 @@ struct NyxBeaconSheet: View {
             )
         }
 
-        // Calculate target rotation based on value (segment count is
-        // server-driven via wheelLabels)
+        
+        
         let count = max(2, wheelLabels.count)
         let segmentAngle = 360.0 / Double(count)
         let targetSegment = Double(targetValue % count)
-        let baseRotation = 360.0 * 5 // 5 full rotations
+        let baseRotation = 360.0 * 5 
         let targetRotation = baseRotation + (360.0 - targetSegment * segmentAngle) - segmentAngle / 2
 
-        // Haptic during spin
+        
         let spinHaptic = UIImpactFeedbackGenerator(style: .light)
         spinHaptic.prepare()
 
-        // Start spin with haptics
+        
         Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
             spinHaptic.impactOccurred(intensity: 0.3)
             if !isSpinning {
@@ -325,12 +325,12 @@ struct NyxBeaconSheet: View {
         withAnimation(.easeOut(duration: 4.0)) {
             rotation = targetRotation
         }
-        // Button counter-rotates during spin
+        
         withAnimation(.easeOut(duration: 4.0)) {
             buttonRotation = -360 * 5
         }
 
-        // Show result after spin
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 4.2) {
             isSpinning = false
             buttonRotation = 0
@@ -346,13 +346,13 @@ struct NyxBeaconSheet: View {
     }
 }
 
-// MARK: - Swipe-to-confirm button
 
-/// Horizontal drag slider with a glowing thumb. User must swipe the
-/// thumb >=75% across the track to confirm — matching the polished
-/// NyxCanvasSlider pattern used in WebContent, but inline and
-/// single-direction. On confirmation it fires ``onConfirmed`` once.
-private struct NyxStageButton: View {
+
+
+
+
+
+private struct NyxPulseButton: View {
 
     let label: String
     let onConfirmed: () -> Void
@@ -378,7 +378,7 @@ private struct NyxStageButton: View {
                     .frame(maxWidth: .infinity)
                     .multilineTextAlignment(.center)
 
-                // Thumb
+                
                 ZStack {
                     Circle()
                         .fill(Color.white)
@@ -426,22 +426,22 @@ private struct NyxStageButton: View {
     }
 }
 
-// MARK: - Fortune Wheel View
+
 
 private struct NyxBeacon: View {
     let rotation: Double
     let labels: [String]
 
-    /// Colour palette cycled across however many segments the server
-    /// sends — the wheel face stays SDK-rendered; only labels/count vary.
+    
+    
     private static let palette: [Color] = [
-        NyxDispatcherTheme.Colors.accent,  // #EB455A
+        NyxDispatcherTheme.Colors.accent,  
         Color.white,
     ]
 
-    private var segments: [NyxGlint] {
+    private var segments: [NyxSteward] {
         labels.enumerated().map { idx, value in
-            NyxGlint(value: value, color: Self.palette[idx % Self.palette.count])
+            NyxSteward(value: value, color: Self.palette[idx % Self.palette.count])
         }
     }
 
@@ -453,7 +453,7 @@ private struct NyxBeacon: View {
                 .shadow(color: .black.opacity(0.3), radius: 20, y: 10)
 
             ForEach(0..<segments.count, id: \.self) { index in
-                NyxGlintView(
+                NyxStewardView(
                     segment: segments[index],
                     startAngle: Double(index) * step,
                     endAngle: Double(index + 1) * step,
@@ -471,19 +471,19 @@ private struct NyxBeacon: View {
     }
 }
 
-private struct NyxGlint {
+private struct NyxSteward {
     let value: String
     let color: Color
 }
 
-private struct NyxGlintView: View {
-    let segment: NyxGlint
+private struct NyxStewardView: View {
+    let segment: NyxSteward
     let startAngle: Double
     let endAngle: Double
 
     var body: some View {
         ZStack {
-            NyxNova(startAngle: startAngle, endAngle: endAngle)
+            NyxVista(startAngle: startAngle, endAngle: endAngle)
                 .fill(segment.color)
 
             Text(segment.value)
@@ -498,7 +498,7 @@ private struct NyxGlintView: View {
     }
 }
 
-private struct NyxNova: Shape {
+private struct NyxVista: Shape {
     let startAngle: Double
     let endAngle: Double
 
@@ -520,5 +520,5 @@ private struct NyxNova: Shape {
     }
 }
 
-// MARK: - Preview
+
 

@@ -1,5 +1,5 @@
-// NyxMint.swift
-// Simple logging utility
+
+
 
 import Foundation
 import os.log
@@ -10,7 +10,7 @@ enum NyxMint {
 
     nonisolated(unsafe) static var isEnabled = NyxDispatcherConfig.isLoggingEnabled
 
-    // MARK: - Logging
+    
 
     static func log(_ message: String, file: String = #file, line: Int = #line) {
         guard isEnabled else { return }
@@ -41,7 +41,7 @@ enum NyxMint {
         os_log("WARNING: %{public}@", log: osLog, type: .default, message)
     }
 
-    // MARK: - Network Logging
+    
 
     static func logRequest(_ url: String, method: String, body: Data?) {
         guard isEnabled else { return }

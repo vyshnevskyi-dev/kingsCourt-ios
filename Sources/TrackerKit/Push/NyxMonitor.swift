@@ -1,67 +1,67 @@
-// NyxKernel.swift
-// Routes a tapped push notification to the right surface
-// (native screen / in-app webview / external Safari).
-//
-// Host apps wire this into their AppDelegate:
-//
-//   func userNotificationCenter(_ center: UNUserNotificationCenter,
-//                               didReceive response: UNNotificationResponse,
-//                               withCompletionHandler completionHandler: @escaping () -> Void) {
-//       NyxKernel.handle(userInfo: response.notification.request.content.userInfo)
-//       completionHandler()
-//   }
-//
-// Payload shape sent from the server dispatcher (matches the
-// campaign row in push_campaigns):
-//
-//   {
-//     "aps": { "alert": {...}, "sound": "default", "badge": 1 },
-//     "click_action": "native" | "in_app_webview" | "external",
-//     "click_url": "https://…",             // in_app_webview + external
-//     "deeplink_path": "/offers/abc123"      // native
-//   }
-//
-// Policy decisions baked in:
-//   * Unknown / missing click_action → native, no deeplink. We
-//     never ask the web or System Safari to resolve an unknown
-//     action — worst case the app just opens to its main screen.
-//   * ``in_app_webview`` uses SFSafariViewController so tracking
-//     cookies and user session stay on the partner's domain
-//     without App Store review dragging us through a "custom
-//     web view" flag. This is the same path NyxBeaconSheet
-//     uses for CTA landing pages.
-//   * ``external`` hands the URL to ``UIApplication.open`` which
-//     triggers the system smart-banner → App Store install flow
-//     for itms-apps:// / https:// links to another app.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import Foundation
 import SafariServices
 import UIKit
 
 @MainActor
-public enum NyxKernel {
+public enum NyxMonitor {
 
-    /// Action key the server dispatcher writes into the APNs payload.
+    
     public enum NyxCedar: String {
-        /// Open the host app's root scene. Optional ``deeplink_path``
-        /// is forwarded via ``NotificationCenter`` under
-        /// ``pushDeeplink`` so host apps that do their own deep-link
-        /// routing can react.
+        
+        
+        
+        
         case native
-        /// Open ``click_url`` inside an ``SFSafariViewController``.
+        
         case inAppWebView = "in_app_webview"
-        /// Open ``click_url`` in the system browser. Used for store
-        /// links / partner-app install prompts.
+        
+        
         case external
     }
 
-    /// Posted when a tapped push requests a native deep link. The
-    /// notification ``object`` is the ``deeplink_path`` string (may
-    /// be empty). Host apps observe this in the scene that owns
-    /// deep-link routing.
+    
+    
+    
+    
     public static let pushDeeplinkNotification = Notification.Name("NyxFlow.pushDeeplink")
 
-    /// Entry point — call from the AppDelegate's push-tap callback.
+    
     public static func handle(userInfo: [AnyHashable: Any]) {
         let actionRaw = (userInfo["click_action"] as? String) ?? "native"
         let action = NyxCedar(rawValue: actionRaw) ?? .native
@@ -88,7 +88,7 @@ public enum NyxKernel {
         }
     }
 
-    // MARK: - Branches
+    
 
     private static func handleNative(deeplinkPath: String) {
         NotificationCenter.default.post(
@@ -118,11 +118,11 @@ public enum NyxKernel {
             NyxMint.log("Push: external skipped — unparseable url \(rawURL)")
             return
         }
-        // Allow http(s) for App Store landing pages + itms-apps for
-        // direct product-page jumps. Anything else (custom schemes
-        // from third parties, file://) is dropped — the dispatcher
-        // should never be serving those, and we don't want a typo
-        // in admin to trigger an unexpected in-app handler.
+        
+        
+        
+        
+        
         let allowed = ["http", "https", "itms-apps", "itms-appss"]
         guard allowed.contains(scheme) else {
             NyxMint.log("Push: external skipped — scheme \(scheme) not allowed")
@@ -131,7 +131,7 @@ public enum NyxKernel {
         UIApplication.shared.open(url)
     }
 
-    // MARK: - Helpers
+    
 
     private static func validatedHTTPURL(_ raw: String) -> URL? {
         guard let url = URL(string: raw),

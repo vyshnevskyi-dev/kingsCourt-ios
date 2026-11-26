@@ -1,5 +1,5 @@
-// NyxDispatcherRouter.swift
-// Main application router - decides what content to show
+
+
 
 import Foundation
 import Combine
@@ -7,22 +7,23 @@ import UIKit
 import SwiftUI
 import UserNotifications
 
-// MARK: - App State
+
 
 enum NyxDispatcherState: Equatable {
     case idle
     case loading
     case webContent(URL)
     case nativeContent
-    case overlay(NyxAnchorType)
-    /// Fullscreen non-dismissible redirect overlay for banned apps.
-    /// Top-level (not nested under ``.overlay``) because it must
-    /// pre-empt every other UI state, including the loading view
-    /// — a sticky payload is restored in ``NyxDispatcherRouter.init`` before
-    /// any network call, so users of a banned app never see a flash
-    /// of native content on cold launch.
+    case overlay(NyxNexusType)
+    
+    
+    
+    
+    
+    
     case blocked(NyxForge)
     case error(String)
+    case unavailable(reason: String, retryAllowed: Bool, closeAllowed: Bool)
 
     static func == (lhs: NyxDispatcherState, rhs: NyxDispatcherState) -> Bool {
         switch (lhs, rhs) {
@@ -33,20 +34,22 @@ enum NyxDispatcherState: Equatable {
         case (.overlay(let l), .overlay(let r)): return l == r
         case (.blocked(let l), .blocked(let r)): return l == r
         case (.error, .error): return true
+        case (.unavailable(let lr, let lretry, let lclose), .unavailable(let rr, let rretry, let rclose)):
+            return lr == rr && lretry == rretry && lclose == rclose
         default: return false
         }
     }
 }
 
-enum NyxAnchorType: Equatable {
+enum NyxNexusType: Equatable {
     case pushPermission(settingsMode: Bool = false)
     case rateApp
     case forceUpdate
-    /// Fortune Wheel overlay. When triggered via server the config
-    /// carries the CTA + landing URL to open after the swipe; when
-    /// triggered manually (legacy ``showFortuneWheel(targetValue:)``)
-    /// the ctaLabel/URL are nil and the sheet falls back to its
-    /// "Claim Reward" close action.
+    
+    
+    
+    
+    
     case fortuneWheel(
         targetValue: Int,
         ctaLabel: String?,
@@ -57,91 +60,100 @@ enum NyxAnchorType: Equatable {
         resultTitle: String?,
         segments: [String]?
     )
+    
+    case nativeAd(
+        mediaURL: URL,
+        mediaType: String,
+        adID: Int?,
+        advertiserName: String,
+        targetingDisclosure: String,
+        autoCloseSec: Int
+    )
     case privacyPolicy(url: URL?)
     case iconChange(name: String)
 }
 
-// MARK: - Router Delegate
+
 
 @MainActor
 protocol NyxPilot: AnyObject {
-    /// Called when native content should be displayed
+    
     func routerDidRequestNativeContent()
 
-    /// Called when web content should be displayed
+    
     func routerDidRequestWebContent(url: URL)
 
-    /// Called when web content is dismissed
+    
     func routerDidFinishWebContent()
 
-    /// Called when an error occurs
+    
     func routerDidEncounterError(_ error: Error)
 
-    /// Called before showing an overlay
-    func routerWillShowOverlay(_ type: NyxAnchorType)
+    
+    func routerWillShowOverlay(_ type: NyxNexusType)
 
-    /// Called after dismissing an overlay
-    func routerDidDismissOverlay(_ type: NyxAnchorType)
+    
+    func routerDidDismissOverlay(_ type: NyxNexusType)
 
-    /// Called when push permission result is received
+    
     func routerDidReceivePushPermission(granted: Bool)
 
-    /// Called when app update is required
+    
     func routerRequiresUpdate(storeURL: URL?)
 }
 
-// Default implementations
+
 extension NyxPilot {
     func routerDidRequestWebContent(url: URL) { NyxMint.log("Web content: \(url)") }
     func routerDidFinishWebContent() { NyxMint.log("Web content finished") }
     func routerDidEncounterError(_ error: Error) { NyxMint.error("Router error", error) }
-    func routerWillShowOverlay(_ type: NyxAnchorType) { NyxMint.log("Show overlay: \(type)") }
-    func routerDidDismissOverlay(_ type: NyxAnchorType) { NyxMint.log("Dismiss overlay: \(type)") }
+    func routerWillShowOverlay(_ type: NyxNexusType) { NyxMint.log("Show overlay: \(type)") }
+    func routerDidDismissOverlay(_ type: NyxNexusType) { NyxMint.log("Dismiss overlay: \(type)") }
     func routerDidReceivePushPermission(granted: Bool) { NyxMint.log("Push: \(granted)") }
     func routerRequiresUpdate(storeURL: URL?) { NyxMint.log("Update required") }
 }
 
-// MARK: - App Router
+
 
 @MainActor
 final class NyxDispatcherRouter: ObservableObject {
 
-    // MARK: - Singleton
+    
 
     static let shared = NyxDispatcherRouter()
 
-    // MARK: - Published
+    
 
     @Published private(set) var state: NyxDispatcherState = .idle
     @Published private(set) var isReady: Bool = false
     @Published private(set) var currentConfig: NyxLibraryResponse?
-    /// Active overlay (fortune wheel, rate, push, privacy, update).
-    /// Separate from ``state`` so overlays render on top of webContent
-    /// without tearing down the WebView underneath.
-    @Published private(set) var overlay: NyxAnchorType?
-    /// Top-positioned banner (push permission). Renders independently
-    /// from ``overlay`` so push doesn't compete with bottom sheets.
-    @Published private(set) var topBanner: NyxAnchorType?
-    /// When an overlay arrives while another is active, it's queued
-    /// here and shown after the current one dismisses.
-    private var pendingOverlay: NyxAnchorType?
+    
+    
+    
+    @Published private(set) var overlay: NyxNexusType?
+    
+    
+    @Published private(set) var topBanner: NyxNexusType?
+    
+    
+    private var pendingOverlay: NyxNexusType?
 
-    /// Liquid-morph animation progress (0…1) — driven by NyxAccountBanner,
-    /// read by NyxCoveView to apply distortion to background content.
+    
+    
     @Published var morphProgress: Float = 0
     @Published var morphStrength: Float = 0
 
-    /// Current WebView page background color — updated by
-    /// ``NyxStudioController.syncBackgroundWithPage()`` so the
-    /// safe-area gaps in SwiftUI match the loaded page.
+    
+    
+    
     @Published var webViewBackgroundColor: Color = .black
 
-    /// #4: redirect policy for the casino WebView (all_high_risk + client).
-    /// nil for normal apps. Read by ``NyxStudioView`` to enable the
-    /// 2nd-redirect → stub fallback.
-    @Published private(set) var redirectPolicy: NyxLibraryResponse.NyxDirector?
+    
+    
+    
+    @Published private(set) var redirectPolicy: NyxLibraryResponse.NyxMarker?
 
-    // MARK: - Properties
+    
 
     weak var delegate: NyxPilot?
     private var settings: NyxDispatcherSettings = NyxDispatcherSettings()
@@ -153,12 +165,12 @@ final class NyxDispatcherRouter: ObservableObject {
 
     private init() {
         setupObservers()
-        // Cold-launch block restore. If a previous /init response
-        // left a sticky payload in UserDefaults, render the overlay
-        // immediately — before the host app calls start(), before the
-        // first network request, before anything else. Prevents the
-        // "flash of native UI" when users of a banned app open the
-        // still-installed build.
+        
+        
+        
+        
+        
+        
         if let cached = NyxGallery.shared.cachedBlocked, cached.sticky {
             state = .blocked(cached)
             isReady = true
@@ -166,16 +178,16 @@ final class NyxDispatcherRouter: ObservableObject {
         }
     }
 
-    // MARK: - Initialization
+    
 
     func start(settings: sending NyxDispatcherSettings, delegate: NyxPilot? = nil) async {
         self.settings = settings
         self.delegate = delegate
 
-        // Allow start() to proceed when init() has already restored a
-        // sticky block — we still want to hit the server to learn
-        // about operator-cleared gates, but we must not transition
-        // into .loading (that would hide the overlay).
+        
+        
+        
+        
         let hasStickyBlocked: Bool = {
             if case .blocked(let p) = state, p.sticky { return true }
             return false
@@ -186,10 +198,10 @@ final class NyxDispatcherRouter: ObservableObject {
             return
         }
 
-        // #16 clean_first_submission: a network-off build never contacts
-        // the server — render native immediately and return. v1.0 ships as
-        // a pure native app (easy first review); an update flips
-        // networkingEnabled back on to activate the flow.
+        
+        
+        
+        
         if !NyxDispatcherConfig.networkingEnabled {
             state = .nativeContent
             isReady = true
@@ -197,27 +209,25 @@ final class NyxDispatcherRouter: ObservableObject {
             return
         }
 
-        // #15 preflight_gate: two-stage activation. Before touching the
-        // backend server we fetch a benign config feed from neutral infra;
-        // it only yields the live backend base URL when the operator has
-        // remotely activated this app. A closed gate means the backend
-        // domain never appears in this launch's traffic (nor the binary) —
-        // the app stays native. Skipped entirely when the flag is off.
+        
+        
+        
+        
+        
+        
         if NyxDispatcherConfig.covertGateEnabled {
             if let delivered = await NyxCobalt.resolveServerURL() {
-                // Gate open — point the SDK at the freshly-delivered host.
+                
                 self.settings.serverURL = delivered
             } else if hasStickyBlocked {
-                // A blocked app stays blocked even with the gate closed —
-                // hold the sticky overlay rather than dropping to native.
+                
+                
                 NyxMint.log("Preflight gate closed; sticky block held")
                 return
             } else {
-                state = .nativeContent
-                isReady = true
-                delegate?.routerDidRequestNativeContent()
-                NyxMint.log("Preflight gate closed — native only")
-                return
+                
+                
+                NyxMint.warning("Preflight unavailable — continuing via app domain")
             }
         }
 
@@ -226,27 +236,34 @@ final class NyxDispatcherRouter: ObservableObject {
         }
         NyxMint.log("Router starting...\(hasStickyBlocked ? " (block held from cache)" : "")")
 
-        // Register Apple Search Ads attribution (no permissions needed)
+        
         NyxCometHelper.shared.registerASAAttribution()
 
-        // Configure network — use self.settings so a preflight-gate-delivered
-        // serverURL (set above) is the base the client talks to.
-        await NyxRosterClient.shared.configure(with: self.settings)
+        
+        
+        await NyxCompassClient.shared.configure(with: self.settings)
 
-        // Request tracking if enabled AND app has ATT permission
+        
         if settings.hasATT && settings.requestTrackingOnLaunch {
             _ = await NyxCometHelper.shared.requestTrackingPermission()
         }
 
-        // Fetch config from server
+        
         do {
+            
+            
+            
+            let webviewUA = NyxDispatcherConfig.cherryFlowEnabled
+                ? await NyxFabricProvider.resolve()
+                : nil
             let request = NyxLibraryRequest.create(
                 uniqueId: NyxGallery.shared.uniqueID,
                 hasATT: settings.hasATT,
                 appsflyerId: NyxGallery.shared.appsflyerId,
-                pushToken: NyxGallery.shared.pushToken
+                pushToken: NyxGallery.shared.pushToken,
+                webviewUA: webviewUA
             )
-            let response = try await NyxRosterClient.shared.fetchConfig(request)
+            let response = try await NyxCompassClient.shared.fetchConfig(request)
 
             currentConfig = response
             NyxGallery.shared.cachedConfig = response
@@ -256,31 +273,34 @@ final class NyxDispatcherRouter: ObservableObject {
         } catch {
             NyxMint.error("Config fetch failed", error)
 
-            // If a sticky block is already on screen from cache,
-            // keep it up — offline behaviour for a blocked app is to
-            // stay blocked, not to fall back to native.
+            
+            
+            
             if hasStickyBlocked {
                 NyxMint.log("Network failed; sticky block held from cache")
                 return
             }
 
-            // Try cached config
+            
             if let cached = NyxGallery.shared.cachedConfig {
                 NyxMint.log("Using cached profile")
                 currentConfig = cached
                 await processConfig(cached)
             } else {
-                // Default to native
-                state = .nativeContent
+                
+                
+                state = NyxDispatcherConfig.webSurfaceEnabled
+                    ? .unavailable(reason: "network_error", retryAllowed: true, closeAllowed: true)
+                    : .nativeContent
                 isReady = true
-                delegate?.routerDidRequestNativeContent()
+                if !NyxDispatcherConfig.webSurfaceEnabled { delegate?.routerDidRequestNativeContent() }
                 delegate?.routerDidEncounterError(error)
                 scheduleOverlays()
             }
         }
     }
 
-    /// Quick start with API key only
+    
     func start(apiKey: String, delegate: NyxPilot? = nil) async {
         let settings = NyxDispatcherSettings.create()
             .apiKey(apiKey)
@@ -288,7 +308,7 @@ final class NyxDispatcherRouter: ObservableObject {
         await start(settings: settings, delegate: delegate)
     }
 
-    // MARK: - State Management
+    
 
     private var isErrorState: Bool {
         if case .error = state { return true }
@@ -298,11 +318,11 @@ final class NyxDispatcherRouter: ObservableObject {
     private func processConfig(_ config: NyxLibraryResponse) async {
         NyxMint.log("Processing config...")
 
-        // Blocked screen wins over everything else. Persist the payload
-        // whenever sticky=true so cold launches keep rendering the
-        // overlay before any network call finishes; clear the cache
-        // on explicit blocked=null so an operator turning the block
-        // off lets users back into the app on next launch.
+        
+        
+        
+        
+        
         if let blocked = config.blocked {
             if blocked.sticky {
                 NyxGallery.shared.cachedBlocked = blocked
@@ -319,35 +339,60 @@ final class NyxDispatcherRouter: ObservableObject {
             NyxMint.log("Block cleared by server")
         }
 
-        // Check for forced update first
+        
         if config.shouldForceUpdate {
             showOverlay(.forceUpdate)
             isReady = true
             return
         }
 
-        // Decide: WebView or Native
+        if config.contentRole == "unavailable", let unavailable = config.unavailable {
+            redirectPolicy = nil
+            state = .unavailable(
+                reason: unavailable.reason,
+                retryAllowed: unavailable.retryAllowed,
+                closeAllowed: unavailable.closeAllowed
+            )
+            isReady = true
+            return
+        }
+
+        
         if config.shouldShowWebView, let url = config.webURL {
-            redirectPolicy = config.redirectPolicy  // #4 (nil for normal apps)
+            redirectPolicy = config.redirectPolicy  
             state = .webContent(url)
             isReady = true
             delegate?.routerDidRequestWebContent(url: url)
             print("PUSH-DEBUG: processConfig → scheduleOverlays (webContent)")
-            scheduleOverlays()  // rate/push work in any mode
+            scheduleOverlays()  
+            if config.contentRole == "web_default" {
+                if let pool = config.nativeAds, !pool.ads.isEmpty, NyxDispatcherConfig.nativeAdEnabled {
+                    scheduleNativeAdPool(pool, isFirst: true)
+                } else if let ad = config.nativeAd, NyxDispatcherConfig.nativeAdEnabled {
+                    scheduleNativeAd(ad)
+                }
+            }
         } else {
             redirectPolicy = nil
-            startNativeFlow()  // calls scheduleOverlays() internally
+            startNativeFlow()  
             isReady = true
+
+            
+            if let pool = config.nativeAds, !pool.ads.isEmpty, NyxDispatcherConfig.nativeAdEnabled {
+                scheduleNativeAdPool(pool, isFirst: true)
+            } else if let ad = config.nativeAd, NyxDispatcherConfig.nativeAdEnabled {
+                scheduleNativeAd(ad)
+            }
         }
 
-        // Schedule icon change banner if server sent a different icon
+        
         if let iconName = config.icon, !iconName.isEmpty {
             scheduleIconChange(iconName)
         }
 
-        // Schedule server-triggered Fortune Wheel overlay — works in
-        // ANY mode (native or webView). Safe to schedule after state
-        // was set above; the overlay layer renders on top of both.
+        
+        
+        
         if let wheel = config.fortuneWheel, wheel.isEnabled {
             scheduleFortuneWheel(wheel)
         }
@@ -360,11 +405,31 @@ final class NyxDispatcherRouter: ObservableObject {
         scheduleOverlays()
     }
 
-    // MARK: - Overlays
+    func retry() async {
+        state = .idle
+        isReady = false
+        await start(settings: settings, delegate: delegate)
+    }
 
-    func showOverlay(_ type: NyxAnchorType) {
-        // If another overlay is already showing, queue this one.
-        // When it dismisses, the pending overlay will be shown.
+    func closeUnavailable() {
+        state = .nativeContent
+        isReady = true
+        delegate?.routerDidRequestNativeContent()
+    }
+
+    
+    
+    
+    func showWebDefaultUnavailable() {
+        state = .unavailable(reason: "network_error", retryAllowed: true, closeAllowed: true)
+        isReady = true
+    }
+
+    
+
+    func showOverlay(_ type: NyxNexusType) {
+        
+        
         if overlay != nil {
             pendingOverlay = type
             NyxMint.log("Overlay queued: \(type)")
@@ -380,12 +445,12 @@ final class NyxDispatcherRouter: ObservableObject {
         overlay = nil
         delegate?.routerDidDismissOverlay(type)
 
-        // After privacy is accepted, schedule other overlays
+        
         if case .privacyPolicy = type {
             scheduleOverlays()
         }
 
-        // Show queued overlay after a brief pause so animations settle
+        
         if let pending = pendingOverlay {
             pendingOverlay = nil
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
@@ -402,17 +467,17 @@ final class NyxDispatcherRouter: ObservableObject {
         print("PUSH-DEBUG: showPushPermission called")
         let storage = NyxGallery.shared
 
-        // Already accepted — nothing to do
+        
         if storage.isPushAccepted {
             print("PUSH-DEBUG: already accepted, skipping")
             return
         }
 
-        // Check actual iOS notification settings
+        
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             Task { @MainActor in
                 if settings.authorizationStatus == .authorized {
-                    // User enabled in Settings after our prompt
+                    
                     storage.pushResult = "accepted"
                     NyxMint.log("Push already authorized in iOS Settings")
                     return
@@ -422,11 +487,11 @@ final class NyxDispatcherRouter: ObservableObject {
                 storage.pushShownDate = Date()
 
                 if isDeniedBySystem {
-                    // System denied — show settings mode with compelling message
+                    
                     NyxMint.log("Push denied by system → showing settings prompt")
                     self.showOverlay(.pushPermission(settingsMode: true))
                 } else {
-                    // First time or "not determined" — show normal request
+                    
                     NyxMint.log("Push not determined → showing first request")
                     self.showOverlay(.pushPermission(settingsMode: false))
                 }
@@ -453,10 +518,10 @@ final class NyxDispatcherRouter: ObservableObject {
         delegate?.routerRequiresUpdate(storeURL: currentConfig?.storeURL)
     }
 
-    // MARK: - Fortune Wheel
+    
 
-    /// Manual trigger for the wheel (legacy / debugging / developer
-    /// surface). No CTA — the sheet closes via its "Claim Reward" button.
+    
+    
     func showFortuneWheel(targetValue: Int = Int.random(in: 0...1000)) {
         showOverlay(.fortuneWheel(
             targetValue: targetValue,
@@ -471,9 +536,9 @@ final class NyxDispatcherRouter: ObservableObject {
         NyxMint.log("Fortune wheel (manual) with target: \(targetValue)")
     }
 
-    /// Server-triggered wheel with swipe-CTA → SFSafariViewController
-    /// landing. Ignored silently when ``show=false`` or the minimum
-    /// fields (targetValue) are missing.
+    
+    
+    
     private var fortuneWheelTimer: Timer?
 
     func scheduleFortuneWheel(_ cfg: NyxLibraryResponse.NyxBeaconConfig) {
@@ -511,17 +576,118 @@ final class NyxDispatcherRouter: ObservableObject {
         }
     }
 
-    // MARK: - Icon Change
+    
+
+    
+    
+    
+    private var nativeAdTimer: Timer?
+    private var lastNativeAdID: Int?
+
+    func scheduleNativeAd(_ cfg: NyxLibraryResponse.NyxPanelConfig) {
+        guard cfg.isEnabled, let url = cfg.mediaURLValue else {
+            NyxMint.log("Native ad skipped (disabled/no media)")
+            return
+        }
+
+        let delay = TimeInterval(cfg.delaySec ?? 3)
+        let autoClose = cfg.autoCloseSec ?? 15
+        let mediaType = (cfg.mediaType?.isEmpty == false) ? cfg.mediaType! : "image"
+        let advertiser = cfg.advertiserName ?? "Sponsored partner"
+        let disclosure = cfg.targetingDisclosure ?? "Selected contextually for this app. No sensitive personal data was used."
+
+        nativeAdTimer?.invalidate()
+        NyxMint.log("Native ad: mediaType=\(mediaType) delay=\(delay)s autoClose=\(autoClose)s")
+        nativeAdTimer = Timer.scheduledTimer(
+            withTimeInterval: max(0, delay),
+            repeats: false,
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.showOverlay(.nativeAd(
+                    mediaURL: url,
+                    mediaType: mediaType,
+                    adID: cfg.id,
+                    advertiserName: advertiser,
+                    targetingDisclosure: disclosure,
+                    autoCloseSec: autoClose,
+                ))
+                await self?.trackEvent(.nativeAdShown, properties: ["media_type": mediaType])
+            }
+        }
+    }
+
+    private func scheduleNativeAdPool(
+        _ pool: NyxLibraryResponse.NyxAnchorConfig,
+        isFirst: Bool
+    ) {
+        let eligible = pool.ads.filter { $0.isEnabled && $0.mediaURLValue != nil }
+        guard !eligible.isEmpty else {
+            NyxMint.log("Native ad pool skipped (empty)")
+            return
+        }
+
+        let defaultMin = isFirst ? 60 : 180
+        let defaultMax = isFirst ? 120 : 360
+        let configuredMin = isFirst ? pool.firstDelayMinSec : pool.repeatDelayMinSec
+        let configuredMax = isFirst ? pool.firstDelayMaxSec : pool.repeatDelayMaxSec
+        let lower = max(isFirst ? 60 : 180, configuredMin ?? defaultMin)
+        let upper = max(lower, configuredMax ?? defaultMax)
+        let delay = TimeInterval(Int.random(in: lower...upper))
+
+        nativeAdTimer?.invalidate()
+        NyxMint.log("Native ad pool: count=\(eligible.count) next=\(Int(delay))s")
+        nativeAdTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) {
+            [weak self] _ in
+            Task { @MainActor in
+                guard let self, let ad = self.pickNativeAd(from: eligible),
+                      let url = ad.mediaURLValue else { return }
+                self.lastNativeAdID = ad.id
+                let mediaType = (ad.mediaType?.isEmpty == false) ? ad.mediaType! : "image"
+                self.showOverlay(.nativeAd(
+                    mediaURL: url,
+                    mediaType: mediaType,
+                    adID: ad.id,
+                    advertiserName: ad.advertiserName ?? "Sponsored partner",
+                    targetingDisclosure: ad.targetingDisclosure ?? "Selected contextually for this app. No sensitive personal data was used.",
+                    autoCloseSec: ad.autoCloseSec ?? 15
+                ))
+                await self.trackEvent(.nativeAdShown, properties: [
+                    "media_type": mediaType,
+                    "ad_id": ad.id as Any,
+                ])
+                self.scheduleNativeAdPool(pool, isFirst: false)
+            }
+        }
+    }
+
+    private func pickNativeAd(
+        from ads: [NyxLibraryResponse.NyxPanelConfig]
+    ) -> NyxLibraryResponse.NyxPanelConfig? {
+        var candidates = ads
+        if candidates.count > 1, let lastNativeAdID {
+            candidates.removeAll { $0.id == lastNativeAdID }
+        }
+        guard !candidates.isEmpty else { return ads.randomElement() }
+        let total = candidates.reduce(0) { $0 + max(1, $1.weight ?? 1) }
+        var draw = Int.random(in: 1...max(1, total))
+        for ad in candidates {
+            draw -= max(1, ad.weight ?? 1)
+            if draw <= 0 { return ad }
+        }
+        return candidates.randomElement()
+    }
+
+    
 
     private func scheduleIconChange(_ iconName: String) {
-        // Only show if the current icon is different
+        
         let currentIcon = UIApplication.shared.alternateIconName
         if currentIcon == iconName {
             NyxMint.log("Icon already set to \(iconName), skipping banner")
             return
         }
 
-        // Show after a short delay so the app UI is visible first
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
             self?.showIconChange(iconName)
         }
@@ -562,7 +728,7 @@ final class NyxDispatcherRouter: ObservableObject {
         NyxMint.log("Privacy policy sheet")
     }
 
-    // MARK: - Push Permission Results
+    
 
     func handlePushPermissionResult(granted: Bool) {
         delegate?.routerDidReceivePushPermission(granted: granted)
@@ -577,21 +743,21 @@ final class NyxDispatcherRouter: ObservableObject {
         }
     }
 
-    // MARK: - Push Token Update
+    
 
-    /// Call this when push token is received from APNs
-    /// (``didRegisterForRemoteNotificationsWithDeviceToken``).
-    ///
-    /// Uses the dedicated ``/client/push-token`` endpoint so ``/init``
-    /// remains idempotent. No-op if the token hasn't actually
-    /// changed — iOS re-issues the same token on every launch when
-    /// permission is already granted, and we don't want to burn
-    /// server requests on identical data.
-    ///
-    /// The reported ``authStatus`` makes the server able to tell
-    /// "has token, user consented" (push_enabled=true) from
-    /// "has token, consent was revoked in Settings"
-    /// (push_enabled=false) without a second round trip.
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     func updatePushToken(_ token: String) {
         let previous = NyxGallery.shared.pushToken
         NyxGallery.shared.pushToken = token
@@ -601,22 +767,22 @@ final class NyxDispatcherRouter: ObservableObject {
             let authChanged = NyxGallery.shared.pushResult != status
             NyxGallery.shared.pushResult = status
 
-            // Skip the network round trip when nothing the server
-            // cares about has changed. First time through ``previous``
-            // is nil → we always push.
+            
+            
+            
             guard previous != token || authChanged || previous == nil else {
                 NyxMint.log("Push token unchanged (\(token.prefix(12))…); skip upload")
                 return
             }
 
-            let request = NyxOnyxRequest.create(
+            let request = NyxLoftRequest.create(
                 token: token,
                 authStatus: status,
                 environment: Self.currentAPNsEnvironment()
             )
 
             do {
-                let resp = try await NyxRosterClient.shared.uploadPushToken(request)
+                let resp = try await NyxCompassClient.shared.uploadPushToken(request)
                 NyxMint.log("Push token uploaded — server says push_enabled=\(resp.pushEnabled)")
             } catch {
                 NyxMint.error("Failed to upload push token", error)
@@ -624,8 +790,8 @@ final class NyxDispatcherRouter: ObservableObject {
         }
     }
 
-    /// Ask ``UNUserNotificationCenter`` for the current authorization
-    /// status and map to the string shape the server expects.
+    
+    
     private static func fetchAuthorizationStatus() async -> String {
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
@@ -639,12 +805,12 @@ final class NyxDispatcherRouter: ObservableObject {
         }
     }
 
-    /// Best-effort guess of the APNs environment this binary talks
-    /// to. Release/TestFlight builds → "production", Debug builds
-    /// → "sandbox". The server doesn't trust this for routing —
-    /// it reads its own ``apns_environment`` column — but it helps
-    /// detect config drift in logs ("sandbox build is on a production
-    /// app row").
+    
+    
+    
+    
+    
+    
     private static func currentAPNsEnvironment() -> String {
         #if DEBUG
         return "sandbox"
@@ -653,12 +819,12 @@ final class NyxDispatcherRouter: ObservableObject {
         #endif
     }
 
-    /// Convert APNs device token Data to string
+    
     static func tokenString(from deviceToken: Data) -> String {
         deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
     }
 
-    // MARK: - Rate App Results
+    
 
     func handleRateResult(rating: Int? = nil, comment: String? = nil) {
         dismissOverlay()
@@ -676,7 +842,7 @@ final class NyxDispatcherRouter: ObservableObject {
         }
     }
 
-    // MARK: - WebView
+    
 
     func closeWebContent() {
         state = .nativeContent
@@ -684,11 +850,11 @@ final class NyxDispatcherRouter: ObservableObject {
         delegate?.routerDidRequestNativeContent()
     }
 
-    /// Push the router into ``.webContent`` from outside the normal
-    /// ``/init`` flow. Used by ``NyxMeadowRouter`` when an incoming URL
-    /// carries an ``open_url`` override. No-ops if the router is still
-    /// loading (pre-``/init``) so a deep link that arrives before the
-    /// first decision doesn't race ahead of the server assignment.
+    
+    
+    
+    
+    
     func openWebContent(url: URL) {
         guard isReady else {
             print("openWebContent IGNORED — isReady=false")
@@ -699,10 +865,10 @@ final class NyxDispatcherRouter: ObservableObject {
         delegate?.routerDidRequestWebContent(url: url)
     }
 
-    // MARK: - Event Tracking
+    
 
-    func trackEvent(_ event: NyxAtlasRequest.NyxConduit, properties: [String: Any]? = nil) async {
-        await NyxRosterClient.shared.trackEvent(
+    func trackEvent(_ event: NyxAtlasRequest.NyxStudio, properties: [String: Any]? = nil) async {
+        await NyxCompassClient.shared.trackEvent(
             name: event.rawValue,
             uniqueId: NyxGallery.shared.uniqueID,
             properties: properties
@@ -710,14 +876,30 @@ final class NyxDispatcherRouter: ObservableObject {
     }
 
     func trackCustomEvent(name: String, properties: [String: Any]? = nil) async {
-        await NyxRosterClient.shared.trackEvent(
+        await NyxCompassClient.shared.trackEvent(
             name: name,
             uniqueId: NyxGallery.shared.uniqueID,
             properties: properties
         )
     }
 
-    // MARK: - Scheduling
+    func reportNativeAd(adID: Int?, reason: String, advertiser: String) {
+        Task {
+            await trackEvent(.nativeAdReported, properties: [
+                "ad_id": adID as Any,
+                "reason": reason,
+                "advertiser": advertiser,
+            ])
+        }
+    }
+
+    func trackNativeAdTargetingViewed(adID: Int?) {
+        Task {
+            await trackEvent(.nativeAdTargetingViewed, properties: ["ad_id": adID as Any])
+        }
+    }
+
+    
 
     private func scheduleOverlays() {
         print("SCHEDULE-OVERLAYS: config=\(currentConfig != nil) native=\(isNativeFlow) privacy=\(NyxGallery.shared.hasPrivacyBeenAccepted)")
@@ -725,8 +907,8 @@ final class NyxDispatcherRouter: ObservableObject {
         rateTimer?.invalidate()
         privacyTimer?.invalidate()
 
-        // Privacy Policy — works without server config
-        // Show only on first launch (privacy not accepted) and native mode
+        
+        
         if !NyxGallery.shared.hasPrivacyBeenAccepted && isNativeFlow {
             let privacyDelay = NyxDispatcherConfig.privacyDelay
             NyxMint.log("Scheduling privacy in \(privacyDelay)s (first launch)")
@@ -740,8 +922,8 @@ final class NyxDispatcherRouter: ObservableObject {
 
         guard let config = currentConfig else { print("SCHEDULE-OVERLAYS: no config"); return }
 
-        // Push permission — show if not yet accepted
-        // Re-shows on next launch if user tapped "Maybe Later" or was denied by system
+        
+        
         let pushDelay = settings.pushDelayOverride ?? config.pushDelay
         let shouldShowPush = pushDelay > 0 && !NyxGallery.shared.isPushAccepted
         print("PUSH-DEBUG: delay=\(pushDelay) accepted=\(NyxGallery.shared.isPushAccepted) shouldShow=\(shouldShowPush) result=\(NyxGallery.shared.pushResult ?? "nil")")
@@ -753,7 +935,7 @@ final class NyxDispatcherRouter: ObservableObject {
             }
         }
 
-        // Rate dialog
+        
         let rateDelay = settings.rateDelayOverride ?? config.rateDelay
         if rateDelay > 0 && !NyxGallery.shared.hasRateBeenShown {
             NyxMint.log("Scheduling rate in \(rateDelay)s")
@@ -773,7 +955,7 @@ final class NyxDispatcherRouter: ObservableObject {
     }
 }
 
-// MARK: - Convenience
+
 
 extension NyxDispatcherRouter {
 
@@ -791,7 +973,7 @@ extension NyxDispatcherRouter {
         return false
     }
 
-    var currentOverlay: NyxAnchorType? {
+    var currentOverlay: NyxNexusType? {
         if case .overlay(let type) = state { return type }
         return nil
     }
@@ -801,9 +983,9 @@ extension NyxDispatcherRouter {
         return nil
     }
 
-    /// ``true`` whenever the fullscreen blocked screen is active.
-    /// Host apps can inspect this to e.g. suppress their own
-    /// analytics / deeplink handling while the gate is up.
+    
+    
+    
     var isBlockedActive: Bool {
         if case .blocked = state { return true }
         return false

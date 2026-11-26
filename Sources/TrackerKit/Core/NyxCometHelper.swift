@@ -1,8 +1,8 @@
-// NyxCometHelper.swift
-// Device information collection
-//
-// ATT Support: Add -D APPFLOW_ATT_ENABLED to Swift Compiler Flags to enable
-// Without flag: ATT code is excluded from binary, no Apple requirements
+
+
+
+
+
 
 import UIKit
 import AdServices
@@ -17,10 +17,10 @@ final class NyxCometHelper {
     nonisolated(unsafe) static let shared = NyxCometHelper()
     private init() {}
 
-    // MARK: - Apple Search Ads Attribution
+    
 
-    /// Fetch ASA attribution token. No permissions required.
-    /// Call once on first launch — registers the install with Apple.
+    
+    
     func registerASAAttribution() {
         if #available(iOS 14.3, *) {
             do {
@@ -34,7 +34,7 @@ final class NyxCometHelper {
         }
     }
 
-    // MARK: - App Info
+    
 
     var bundleID: String {
         Bundle.main.bundleIdentifier ?? "unknown"
@@ -48,7 +48,7 @@ final class NyxCometHelper {
         Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "0"
     }
 
-    // MARK: - Device Info
+    
 
     var language: String {
         if #available(iOS 16, *) {
@@ -88,30 +88,30 @@ final class NyxCometHelper {
         Double(UIScreen.main.scale)
     }
 
-    /// Logical screen width in points (UIKit) — equals Mobile Safari's
-    /// ``screen.width`` in CSS px for the same device, which is what
-    /// Cherry Flow matches against. See CHERRY_FLOW_DESIGN.md §4.3.
+    
+    
+    
     var screenWidthPoints: Int {
         Int(UIScreen.main.bounds.size.width)
     }
 
-    /// Logical screen height in points (UIKit) — equals Mobile Safari's
-    /// ``screen.height`` in CSS px for the same device.
+    
+    
     var screenHeightPoints: Int {
         Int(UIScreen.main.bounds.size.height)
     }
 
-    // MARK: - Identifiers
+    
 
     var vendorID: String? {
         UIDevice.current.identifierForVendor?.uuidString
     }
 
-    // MARK: - Privacy / ATT
+    
 
     #if APPFLOW_ATT_ENABLED
 
-    // ATT ENABLED - Full tracking support
+    
 
     var trackingStatus: ATTrackingManager.AuthorizationStatus {
         ATTrackingManager.trackingAuthorizationStatus
@@ -119,7 +119,7 @@ final class NyxCometHelper {
 
     var trackingStatusString: String {
         switch trackingStatus {
-        case .notDetermined: return "not_determined"
+        case .notDetermined: return "notDetermined"
         case .restricted: return "restricted"
         case .denied: return "denied"
         case .authorized: return "authorized"
@@ -139,7 +139,7 @@ final class NyxCometHelper {
             return trackingStatus
         }
 
-        // Wait for app to be active
+        
         while await UIApplication.shared.applicationState != .active {
             try? await Task.sleep(nanoseconds: 100_000_000)
         }
@@ -149,7 +149,7 @@ final class NyxCometHelper {
 
     #else
 
-    // ATT DISABLED - No tracking, no framework linked
+    
 
     var trackingStatusString: String {
         "unavailable"
@@ -160,7 +160,7 @@ final class NyxCometHelper {
     }
 
     func requestTrackingPermission() async {
-        // ATT disabled - no-op
+        
     }
 
     #endif

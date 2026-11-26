@@ -1,5 +1,5 @@
-// NyxPointerBanner.swift
-// Top banner with swipe-to-change-icon slider and countdown timer
+
+
 
 import SwiftUI
 
@@ -50,13 +50,13 @@ struct NyxPointerBanner: View {
         .onDisappear { timer?.invalidate() }
     }
 
-    // MARK: - Banner Content
+    
 
     private var bannerContent: some View {
         VStack(spacing: 12) {
-            // Header: icon + title + timer
+            
             HStack(spacing: 12) {
-                // App icon preview
+                
                 ZStack {
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .fill(
@@ -86,11 +86,11 @@ struct NyxPointerBanner: View {
 
                 Spacer()
 
-                // Countdown timer
+                
                 timerView
             }
 
-            // Swipe slider
+            
             swipeSlider
         }
         .padding(16)
@@ -101,7 +101,7 @@ struct NyxPointerBanner: View {
         .padding(.top, 8)
     }
 
-    // MARK: - Timer View
+    
 
     private var timerView: some View {
         ZStack {
@@ -135,19 +135,19 @@ struct NyxPointerBanner: View {
         }
     }
 
-    // MARK: - Swipe Slider
+    
 
     private var swipeSlider: some View {
         GeometryReader { geo in
             let maxOffset = geo.size.width - thumbSize - 8
 
             ZStack(alignment: .leading) {
-                // Track background
+                
                 RoundedRectangle(cornerRadius: trackHeight / 2, style: .continuous)
                     .fill(Color.white.opacity(0.08))
                     .frame(height: trackHeight)
 
-                // Progress fill
+                
                 RoundedRectangle(cornerRadius: trackHeight / 2, style: .continuous)
                     .fill(
                         LinearGradient(
@@ -161,7 +161,7 @@ struct NyxPointerBanner: View {
                     )
                     .frame(width: sliderOffset + thumbSize + 8, height: trackHeight)
 
-                // Hint text
+                
                 if sliderOffset < maxOffset * 0.3 {
                     HStack {
                         Spacer()
@@ -173,7 +173,7 @@ struct NyxPointerBanner: View {
                     .padding(.leading, thumbSize + 8)
                 }
 
-                // Thumb
+                
                 ZStack {
                     Circle()
                         .fill(
@@ -198,7 +198,7 @@ struct NyxPointerBanner: View {
                             let newOffset = max(0, min(value.translation.width, maxOffset))
                             sliderOffset = newOffset
 
-                            // Haptic ticks at 25%, 50%, 75%
+                            
                             let progress = newOffset / maxOffset
                             if progress > 0.25 && progress < 0.3 ||
                                progress > 0.5 && progress < 0.55 ||
@@ -226,13 +226,13 @@ struct NyxPointerBanner: View {
         .frame(height: trackHeight)
     }
 
-    // MARK: - Helpers
+    
 
     private var bannerBackground: some View {
         ZStack {
             Color(red: 0.1, green: 0.1, blue: 0.12)
 
-            // Subtle gradient glow
+            
             LinearGradient(
                 colors: [
                     iconGradientColors.first?.opacity(0.1) ?? .clear,
@@ -266,7 +266,7 @@ struct NyxPointerBanner: View {
         }
     }
 
-    // MARK: - Actions
+    
 
     private func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
@@ -287,15 +287,15 @@ struct NyxPointerBanner: View {
         isCompleted = true
         timer?.invalidate()
 
-        // Success haptic
+        
         UINotificationFeedbackGenerator().notificationOccurred(.success)
 
-        // Animate thumb to end
+        
         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
             sliderOffset = trackWidth - thumbSize - 8
         }
 
-        // Dismiss after a beat
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             onSwipeCompleted()
             dismiss()
@@ -312,5 +312,5 @@ struct NyxPointerBanner: View {
     }
 }
 
-// MARK: - Preview
+
 
