@@ -38,7 +38,7 @@ struct HomeScreen: View {
                 Image("LeagueHero").resizable().scaledToFill().frame(height: 280).clipped()
                 LinearGradient(colors: [.clear, ink.opacity(0.96)], startPoint: .top, endPoint: .bottom)
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("CONCRETE LEAGUE").font(.caption.bold()).tracking(2).foregroundStyle(lime)
+                    Text("CONCRETE LEAGUE · RAIN BEAT TIME").font(.caption.bold()).tracking(1.5).foregroundStyle(lime)
                     Text("32 teams. One city.\nNo borrowed glory.").font(.system(size: 30, weight: .black, design: .rounded))
                     Button(following ? "Following season" : "Follow season") { following.toggle() }.buttonStyle(LimeButtonStyle())
                 }.padding(20)
@@ -48,7 +48,7 @@ struct HomeScreen: View {
             ForEach(LeagueData.matches.prefix(3)) { match in NavigationLink(value: match) { MatchRow(match: match) }.buttonStyle(.plain) }
             SectionTitle(title: "The story", action: "Read") { NewsScreen() }
             NavigationLink { NewsScreen() } label: { FeatureCard(icon: "flame.fill", title: "Round of 32: no easy exits", subtitle: "Eight districts arrive at The Cage for opening night.") }.buttonStyle(.plain)
-        }.padding() }.background(ink).navigationTitle("Concrete League").navigationDestination(for: LeagueMatch.self) { MatchCentreScreen(match: $0) }
+        }.padding() }.background(ink).navigationTitle("Rain Beat Time").navigationDestination(for: LeagueMatch.self) { MatchCentreScreen(match: $0) }
     }
 }
 
