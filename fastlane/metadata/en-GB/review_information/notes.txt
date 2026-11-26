@@ -1,14 +1,13 @@
 Hello!
- Concrete League - Rain Beat Time is a companion app for a fictional urban five-a-side football tournament, featuring fixtures, results, standings, teams, venues, stories, favourites, and reminders.
+ Concrete League is a companion for a fictional five-a-side football tournament, featuring fixtures, results, standings, teams, venues, stories, favourites, and reminders.
 
 1.
- Browse fixtures, standings, and the knockout bracket.
+ No login or test credentials are required.
 
 2.
- Open a team or match to view full details.
+ Browse matches, teams, standings, and the knockout bracket.
 
 3.
- Try favourites, reminders, venue guides, and settings.
+ Open a match or story, then test favourites and reminders.
 
-No login or permissions are required.
- Thank you for reviewing Concrete League - Rain Beat Time!
+Thank you for reviewing our app!
