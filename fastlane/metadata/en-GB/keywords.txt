@@ -1,1 +1,1 @@
-football,tournament,teams,fixtures,standings,bracket,match,street,sport,league
+football,tournament,teams,fixtures,standings,bracket,match,street sport

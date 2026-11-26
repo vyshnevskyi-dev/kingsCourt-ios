@@ -1,31 +1,392 @@
 workflows:
+  review:
+    name: KingsCourtApp Review
+    max_build_duration: 30
+    instance_type: mac_mini_m4
+    environment:
+      vars:
+        BUNDLE_ID: "com.kingscourt"
+    scripts:
+      - name: Submit existing version for review
+        script: |
+          set -euo pipefail
+          test -n "$CM_BUILD_ID"
+          test -n "$CI"
+          gem install fastlane --no-document
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          path = Path("/tmp/appfactory_asc_key.json")
+          path.write_text(json.dumps({
+              "key_id": os.environ["APP_STORE_CONNECT_KEY_IDENTIFIER"],
+              "issuer_id": os.environ["APP_STORE_CONNECT_ISSUER_ID"],
+              "key": os.environ["APP_STORE_CONNECT_PRIVATE_KEY"],
+              "in_house": False,
+          }))
+          path.chmod(0o600)
+          PY
+          fastlane deliver \
+            --api_key_path /tmp/appfactory_asc_key.json \
+            --app_identifier "$BUNDLE_ID" \
+            --app_version "$MARKETING_VERSION" \
+            --skip_binary_upload true \
+            --skip_screenshots true \
+            --skip_metadata true \
+            --run_precheck_before_submit false \
+            --submit_for_review true \
+            --automatic_release true \
+            --force true
+          rm -f /tmp/appfactory_asc_key.json
+
+  metadata:
+    name: KingsCourtApp Metadata
+    max_build_duration: 30
+    instance_type: mac_mini_m4
+    environment:
+      vars:
+        BUNDLE_ID: "com.kingscourt"
+    scripts:
+      - name: Validate isolated Apple credentials
+        script: |
+          set -euo pipefail
+          test -n "$CM_BUILD_ID"
+          test -n "$CI"
+          test -n "$APP_STORE_CONNECT_KEY_IDENTIFIER"
+          test -n "$APP_STORE_CONNECT_ISSUER_ID"
+          test -n "$APP_STORE_CONNECT_PRIVATE_KEY"
+          test -d fastlane/metadata
+          test -d fastlane/screenshots
+      - name: Upload metadata and screenshots
+        script: |
+          set -euo pipefail
+          gem install fastlane --no-document
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          path = Path("/tmp/appfactory_asc_key.json")
+          path.write_text(json.dumps({
+              "key_id": os.environ["APP_STORE_CONNECT_KEY_IDENTIFIER"],
+              "issuer_id": os.environ["APP_STORE_CONNECT_ISSUER_ID"],
+              "key": os.environ["APP_STORE_CONNECT_PRIVATE_KEY"],
+              "in_house": False,
+          }))
+          path.chmod(0o600)
+          PY
+          fastlane deliver \
+            --api_key_path /tmp/appfactory_asc_key.json \
+            --app_identifier "$BUNDLE_ID" \
+            --metadata_path fastlane/metadata \
+            --screenshots_path fastlane/screenshots \
+            --skip_binary_upload true \
+            --skip_screenshots false \
+            --overwrite_screenshots true \
+            --run_precheck_before_submit false \
+            --submit_for_review false \
+            --automatic_release false \
+            --force true
+          rm -f /tmp/appfactory_asc_key.json
+
   release:
     name: KingsCourtApp
-    max_build_duration: 60
+    max_build_duration: 120
     instance_type: mac_mini_m4
-    integrations:
-      app_store_connect: "Jia Hong Guo"
     environment:
       xcode: latest
-      groups:
-        - head
       vars:
         XCODE_SCHEME: "KingsCourtApp"
         BUNDLE_ID: "com.kingscourt"
         TEAM_ID: "799QCM8MAT"
-        MATCH_GIT_URL: "https://github.com/vyshnevskyi-dev/nb39l75g7x-certs.git"
-        MATCH_PASSWORD: "kWa3CNRy!*tZ4bY#OqNIgcSa"
     scripts:
-      - name: Install certs via match
+      - name: Validate isolated Apple credentials
         script: |
+          set -euo pipefail
+          test -n "$CM_BUILD_ID"
+          test -n "$CI"
+          test -n "$APP_STORE_CONNECT_KEY_IDENTIFIER"
+          test -n "$APP_STORE_CONNECT_ISSUER_ID"
+          test -n "$APP_STORE_CONNECT_PRIVATE_KEY"
+          test -n "$MATCH_GIT_URL"
+          test -n "$MATCH_PASSWORD"
+          test -n "$BUNDLE_NAME"
+          test -n "$APP_NAME"
+          test -n "$APP_SKU"
+          test -n "$PRIMARY_LOCALE"
+          echo "[SAFETY] PASS: execution context is Codemagic"
+          echo "[SAFETY] PASS: per-build ASC credentials are present"
+          echo "[SAFETY] PASS: no local AppFactory Apple connection is used"
+
+      - name: Create ephemeral API key file
+        script: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          payload = {
+              "key_id": os.environ["APP_STORE_CONNECT_KEY_IDENTIFIER"],
+              "issuer_id": os.environ["APP_STORE_CONNECT_ISSUER_ID"],
+              "key": os.environ["APP_STORE_CONNECT_PRIVATE_KEY"],
+              "in_house": False,
+          }
+          path = Path("/tmp/appfactory_asc_key.json")
+          path.write_text(json.dumps(payload))
+          path.chmod(0o600)
+          PY
+
+      - name: Bootstrap Apple records and signing
+        script: |
+          set -euo pipefail
           gem install fastlane --no-document
-          fastlane match appstore --readonly true \
+          mkdir -p build/security
+          ruby <<'RUBY'
+          require "json"
+          require "spaceship"
+
+          evidence_path = "build/security/apple_execution_evidence.json"
+          evidence = {
+            "schema" => 1,
+            "build_id" => ENV.fetch("CM_BUILD_ID"),
+            "execution" => "codemagic",
+            "bundle_id" => ENV.fetch("BUNDLE_ID"),
+            "checks" => {}
+          }
+          save = -> { File.write(evidence_path, JSON.pretty_generate(evidence)) }
+          save.call
+
+          key = JSON.parse(File.read("/tmp/appfactory_asc_key.json"))
+          Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(
+            key_id: key.fetch("key_id"),
+            issuer_id: key.fetch("issuer_id"),
+            key: key.fetch("key")
+          )
+
+          bundle_id = ENV.fetch("BUNDLE_ID")
+          bundle = Spaceship::ConnectAPI::BundleId.all.find { |item| item.identifier == bundle_id }
+          unless bundle
+            bundle = Spaceship::ConnectAPI::BundleId.create(
+              name: ENV.fetch("BUNDLE_NAME"),
+              identifier: bundle_id,
+              platform: Spaceship::ConnectAPI::BundleIdPlatform::IOS
+            )
+          end
+          evidence["checks"]["bundle_id_ready"] = true
+          save.call
+          puts "[SAFETY] PASS: Bundle ID ready from Codemagic"
+
+          requested = ENV.fetch("APP_CAPABILITIES", "").split(",").reject(&:empty?)
+          current = bundle.get_capabilities.map(&:capability_type)
+          changed = false
+          requested.each do |capability|
+            next if current.include?(capability)
+            type = Spaceship::ConnectAPI::BundleIdCapability::Type.const_get(capability)
+            bundle.create_capability(type)
+            changed = true
+          end
+          evidence["checks"]["capabilities_ready"] = true
+          evidence["capabilities_changed"] = changed
+          save.call
+          puts "[SAFETY] PASS: requested capabilities ready from Codemagic"
+
+          app = Spaceship::ConnectAPI::App.all.find { |item| item.bundle_id == bundle_id }
+          unless app
+            abort(
+              "[SAFETY] FAIL: ASC app record is absent. " \
+              "It must be created by Step 5 through the account Octo proxy; " \
+              "Codemagic/ASC API is verification-only for app records."
+            )
+          end
+          evidence["checks"]["app_record_ready"] = true
+          save.call
+          puts "[SAFETY] PASS: App Store Connect record ready from Codemagic"
+
+          age_cfg = JSON.parse(ENV.fetch("AGE_RATING_JSON", "{}"))
+          level = ->(key) { age_cfg[key] ? "INFREQUENT_OR_MILD" : "NONE" }
+          app_info = app.fetch_edit_app_info || app.fetch_latest_app_info
+          abort("[SAFETY] FAIL: ASC App Info is absent") unless app_info
+          declaration = app_info.fetch_age_rating_declaration
+          age_attributes = {
+            alcohol_tobacco_or_drug_use_or_references: level.call("alcohol_tobacco_drugs"),
+            contests: level.call("contests"),
+            gambling_simulated: level.call("gambling_simulated"),
+            guns_or_other_weapons: level.call("guns_or_weapons"),
+            horror_or_fear_themes: level.call("horror_fear"),
+            mature_or_suggestive_themes: level.call("mature_suggestive"),
+            medical_or_treatment_information: level.call("medical_treatment"),
+            profanity_or_crude_humor: level.call("profanity_crude_humor"),
+            sexual_content_graphic_and_nudity: "NONE",
+            sexual_content_or_nudity: level.call("sexual_content_nudity"),
+            violence_cartoon_or_fantasy: level.call("violence_cartoon"),
+            violence_realistic: level.call("violence_realistic"),
+            violence_realistic_prolonged_graphic_or_sadistic: "NONE",
+            advertising: !!age_cfg["advertising"],
+            age_assurance: false,
+            gambling: false,
+            health_or_wellness_topics: !!age_cfg["health_or_wellness"],
+            loot_box: false,
+            messaging_and_chat: !!age_cfg["messaging_and_chat"],
+            parental_controls: false,
+            social_media: !!age_cfg["social_media"],
+            social_media_age_restricted: !!age_cfg["social_media_age_restricted"],
+            unrestricted_web_access: !!age_cfg["unrestricted_web_access"],
+            user_generated_content: !!age_cfg["user_generated_content"]
+          }
+          begin
+            declaration.update(attributes: age_attributes)
+            evidence["age_rating_state"] = "updated"
+          rescue Spaceship::UnexpectedResponse => error
+            # Existing released apps can expose only a locked AppInfo. In that
+            # state Apple returns a complete declaration but rejects PATCH.
+            # Preserve it and continue; never suppress unrelated ASC errors.
+            if error.message.include?("age rating declaration is not editable")
+              evidence["age_rating_state"] = "existing_locked_declaration_preserved"
+              puts "[SAFETY] PASS: existing age rating is locked; preserved unchanged"
+            else
+              raise
+            end
+          end
+          evidence["checks"]["age_rating_ready"] = true
+          save.call
+          puts "[SAFETY] PASS: complete age rating declaration ready from Codemagic"
+
+          target_version = ENV.fetch("MARKETING_VERSION", "1.0")
+          app.ensure_version!(
+            target_version,
+            platform: Spaceship::ConnectAPI::Platform::IOS
+          )
+          version = app.get_app_store_versions.find do |item|
+            item.platform == Spaceship::ConnectAPI::Platform::IOS &&
+              item.version_string == target_version
+          end
+          abort("[SAFETY] FAIL: editable ASC version is absent") unless version
+          begin
+            review_detail = version.fetch_app_store_review_detail
+          rescue RuntimeError => error
+            raise unless error.message.include?("No data")
+            review_detail = nil
+          end
+          unless review_detail
+            required_review = %w[REVIEW_FIRST_NAME REVIEW_LAST_NAME REVIEW_PHONE REVIEW_EMAIL]
+            missing_review = required_review.select { |name| ENV.fetch(name, "").strip.empty? }
+            abort("[SAFETY] FAIL: missing review contact: #{missing_review.join(', ')}") unless missing_review.empty?
+            version.create_app_store_review_detail(attributes: {
+              contact_first_name: ENV.fetch("REVIEW_FIRST_NAME"),
+              contact_last_name: ENV.fetch("REVIEW_LAST_NAME"),
+              contact_phone: ENV.fetch("REVIEW_PHONE"),
+              contact_email: ENV.fetch("REVIEW_EMAIL"),
+              demo_account_required: false,
+              notes: ENV.fetch("REVIEW_NOTES", "")
+            })
+          end
+          evidence["checks"]["review_detail_ready"] = true
+          save.call
+          puts "[SAFETY] PASS: App Review contact ready from Codemagic"
+          RUBY
+
+          MATCH_FORCE=""
+          if python3 -c 'import json; raise SystemExit(0 if json.load(open("build/security/apple_execution_evidence.json")).get("capabilities_changed") else 1)'; then
+            MATCH_FORCE="--force"
+          fi
+          fastlane match appstore --readonly false $MATCH_FORCE \
             --app_identifier "$BUNDLE_ID" \
             --team_id "$TEAM_ID" \
+            --api_key_path /tmp/appfactory_asc_key.json \
             --git_url "$MATCH_GIT_URL"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("build/security/apple_execution_evidence.json")
+          evidence = json.loads(path.read_text())
+          evidence["checks"]["signing_ready"] = True
+          path.write_text(json.dumps(evidence, indent=2, sort_keys=True))
+          PY
+          echo "[SAFETY] PASS: distribution signing ready from Codemagic"
+
       - name: Use profiles
         script: xcode-project use-profiles
+
       - name: Build IPA
         script: xcode-project build-ipa --scheme "$XCODE_SCHEME" --project "KingsCourtApp.xcodeproj"
+
+      - name: De-fingerprint security gate
+        script: |
+          set -euo pipefail
+          IPA_PATH=$(find build/ios/ipa -name "*.ipa" -print -quit)
+          test -n "$IPA_PATH"
+          if [ -f ci/defingerprint_check.py ]; then
+            python3 ci/defingerprint_check.py "$IPA_PATH" \
+              --html build/ios/ipa/defingerprint_report.html
+          else
+            echo "Security gate missing: ci/defingerprint_check.py" >&2
+            exit 1
+          fi
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("build/security/apple_execution_evidence.json")
+          evidence = json.loads(path.read_text())
+          evidence["checks"]["defingerprint_passed"] = True
+          path.write_text(json.dumps(evidence, indent=2, sort_keys=True))
+          PY
+          echo "[SAFETY] PASS: de-fingerprint gate passed in Codemagic"
+
+      - name: Upload metadata and binary
+        script: |
+          set -euo pipefail
+          test -d fastlane/metadata
+          IPA_PATH=$(find build/ios/ipa -name "*.ipa" -print -quit)
+          test -n "$IPA_PATH"
+          if find fastlane/screenshots -type f -name '*.png' -print -quit 2>/dev/null | grep -q .; then
+            SKIP_SCREENSHOTS=false
+          else
+            SKIP_SCREENSHOTS=true
+          fi
+          fastlane deliver \
+            --api_key_path /tmp/appfactory_asc_key.json \
+            --app_identifier "$BUNDLE_ID" \
+            --ipa "$IPA_PATH" \
+            --metadata_path fastlane/metadata \
+            --screenshots_path fastlane/screenshots \
+            --skip_binary_upload false \
+            --skip_screenshots "$SKIP_SCREENSHOTS" \
+            --overwrite_screenshots true \
+            --run_precheck_before_submit false \
+            --submit_for_review false \
+            --automatic_release false \
+            --force true
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("build/security/apple_execution_evidence.json")
+          evidence = json.loads(path.read_text())
+          evidence["checks"].update({
+              "metadata_uploaded": True,
+              "binary_uploaded": True,
+              "review_submitted": False,
+              "review_submission_deferred": True,
+          })
+          path.write_text(json.dumps(evidence, indent=2, sort_keys=True))
+          PY
+          echo "[SAFETY] PASS: metadata uploaded from Codemagic"
+          echo "[SAFETY] PASS: binary uploaded from Codemagic"
+          echo "[SAFETY] PASS: review submission deferred to pipeline step s09_submit_review"
+
+      - name: Remove ephemeral Apple key
+        script: |
+          set -euo pipefail
+          rm -f /tmp/appfactory_asc_key.json
+          test ! -e /tmp/appfactory_asc_key.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("build/security/apple_execution_evidence.json")
+          evidence = json.loads(path.read_text())
+          evidence["checks"]["ephemeral_key_removed"] = True
+          path.write_text(json.dumps(evidence, indent=2, sort_keys=True))
+          PY
+          echo "[SAFETY] PASS: ephemeral API key removed"
+
     artifacts:
       - build/ios/ipa/*.ipa
+      - build/ios/ipa/defingerprint_report.html
+      - build/security/apple_execution_evidence.json

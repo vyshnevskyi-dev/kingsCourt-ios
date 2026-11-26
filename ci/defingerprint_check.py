@@ -52,6 +52,13 @@ _C2PA = [
 # covert app = a single fingerprint that clusters the whole farm (#2).
 _COVERT_HOSTS = ["wc-appcfg.workers.dev", "covert-gate.wc-appcfg"]
 
+# Build paths compiled into prebuilt/open-source dependencies. They describe
+# the vendor's CI checkout, not AppFactory, our developer, or our app source.
+_THIRD_PARTY_BUILD_PATH_MARKERS = (
+    "/SourcePackages/checkouts/",
+    "/mobile/ios/appsflyer.sdk.ios/AppsFlyerLib/",
+)
+
 # Russian label + one-line explanation shown per check in the report.
 _CHECK_META = {
     "build_path": (
@@ -171,10 +178,22 @@ def check_artifact(path: str, *, expect_wire_paths: bool = True,
                            "detail": detail})
 
         # 1. build-path / username leak (#5)
-        m = re.search(r"/Users/[A-Za-z0-9._-]+/[A-Za-z0-9._/-]*", exe_str)
+        # Xcode can preserve source paths from third-party SwiftPM packages in
+        # their object metadata (Firebase/GoogleDataTransport is a common
+        # example). Those paths identify Codemagic's ephemeral checkout, not
+        # our app source or developer machine, and must not block an upload.
+        # Keep the gate strict for every first-party path.
+        path_hits = re.findall(
+            r"/Users/[A-Za-z0-9._-]+/[A-Za-z0-9._/-]*", exe_str
+        )
+        first_party_hits = [
+            path for path in path_hits
+            if not any(marker in path for marker in _THIRD_PARTY_BUILD_PATH_MARKERS)
+        ]
+        m = first_party_hits[0] if first_party_hits else None
         repos = "AppFactory/repos" in exe_str
         add("build_path", "FAIL", not (m or repos),
-            (m.group(0) if m else "AppFactory/repos") if (m or repos) else "")
+            (m if m else "AppFactory/repos") if (m or repos) else "")
 
         # 2. shared SDK symbol names (#6)
         hit = [s for s in _SDK_SYMBOLS if re.search(rf"\b{re.escape(s)}\b", exe_str)]

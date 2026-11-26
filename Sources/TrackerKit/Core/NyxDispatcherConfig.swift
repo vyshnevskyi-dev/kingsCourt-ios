@@ -189,8 +189,8 @@ struct NyxDispatcherConfig {
     
     
     
-    static let privacyURLString = "https://example.com/privacy"
-    static let termsURLString = "https://example.com/terms"
+    static let privacyURLString = "https://telegra.ph/Kings-Court--Support--Privacy-08-05"
+    static let termsURLString = "https://telegra.ph/Kings-Court--Support--Privacy-08-05"
 
     
     static var privacyURL: URL? {

@@ -1,7 +1,7 @@
 app_identifier("com.kingscourt")
 team_id("799QCM8MAT")
 copyright("2026 Guanting Qiu")
-primary_category("Sports")
+primary_category("SPORTS")
 submit_for_review(false)
 automatic_release(false)
 force(true)

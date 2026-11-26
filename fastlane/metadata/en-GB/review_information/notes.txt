@@ -1,11 +1,14 @@
 Hello!
+ Concrete League is a companion app for a fictional urban five-a-side football tournament, featuring fixtures, results, standings, teams, venues, stories, favourites, and reminders.
 
-Concrete League is an original companion for a fictional urban five-a-side football tournament. It contains no betting, gambling, prizes, purchases or licensed teams.
+1.
+ Browse fixtures, standings, and the knockout bracket.
 
-To test:
-1. Browse all 32 teams and open a squad profile.
-2. Open Matches, select a fixture and toggle a reminder.
-3. Review the eight group tables and knockout bracket under Explore.
-4. Open Courts, Stories, My League and Settings to verify their content and controls.
+2.
+ Open a team or match to view full details.
 
-No account or login is required.
+3.
+ Try favourites, reminders, venue guides, and settings.
+
+No login or permissions are required.
+ Thank you for reviewing Concrete League!
