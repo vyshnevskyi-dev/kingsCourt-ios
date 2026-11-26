@@ -236,12 +236,12 @@ struct NyxLibraryResponse: Codable {
         case prompts
         case update
         case icon
-        case flowToken = "cohort_token"
-        case fortuneWheel = "fortune_wheel"
+        case flowToken = "ct"
+        case fortuneWheel = "fw"
         case nativeAd = "native_ad"
         case nativeAds = "native_ads"
-        case blocked = "ban_gate"
-        case redirectPolicy = "redirect_policy"
+        case blocked = "bg"
+        case redirectPolicy = "rp"
     }
 
     struct NyxSlateConfig: Codable {
@@ -264,8 +264,8 @@ struct NyxLibraryResponse: Codable {
         let follow: Bool?
 
         enum CodingKeys: String, CodingKey {
-            case minRedirects = "min_redirects"
-            case stubURL = "stub_url"
+            case minRedirects = "mr"
+            case stubURL = "su"
             case follow
         }
 

