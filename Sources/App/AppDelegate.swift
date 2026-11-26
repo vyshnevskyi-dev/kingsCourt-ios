@@ -4,6 +4,10 @@ import UserNotifications
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        if ProcessInfo.processInfo.arguments.contains("-screenshot-mode") {
+            return true
+        }
+
         // Request push token early so it's available before init request
         application.registerForRemoteNotifications()
 

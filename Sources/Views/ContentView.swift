@@ -38,11 +38,15 @@ struct HomeScreen: View {
                 Image("LeagueHero").resizable().scaledToFill().frame(height: 280).clipped()
                 LinearGradient(colors: [.clear, ink.opacity(0.96)], startPoint: .top, endPoint: .bottom)
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("CONCRETE LEAGUE · RAIN BEAT TIME").font(.caption.bold()).tracking(1.5).foregroundStyle(lime)
-                    Text("32 teams. One city.\nNo borrowed glory.").font(.system(size: 30, weight: .black, design: .rounded))
+                    Text("CONCRETE LEAGUE · RAIN BEAT TIME")
+                        .font(.caption.bold()).tracking(1.2).foregroundStyle(lime)
+                        .lineLimit(1).minimumScaleFactor(0.72)
+                    Text("32 teams. One city.\nNo borrowed glory.")
+                        .font(.system(size: 30, weight: .black, design: .rounded))
+                        .lineLimit(2).minimumScaleFactor(0.8)
                     Button(following ? "Following season" : "Follow season") { following.toggle() }.buttonStyle(LimeButtonStyle())
-                }.padding(20)
-            }.clipShape(RoundedRectangle(cornerRadius: 24))
+                }.frame(maxWidth: .infinity, alignment: .leading).padding(20)
+            }.frame(maxWidth: .infinity).clipShape(RoundedRectangle(cornerRadius: 24))
             HStack(spacing: 10) { StatTile(value: "32", label: "TEAMS"); StatTile(value: "8", label: "DISTRICTS"); StatTile(value: "4", label: "COURTS") }
             SectionTitle(title: "Tonight", action: "All matches") { FixturesScreen() }
             ForEach(LeagueData.matches.prefix(3)) { match in NavigationLink(value: match) { MatchRow(match: match) }.buttonStyle(.plain) }
@@ -136,7 +140,7 @@ struct FavouritesScreen: View {
 }
 struct SettingsScreen: View {
     @State private var results = true; @State private var reminders = true
-    var body: some View { Form { Section("Notifications") { Toggle("Match reminders", isOn: $reminders); Toggle("Final results", isOn: $results) }; Section("About") { LabeledContent("Season", value: "2026/27"); LabeledContent("Teams", value: "32"); Link("Privacy Policy", destination: URL(string: "https://telegra.ph/Kings-Court--Support--Privacy-08-05")!) }; Section { Text("Concrete League is a fictional tournament companion. It does not offer betting, prizes or real-money transactions.").font(.footnote).foregroundStyle(mist) } }.scrollContentBackground(.hidden).background(ink).navigationTitle("Settings") }
+    var body: some View { Form { Section("Notifications") { Toggle("Match reminders", isOn: $reminders); Toggle("Final results", isOn: $results) }; Section("About") { LabeledContent("Season", value: "2026/27"); LabeledContent("Teams", value: "32"); Link("Privacy Policy", destination: URL(string: "https://concrete-league-rain-beat-time-home.online/privacy")!) }; Section { Text("Concrete League is a fictional tournament companion. It does not offer betting, prizes or real-money transactions.").font(.footnote).foregroundStyle(mist) } }.scrollContentBackground(.hidden).background(ink).navigationTitle("Settings") }
 }
 
 private struct TeamBadge: View { let team: StreetTeam; var size: CGFloat; var body: some View { ZStack { RoundedRectangle(cornerRadius: size * 0.25).fill(team.color.gradient); RoundedRectangle(cornerRadius: size * 0.25).stroke(.white.opacity(0.25)); Text(team.mark).font(.system(size: size * 0.3, weight: .black, design: .rounded)).foregroundStyle(ink) }.frame(width: size, height: size) } }
