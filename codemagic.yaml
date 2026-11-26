@@ -43,7 +43,9 @@ workflows:
           abort("ASC version not found") unless version
           build = version.get_build
           abort("ASC build not selected") unless build
-          build.update(attributes: { uses_non_exempt_encryption: false })
+          if build.uses_non_exempt_encryption.nil?
+            build.update(attributes: { uses_non_exempt_encryption: false })
+          end
           puts "[COMPLIANCE] Export compliance confirmed for build #{build.version}"
           RUBY
           fastlane deliver \
